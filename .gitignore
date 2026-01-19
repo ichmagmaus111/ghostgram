@@ -76,17 +76,8 @@ Telegram.LSP.json
 spm-files
 .bsp/**
 
-# ===========================================
-# SECURITY: Sensitive files (DO NOT REMOVE!)
-# ===========================================
-
-# API credentials and configuration
-build-system/config.json
-
-# Provisioning profiles (contain Apple Developer account info)
 *.mobileprovision
 build-system/fake-codesigning/profiles/*
 
-# Backup sensitive files
 *.backup
 *_BACKUP*
