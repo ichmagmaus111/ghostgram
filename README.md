@@ -1,116 +1,158 @@
-# Telegram iOS Source Code Compilation Guide
+# Ghostgram
 
-We welcome all developers to use our API and source code to create applications on our platform.
-There are several things we require from **all developers** for the moment.
+**English** · [Русский](README.ru.md)
 
-# Creating your Telegram Application
+Ghostgram is an unofficial Telegram client for iOS. It is built on the official
+[Telegram iOS](https://github.com/TelegramMessenger/Telegram-iOS) source code (13.0) and adds privacy,
+message history and customization features. All of them are in one menu: **Settings → Ghostgram**.
 
-1. [**Obtain your own api_id**](https://core.telegram.org/api/obtaining_api_id) for your application.
-2. Please **do not** use the name Telegram for your app — or make sure your users understand that it is unofficial.
-3. Kindly **do not** use our standard logo (white paper plane in a blue circle) as your app's logo.
-3. Please study our [**security guidelines**](https://core.telegram.org/mtproto/security_guidelines) and take good care of your users' data and privacy.
-4. Please remember to publish **your** code too in order to comply with the licences.
+Ghostgram is not affiliated with Telegram.
 
-# Quick Compilation Guide
+- Channel: [@ghostgrama](https://t.me/ghostgrama)
+- Chat: [@ghostgramchat](https://t.me/ghostgramchat)
+- Forum: [@ghostgramforum](https://t.me/ghostgramforum)
 
-## Get the Code
+## Features
 
+### Privacy
+
+- **Ghost mode.** Read messages and view stories without marking them read or viewed, hide typing and
+  the other activity statuses (recording a voice or video message, sending a photo, choosing a sticker…),
+  stay offline or always online. "Read on action" marks a chat read when you reply or react. Exceptions
+  by chat, folder or chat type.
+- Hide messages from blocked users.
+- **Delayed sending:** a pause before text and media go out.
+- **Anonymous mode:** a camera mask and a changed voice in one tap.
+- **Spoofing:** show another phone number, open a different profile in place of a chosen one. Both are
+  local, on your device only.
+
+### Messages
+
+- **Deleted & edited messages.** Deleted messages stay in the chat, edits keep their previous versions.
+  Exceptions, automatic clean-up by age, export and import of the history.
+- **Restriction bypass:** copy and screenshot protected chats, keep self-destructing and view-once media,
+  reveal spoilers, bypass content restrictions, hide sponsored messages.
+- **Sending:** word replacement rules, anti-caps, reply with a quote, anonymous stickers, no "via @bot",
+  hide "Send as", send with Return.
+- **Translation:** Google, Telegram or the system translator, a translate button on messages, translation
+  before sending, text in photos.
+- **Menu & gestures:** a custom message menu (forward without author, save to Saved Messages or Photos…),
+  double tap to edit, bookmarks.
+- **Chat export:** one chat or the whole account as HTML and JSON.
+
+### Security
+
+- **Chat protection:** a passcode or Face ID on chosen chats, a secret folder, chats hidden on screenshots
+  and screen recordings.
+- **Passcode:** more auto-lock options, lock on every launch, lock now.
+- **Accounts:** Face ID when switching accounts, separate settings for every account, copy settings from
+  another account.
+
+### Media & calls
+
+- **Voice:** a voice changer with presets and your own voice (pitch, timbre, reverb, echo…), an equalizer,
+  transcription of voice and video messages (Telegram's server with Premium, Apple's speech recognition
+  without it, on the device when the language has a model), automatic transcription, translation of the
+  text.
+- **Video messages & camera:** AR masks in video messages and video calls, a mask studio, a photo
+  watermark.
+- **Calls:** call recording, silent mute, a soundboard, in-call statistics, TCP-only calls, no call rating
+  prompts.
+- **Downloads & quality:** faster downloads and uploads, large photos, video subtitles from speech
+  recognition.
+
+### Appearance
+
+- **Theme & background:** AMOLED, separators, edge fade, an animated GIF background for chats and profiles,
+  snowfall.
+- **Messages:** fonts (iOS fonts or your own), bubbles, checkmarks, stickers.
+- **Chat list:** rows, swipes, avatars, folders.
+- **Panels:** tab bar, input field, quick buttons.
+- **Icons:** icon packs, a badge under the Dynamic Island.
+- **Profile & settings:** user ID, data center, dates, which Settings items are shown.
+
+### More
+
+- **VPN by subscription:** VLESS subscriptions and servers, Telegram goes through your server. The Xray
+  core is a separate framework inside the app and is loaded only when the VPN is switched on.
+- **Name badges** next to names (GCONNECT).
+- **Fake gifts:** gifts on your profile that only you see.
+- **Extras:** in-app Safari or another browser, picture in picture for YouTube, IP and api_id in sessions,
+  "Recent Actions" and "Administrators" in menus, more mute and cache options, no Premium offers.
+- **Ghostgram settings:** language, export and import of all settings, reset.
+
+The interface is in English, Russian, Ukrainian and Arabic.
+
+## Building
+
+You need a Mac with Xcode and Python 3. Bazel is downloaded by `build-system/Make/Make.py` on the first
+run.
+
+1. Clone the repository with its submodules:
+
+   ```sh
+   git clone --recursive -j8 https://github.com/ichmagmaus111/ghostgram.git
+   cd ghostgram
+   ```
+
+2. Create the configuration file and fill it in: `api_id` and `api_hash` from
+   [my.telegram.org](https://my.telegram.org), your Apple `team_id`, and `bundle_id` if you sign the app
+   with your own account.
+
+   ```sh
+   cp build-system/ghostgram-configuration.example.json build-system/ghostgram-configuration.json
+   ```
+
+3. Simulator build:
+
+   ```sh
+   build-system/GGBuild.sh
+   ```
+
+   The simulator does not check signatures, but `Make.py` still reads a provisioning profile that matches
+   `team_id` and `bundle_id`. Put your profiles into `build-system/ghostgram-codesigning/profiles` or point
+   `GG_CODESIGN` at another codesigning folder. Without them the script uses
+   `build-system/fake-codesigning`, whose profiles are issued for `ph.telegra.Telegraph` only.
+
+4. Device build (IPA):
+
+   ```sh
+   build-system/GGBuildRelease.sh <build number>
+   ```
+
+   It needs a distribution certificate (`.p12` with an empty password) in
+   `build-system/ghostgram-codesigning/certs` and profiles for the app and its extensions in
+   `build-system/ghostgram-codesigning/profiles`. The result is `build-output/ipa/Ghostgram.ipa`.
+
+Both scripts pin Bazel to the Xcode chosen with `xcode-select` (`build-system/GGXcodeConfig.sh`) and apply
+the patches from `build-system/GGPatches` to the `rules_apple` and `tgcalls` submodules. The configuration
+file, the signing folder and the build output are in `.gitignore`.
+
+### VPN core (optional)
+
+```sh
+Ghostgram/Features/Vless/Core/build-core.sh
 ```
-git clone --recursive -j8 https://github.com/TelegramMessenger/Telegram-iOS.git
-```
 
-## Setup Xcode
+Needs Go 1.26 or newer and the Xcode command line tools; the first run downloads
+[Xray-core](https://github.com/XTLS/Xray-core). Without the core the app still builds, and the VPN screen
+says that the core is not included.
 
-Install Xcode (directly from https://developer.apple.com/download/applications or using the App Store).
+## Code layout
 
-## Adjust Configuration
+- `Ghostgram/` — everything Ghostgram adds: `GGCore` (settings, strings, logging), `GGHooks` (the points
+  where Ghostgram connects to Telegram's code), `GGSettingsUI` (the menu), `Features/` (the features),
+  `Strings/` (translations; `generate.py` builds the string tables, `check.py` checks them).
+- The rest of the tree is Telegram iOS. Changes to Telegram's own files are kept small and call into
+  `GGHooks`.
 
-1. Generate a random identifier:
-```
-openssl rand -hex 8
-```
-2. Create a new Xcode project. Use `Telegram` as the Product Name. Use `org.{identifier from step 1}` as the Organization Identifier.
-3. Open `Keychain Access` and navigate to `Certificates`. Locate `Apple Development: your@email.address (XXXXXXXXXX)` and double tap the certificate. Under `Details`, locate `Organizational Unit`. This is the Team ID.
-4. Edit `build-system/template_minimal_development_configuration.json`. Use data from the previous steps.
+## License
 
-## Generate an Xcode project
+Ghostgram is distributed under the [GNU General Public License v2](LICENSE), like the Telegram iOS source
+code it is based on. Third-party components keep their own licenses; the list is in the app
+(**Settings → Ghostgram → About → Third-Party Components**).
 
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=build-system/template_minimal_development_configuration.json \
-    --xcodeManagedCodesigning
-```
-
-# Advanced Compilation Guide
-
-## Xcode
-
-1. Copy and edit `build-system/appstore-configuration.json`.
-2. Copy `build-system/fake-codesigning`. Create and download provisioning profiles, using the `profiles` folder as a reference for the entitlements.
-3. Generate an Xcode project:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=configuration_from_step_1.json \
-    --codesigningInformationPath=directory_from_step_2
-```
-
-## IPA
-
-1. Repeat the steps from the previous section. Use distribution provisioning profiles.
-2. Run:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    build \
-    --configurationPath=...see previous section... \
-    --codesigningInformationPath=...see previous section... \
-    --buildNumber=100001 \
-    --configuration=release_arm64
-```
-
-# FAQ
-
-## Xcode is stuck at "build-request.json not updated yet"
-
-Occasionally, you might observe the following message in your build log:
-```
-"/Users/xxx/Library/Developer/Xcode/DerivedData/Telegram-xxx/Build/Intermediates.noindex/XCBuildData/xxx.xcbuilddata/build-request.json" not updated yet, waiting...
-```
-
-Should this occur, simply cancel the ongoing build and initiate a new one.
-
-## Telegram_xcodeproj: no such package 
-
-Following a system restart, the auto-generated Xcode project might encounter a build failure accompanied by this error:
-```
-ERROR: Skipping '@rules_xcodeproj_generated//generator/Telegram/Telegram_xcodeproj:Telegram_xcodeproj': no such package '@rules_xcodeproj_generated//generator/Telegram/Telegram_xcodeproj': BUILD file not found in directory 'generator/Telegram/Telegram_xcodeproj' of external repository @rules_xcodeproj_generated. Add a BUILD file to a directory to mark it as a package.
-```
-
-If you encounter this issue, re-run the project generation steps in the README.
-
-
-# Tips
-
-## Codesigning is not required for simulator-only builds
-
-Add `--disableProvisioningProfiles`:
-```
-python3 build-system/Make/Make.py \
-    --cacheDir="$HOME/telegram-bazel-cache" \
-    generateProject \
-    --configurationPath=path-to-configuration.json \
-    --codesigningInformationPath=path-to-provisioning-data \
-    --disableProvisioningProfiles
-```
-
-## Versions
-
-Each release is built using a specific Xcode version (see `versions.json`). The helper script checks the versions of the installed software and reports an error if they don't match the ones specified in `versions.json`. It is possible to bypass these checks:
-
-```
-python3 build-system/Make/Make.py --overrideXcodeVersion build ... # Don't check the version of Xcode
-```
+If you build your own app from this code, follow Telegram's
+[rules for developers](https://github.com/TelegramMessenger/Telegram-iOS#creating-your-telegram-application):
+get your own `api_id`, do not call your app Telegram or use its logo, take care of your users' privacy and
+publish your code.
