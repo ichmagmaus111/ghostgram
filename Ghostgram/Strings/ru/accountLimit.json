@@ -1,0 +1,6 @@
+{
+  "accountLimit.addAccountHelp#few": "Можно добавить до {count} аккаунтов с разными номерами телефона.",
+  "accountLimit.addAccountHelp#many": "Можно добавить до {count} аккаунтов с разными номерами телефона.",
+  "accountLimit.addAccountHelp#one": "Можно добавить до {count} аккаунта с разными номерами телефона.",
+  "accountLimit.addAccountHelp#other": "Можно добавить до {count} аккаунта с разными номерами телефона."
+}

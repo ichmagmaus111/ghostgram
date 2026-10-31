@@ -1,0 +1,10 @@
+{
+  "gallery.airPlay": "AirPlay",
+  "gallery.copyPhoto": "Скопировать фото",
+  "gallery.menu.airPlay": "Пункт «AirPlay»",
+  "gallery.menu.airPlayInfo": "Открывает скачанное видео в системном плеере с кнопкой AirPlay",
+  "gallery.menu.copyPhoto": "Пункт «Скопировать фото»",
+  "gallery.photoCopied": "Фото скопировано",
+  "gallery.photoNotLoaded": "Фото ещё не загружено",
+  "gallery.videoNotLoaded": "Видео ещё не скачано целиком"
+}

@@ -1,0 +1,7 @@
+{
+  "gestures.menu.disableVideoPipSwipe": "Без «картинки в картинці» свайпом",
+  "gestures.menu.disableVideoPipSwipeInfo": "Свайп по відео в галереї закриває його, а не переводить у PiP",
+  "gestures.menu.doubleTapToEdit": "Подвійний тап — змінити",
+  "gestures.menu.doubleTapToEditInfo": "Подвійний тап по своєму повідомленню відкриває редагування замість реакції",
+  "gestures.menu.header": "Жести"
+}

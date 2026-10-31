@@ -1,0 +1,14 @@
+{
+	"bundle_id": "org.ghostgram.app",
+	"api_id": "<api_id из my.telegram.org>",
+	"api_hash": "<api_hash из my.telegram.org>",
+	"team_id": "<Apple Team ID>",
+	"app_center_id": "0",
+	"is_internal_build": "false",
+	"is_appstore_build": "false",
+	"appstore_id": "0",
+	"app_specific_url_scheme": "tg",
+	"premium_iap_product_id": "",
+	"enable_siri": false,
+	"enable_icloud": false
+}

@@ -1,0 +1,8 @@
+{
+  "core.import.invalidFormat": "This is not a Ghostgram settings file, or the file is damaged.",
+  "core.import.unsupportedVersion": "This file was made by a newer version of Ghostgram (format {version}). Update the app to import it.",
+  "core.language.followTelegram": "Same as Telegram",
+  "core.languageNativeName": "English",
+  "core.requiresRestart": "Restart required",
+  "core.requiresRestartFooter": "The change applies after Ghostgram restarts."
+}

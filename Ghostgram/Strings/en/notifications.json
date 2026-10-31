@@ -1,0 +1,19 @@
+{
+  "notifications.exceptions.add": "Add chat",
+  "notifications.exceptions.empty": "No exceptions",
+  "notifications.exceptions.general": "general setting",
+  "notifications.exceptions.mentionsValue": "Mentions: {mode}",
+  "notifications.exceptions.pinnedValue": "Pins: {mode}",
+  "notifications.exceptions.remove": "Remove exception",
+  "notifications.exceptions.title": "Exceptions",
+  "notifications.menu.exceptions": "Exceptions",
+  "notifications.menu.exceptionsCount#one": "{count} chat",
+  "notifications.menu.exceptionsCount#other": "{count} chats",
+  "notifications.menu.footer": "A chat’s own setting wins over the general one.",
+  "notifications.menu.header": "Notifications",
+  "notifications.menu.mentions": "Mentions and replies",
+  "notifications.menu.modeDisabled": "Do not send",
+  "notifications.menu.modeSilent": "Silently",
+  "notifications.menu.modeStandard": "As usual",
+  "notifications.menu.pinned": "Pinned messages"
+}

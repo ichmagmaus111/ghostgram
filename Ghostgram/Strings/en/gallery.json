@@ -1,0 +1,10 @@
+{
+  "gallery.airPlay": "AirPlay",
+  "gallery.copyPhoto": "Copy Photo",
+  "gallery.menu.airPlay": "“AirPlay” item",
+  "gallery.menu.airPlayInfo": "Opens the downloaded video in the system player with its AirPlay button",
+  "gallery.menu.copyPhoto": "“Copy Photo” item",
+  "gallery.photoCopied": "Photo copied",
+  "gallery.photoNotLoaded": "The photo hasn’t loaded yet",
+  "gallery.videoNotLoaded": "The video hasn’t fully downloaded yet"
+}

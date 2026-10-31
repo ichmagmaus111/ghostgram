@@ -1,0 +1,23 @@
+{
+  "notifications.exceptions.add": "إضافة محادثة",
+  "notifications.exceptions.empty": "لا توجد استثناءات",
+  "notifications.exceptions.general": "الإعداد العام",
+  "notifications.exceptions.mentionsValue": "الإشارات: {mode}",
+  "notifications.exceptions.pinnedValue": "الرسائل المثبّتة: {mode}",
+  "notifications.exceptions.remove": "حذف الاستثناء",
+  "notifications.exceptions.title": "الاستثناءات",
+  "notifications.menu.exceptions": "الاستثناءات",
+  "notifications.menu.exceptionsCount#few": "{count} محادثات",
+  "notifications.menu.exceptionsCount#many": "{count} محادثة",
+  "notifications.menu.exceptionsCount#one": "محادثة واحدة",
+  "notifications.menu.exceptionsCount#other": "{count} محادثة",
+  "notifications.menu.exceptionsCount#two": "محادثتان",
+  "notifications.menu.exceptionsCount#zero": "لا توجد محادثات",
+  "notifications.menu.footer": "إعداد المحادثة نفسها يتقدّم على الإعداد العام.",
+  "notifications.menu.header": "الإشعارات",
+  "notifications.menu.mentions": "الإشارات والردود",
+  "notifications.menu.modeDisabled": "عدم الإرسال",
+  "notifications.menu.modeSilent": "بدون صوت",
+  "notifications.menu.modeStandard": "كالمعتاد",
+  "notifications.menu.pinned": "الرسائل المثبّتة"
+}

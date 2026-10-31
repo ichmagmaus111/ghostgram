@@ -1,0 +1,21 @@
+{
+  "notifications.exceptions.add": "Добавить чат",
+  "notifications.exceptions.empty": "Исключений нет",
+  "notifications.exceptions.general": "общая настройка",
+  "notifications.exceptions.mentionsValue": "Упоминания: {mode}",
+  "notifications.exceptions.pinnedValue": "Закрепы: {mode}",
+  "notifications.exceptions.remove": "Удалить исключение",
+  "notifications.exceptions.title": "Исключения",
+  "notifications.menu.exceptions": "Исключения",
+  "notifications.menu.exceptionsCount#few": "{count} чата",
+  "notifications.menu.exceptionsCount#many": "{count} чатов",
+  "notifications.menu.exceptionsCount#one": "{count} чат",
+  "notifications.menu.exceptionsCount#other": "{count} чата",
+  "notifications.menu.footer": "Настройка отдельного чата важнее общей.",
+  "notifications.menu.header": "Уведомления",
+  "notifications.menu.mentions": "Упоминания и ответы",
+  "notifications.menu.modeDisabled": "Не присылать",
+  "notifications.menu.modeSilent": "Без звука",
+  "notifications.menu.modeStandard": "Как обычно",
+  "notifications.menu.pinned": "Закреплённые сообщения"
+}

@@ -1,0 +1,8 @@
+{
+  "accountLimit.addAccountHelp#few": "يمكنك إضافة ما يصل إلى {count} حسابات بأرقام هواتف مختلفة.",
+  "accountLimit.addAccountHelp#many": "يمكنك إضافة ما يصل إلى {count} حسابًا بأرقام هواتف مختلفة.",
+  "accountLimit.addAccountHelp#one": "يمكنك إضافة حساب واحد كحد أقصى برقم هاتف مختلف.",
+  "accountLimit.addAccountHelp#other": "يمكنك إضافة ما يصل إلى {count} حساب بأرقام هواتف مختلفة.",
+  "accountLimit.addAccountHelp#two": "يمكنك إضافة ما يصل إلى حسابين بأرقام هواتف مختلفة.",
+  "accountLimit.addAccountHelp#zero": "يمكنك إضافة ما يصل إلى {count} حساب بأرقام هواتف مختلفة."
+}

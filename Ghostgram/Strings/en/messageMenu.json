@@ -1,0 +1,14 @@
+{
+  "messageMenu.forwarded": "Forwarded",
+  "messageMenu.menu.custom": "Custom message menu",
+  "messageMenu.menu.customInfo": "Telegram items you turn off are removed from the menu",
+  "messageMenu.menu.forwardWithoutAuthor": "Forward without author",
+  "messageMenu.menu.pin": "Pin",
+  "messageMenu.menu.replies": "Replies and thread",
+  "messageMenu.menu.reply": "Reply",
+  "messageMenu.menu.report": "Report",
+  "messageMenu.menu.restrict": "Restrict",
+  "messageMenu.menu.saveMedia": "Save to Photos",
+  "messageMenu.menu.saveToCloud": "Save to Saved Messages",
+  "messageMenu.savedToCloud": "Saved to Saved Messages"
+}

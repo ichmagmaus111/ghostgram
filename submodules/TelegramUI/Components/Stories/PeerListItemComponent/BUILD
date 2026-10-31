@@ -1,0 +1,42 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+
+swift_library(
+    name = "PeerListItemComponent",
+    module_name = "PeerListItemComponent",
+    srcs = glob([
+        "Sources/**/*.swift",
+    ]),
+    copts = [
+        "-warnings-as-errors",
+    ],
+    deps = [
+        "//submodules/Display",
+        "//submodules/ComponentFlow",
+        "//submodules/TelegramPresentationData",
+        "//submodules/AsyncDisplayKit",
+        "//submodules/SSignalKit/SwiftSignalKit",
+        "//submodules/AccountContext",
+        "//submodules/TelegramUI/Components/ButtonComponent",
+        "//submodules/TelegramCore",
+        "//submodules/Postbox",
+        "//submodules/Components/MultilineTextComponent",
+        "//submodules/Components/BundleIconComponent",
+        "//submodules/AvatarNode",
+        "//submodules/CheckNode",
+        "//submodules/TelegramStringFormatting",
+        "//submodules/AppBundle",
+        "//submodules/PeerPresenceStatusManager",
+        "//submodules/TelegramUI/Components/EmojiStatusComponent",
+        "//submodules/TelegramUI/Components/EmojiTextAttachmentView",
+        "//submodules/ContextUI",
+        "//submodules/TextFormat",
+        "//submodules/PhotoResources",
+        "//submodules/TelegramUI/Components/ListSectionComponent",
+        "//submodules/TelegramUI/Components/ListItemSwipeOptionContainer",
+        # GHOST: the nick badge slot next to the name (W4-1)
+        "//Ghostgram/Features/ProfileExport:GGNickBadgeSlot",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)

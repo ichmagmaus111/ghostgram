@@ -1,0 +1,17 @@
+{
+  "subtitles.estimatedTiming": "У розшифруванні Telegram немає таймінгів — рядки розставлено приблизно",
+  "subtitles.failed": "Мовлення не розпізнано",
+  "subtitles.hide": "Сховати субтитри",
+  "subtitles.menu.enabled": "Субтитри до відео",
+  "subtitles.menu.enabledInfo": "Розпізнає мовлення й показує його рядками поверх відео",
+  "subtitles.menu.footer": "Пункт «Показати субтитри» в меню «…» відео. Мовлення розпізнається на пристрої, якщо модель мови завантажено, інакше — сервером Apple; з Telegram Premium кружечки розшифровує Telegram. У чати нічого не надсилається. Переклад — через сервіс перекладу, вибраний вище.",
+  "subtitles.menu.header": "Субтитри до відео",
+  "subtitles.menu.keyword": "розпізнавання",
+  "subtitles.menu.language": "Мова субтитрів",
+  "subtitles.menu.languageAuto": "Як у застосунку",
+  "subtitles.menu.translate": "Перекладати субтитри",
+  "subtitles.noAudio": "Не вдалося отримати звук із відео",
+  "subtitles.noPermission": "Дозвольте розпізнавання мовлення в налаштуваннях iOS",
+  "subtitles.recognizing": "Розпізнаю мовлення…",
+  "subtitles.show": "Показати субтитри"
+}

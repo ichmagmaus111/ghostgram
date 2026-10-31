@@ -1,0 +1,14 @@
+{
+  "messageMenu.forwarded": "Переслано",
+  "messageMenu.menu.custom": "Своё меню сообщения",
+  "messageMenu.menu.customInfo": "Выключенные пункты Telegram убираются из меню",
+  "messageMenu.menu.forwardWithoutAuthor": "Переслать без автора",
+  "messageMenu.menu.pin": "Закрепить",
+  "messageMenu.menu.replies": "Ответы и обсуждение",
+  "messageMenu.menu.reply": "Ответить",
+  "messageMenu.menu.report": "Пожаловаться",
+  "messageMenu.menu.restrict": "Ограничить",
+  "messageMenu.menu.saveMedia": "Сохранить в галерею",
+  "messageMenu.menu.saveToCloud": "Сохранить в Избранное",
+  "messageMenu.savedToCloud": "Сохранено в Избранное"
+}

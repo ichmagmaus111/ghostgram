@@ -1,0 +1,17 @@
+{
+  "subtitles.estimatedTiming": "Telegram’s transcription has no timings — the lines are placed approximately",
+  "subtitles.failed": "No speech recognized",
+  "subtitles.hide": "Hide Subtitles",
+  "subtitles.menu.enabled": "Video subtitles",
+  "subtitles.menu.enabledInfo": "Recognizes speech and shows it as lines over the video",
+  "subtitles.menu.footer": "A “Show Subtitles” item in the “…” menu of videos. Speech is recognized on the device when the language model is there, otherwise by Apple’s server; with Telegram Premium, Telegram transcribes round videos. Nothing is sent to any chat. Translation uses the service chosen above.",
+  "subtitles.menu.header": "Video subtitles",
+  "subtitles.menu.keyword": "captions",
+  "subtitles.menu.language": "Subtitle language",
+  "subtitles.menu.languageAuto": "As in the app",
+  "subtitles.menu.translate": "Translate subtitles",
+  "subtitles.noAudio": "Couldn’t get the audio out of the video",
+  "subtitles.noPermission": "Allow speech recognition in iOS Settings",
+  "subtitles.recognizing": "Recognizing speech…",
+  "subtitles.show": "Show Subtitles"
+}

@@ -1,0 +1,41 @@
+diff --git a/tgcalls/platform/darwin/VideoCameraCapturer.mm b/tgcalls/platform/darwin/VideoCameraCapturer.mm
+index 68af2e6..3fc0bf0 100644
+--- a/tgcalls/platform/darwin/VideoCameraCapturer.mm
++++ b/tgcalls/platform/darwin/VideoCameraCapturer.mm
+@@ -26,6 +26,12 @@
+ 
+ #include "VideoCaptureView.h"
+ 
++// GHOST: Ghostgram call masks — the one hook into the capturer (GGCallFrameBridge, W3-2)
++#if __has_include(<GGCallFrameBridge/GGCallFrameBridge.h>)
++#import <GGCallFrameBridge/GGCallFrameBridge.h>
++#define GG_CALL_FRAME_BRIDGE 1
++#endif
++
+ namespace {
+ 
+ static const int64_t kNanosecondsPerSecond = 1000000000;
+@@ -577,9 +583,23 @@ - (void)captureOutput:(AVCaptureOutput *)captureOutput
+         }
+     }
+     
++#ifdef GG_CALL_FRAME_BRIDGE
++    // GHOST: the processed frame (call masks) replaces the camera frame before the crop, so the sent
++    // video and the local preview get the same single pass
++    CVPixelBufferRef ggProcessedPixelBuffer = [GGCallFrameBridge hasProcessor] ? [GGCallFrameBridge copyProcessedPixelBuffer:pixelBuffer isFrontCamera:usingFrontCamera rotation:(int)_rotation] : NULL;
++    if (ggProcessedPixelBuffer != NULL) {
++        pixelBuffer = ggProcessedPixelBuffer;
++    }
++#endif
+     TGRTCCVPixelBuffer *rtcPixelBuffer = [[TGRTCCVPixelBuffer alloc] initWithPixelBuffer:pixelBuffer];
+     rtcPixelBuffer.shouldBeMirrored = usingFrontCamera;
+     rtcPixelBuffer.deviceRelativeVideoRotation = deviceRelativeVideoRotation;
++#ifdef GG_CALL_FRAME_BRIDGE
++    // GHOST: rtcPixelBuffer retains the processed buffer for the rest of this frame
++    if (ggProcessedPixelBuffer != NULL) {
++        CVPixelBufferRelease(ggProcessedPixelBuffer);
++    }
++#endif
+     
+     TGRTCCVPixelBuffer *uncroppedRtcPixelBuffer = rtcPixelBuffer;
+ 

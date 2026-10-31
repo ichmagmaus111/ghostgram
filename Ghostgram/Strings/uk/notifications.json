@@ -1,0 +1,21 @@
+{
+  "notifications.exceptions.add": "Додати чат",
+  "notifications.exceptions.empty": "Винятків немає",
+  "notifications.exceptions.general": "загальне налаштування",
+  "notifications.exceptions.mentionsValue": "Згадки: {mode}",
+  "notifications.exceptions.pinnedValue": "Закріпи: {mode}",
+  "notifications.exceptions.remove": "Видалити виняток",
+  "notifications.exceptions.title": "Винятки",
+  "notifications.menu.exceptions": "Винятки",
+  "notifications.menu.exceptionsCount#few": "{count} чати",
+  "notifications.menu.exceptionsCount#many": "{count} чатів",
+  "notifications.menu.exceptionsCount#one": "{count} чат",
+  "notifications.menu.exceptionsCount#other": "{count} чату",
+  "notifications.menu.footer": "Налаштування окремого чату важливіше за загальне.",
+  "notifications.menu.header": "Сповіщення",
+  "notifications.menu.mentions": "Згадки й відповіді",
+  "notifications.menu.modeDisabled": "Не надсилати",
+  "notifications.menu.modeSilent": "Без звуку",
+  "notifications.menu.modeStandard": "Як зазвичай",
+  "notifications.menu.pinned": "Закріплені повідомлення"
+}

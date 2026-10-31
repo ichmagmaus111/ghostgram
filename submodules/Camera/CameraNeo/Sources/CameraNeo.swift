@@ -1,0 +1,1265 @@
+import Foundation
+import UIKit
+import AVFoundation
+import CoreMedia
+import CoreVideo
+import SwiftSignalKit
+import DeviceModel
+import Camera
+// GHOST: Ghostgram round video settings and frame processor (masks)
+import GGCameraPipeline
+
+private let roundVideoFrameRate: Double = 30.0
+
+private enum CaptureInitializationStatus {
+    case pending
+    case ready
+    case failed(CameraRecordingError)
+}
+
+final class CameraNeo: NSObject, CameraProtocol {
+    private let configuration: Camera.Configuration
+    private let useMultiCam: Bool
+    private let previewView: CameraPreviewView?
+    private let secondaryPreviewView: CameraPreviewView?
+
+    private let sessionQueue = DispatchQueue(label: "Camera.Session", qos: .userInitiated)
+    private let mediaQueue = DispatchQueue(label: "Camera.Media", qos: .userInitiated)
+    private let sessionQueueKey = DispatchSpecificKey<Void>()
+    private let mediaQueueKey = DispatchSpecificKey<Void>()
+
+    private let session: AVCaptureSession
+    private var wantsRunning = false
+    private var isConfigured = false
+    private var isInvalidated = false
+
+    private var backDevice: AVCaptureDevice?
+    private var frontDevice: AVCaptureDevice?
+    private var singleVideoInput: AVCaptureDeviceInput?
+    private var backVideoInput: AVCaptureDeviceInput?
+    private var frontVideoInput: AVCaptureDeviceInput?
+    private var audioInput: AVCaptureDeviceInput?
+
+    private var primaryVideoOutput: AVCaptureVideoDataOutput?
+    private var secondaryVideoOutput: AVCaptureVideoDataOutput?
+    private var audioOutput: AVCaptureAudioDataOutput?
+    private let secondaryVideoOutputIdentity = Atomic<ObjectIdentifier?>(value: nil)
+    private let audioOutputIdentity = Atomic<ObjectIdentifier?>(value: nil)
+
+    private var singleFramesEnabled = true
+    private var singleMediaPosition: Camera.Position
+    private var recordingOrientation: AVCaptureVideoOrientation = .portrait
+
+    private var frameProcessor: RoundVideoFrameProcessor?
+    private var recorder: VideoRecorder?
+    private let recordingActive = Atomic<Bool>(value: false)
+    private let recordingStopRequested = Atomic<Bool>(value: false)
+    private let recordingDuration = Atomic<Double>(value: 0.0)
+    private let singleCameraSwitchGeneration = Atomic<Int>(value: 0)
+    private let recordingCompletionPipe = ValuePipe<VideoCaptureResult>()
+    private let captureInitializationStatus = Atomic<CaptureInitializationStatus>(value: .pending)
+
+    private var mainVideoOutput: CameraVideoOutput?
+    private var additionalVideoOutput: CameraVideoOutput?
+
+    private let positionValue: Atomic<Camera.Position>
+    private let positionPromise: ValuePromise<Camera.Position>
+    private let flashModePromise = ValuePromise<Camera.FlashMode>(.off)
+    private let hasTorchPromise = ValuePromise<Bool>(false)
+    private let isFlashActivePromise = ValuePromise<Bool>(false)
+    private let transitionImagePromise = ValuePromise<UIImage?>(nil)
+    private let modeChangePromise = ValuePromise<Camera.ModeChange>(.none)
+
+    let metrics: Camera.Metrics
+
+    // GHOST: round video settings of this session (snapshot), the frame processor (masks) and the
+    // capture parameters derived from them; defaults are upstream's 640×480 at 30 fps
+    private let ggRecording: GGRoundVideoRecordingConfig
+    // GHOST: the zoom asked for since the last flip (`setZoomLevel`'s level, nil = 1×). A flip
+    // reconfigures the session after the request arrives, so the new device takes it from here.
+    private let ggRequestedZoomLevel = Atomic<CGFloat?>(value: nil)
+    private let ggFrameProcessor: GGCameraFrameProcessor?
+    private var ggFrameRate: Double = roundVideoFrameRate
+    private var ggFormatDescription: CMVideoFormatDescription?
+
+    init(
+        configuration: Camera.Configuration,
+        previewView: CameraPreviewView?,
+        secondaryPreviewView: CameraPreviewView?,
+        useMultiCam: Bool
+    ) {
+        self.configuration = configuration
+        self.previewView = previewView
+        self.secondaryPreviewView = secondaryPreviewView
+        self.useMultiCam = useMultiCam
+        self.singleMediaPosition = configuration.position
+        self.positionValue = Atomic<Camera.Position>(value: configuration.position)
+        self.positionPromise = ValuePromise<Camera.Position>(configuration.position)
+        self.metrics = Camera.Metrics(model: DeviceModel.current)
+        // GHOST: see `ggRecording`
+        self.ggRecording = configuration.isRoundVideo ? GGRoundVideoConfig.recording() : .standard
+        self.ggFrameProcessor = configuration.frameProcessor
+
+        if useMultiCam, #available(iOS 13.0, *) {
+            self.session = AVCaptureMultiCamSession()
+        } else {
+            self.session = AVCaptureSession()
+        }
+
+        super.init()
+
+        self.session.usesApplicationAudioSession = true
+        self.session.automaticallyConfiguresApplicationAudioSession = false
+
+        self.sessionQueue.setSpecific(key: self.sessionQueueKey, value: ())
+        self.mediaQueue.setSpecific(key: self.mediaQueueKey, value: ())
+        self.previewView?.setSession(self.session, automaticallyConnect: !useMultiCam)
+        if useMultiCam {
+            self.secondaryPreviewView?.setSession(self.session, automaticallyConnect: false)
+        }
+
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.sessionRuntimeError(_:)),
+            name: .AVCaptureSessionRuntimeError,
+            object: self.session
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.sessionInterruptionEnded(_:)),
+            name: .AVCaptureSessionInterruptionEnded,
+            object: self.session
+        )
+
+        self.sessionQueue.async { [weak self] in
+            self?.configureSession()
+        }
+    }
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+        let cleanUpSession = {
+            self.primaryVideoOutput?.setSampleBufferDelegate(nil, queue: nil)
+            self.secondaryVideoOutput?.setSampleBufferDelegate(nil, queue: nil)
+            self.audioOutput?.setSampleBufferDelegate(nil, queue: nil)
+            if self.session.isRunning {
+                self.session.stopRunning()
+            }
+            self.tearDownSession()
+        }
+        if DispatchQueue.getSpecific(key: self.sessionQueueKey) != nil {
+            cleanUpSession()
+        } else {
+            self.sessionQueue.sync(execute: cleanUpSession)
+        }
+        if DispatchQueue.getSpecific(key: self.mediaQueueKey) != nil {
+            self.recorder?.cancel()
+        } else {
+            self.mediaQueue.sync {
+                self.recorder?.cancel()
+            }
+        }
+    }
+
+    func startCapture() {
+        self.sessionQueue.async { [weak self] in
+            guard let self, !self.isInvalidated else {
+                return
+            }
+            self.wantsRunning = true
+            if !self.isConfigured {
+                self.configureSession()
+            }
+            if self.isConfigured && !self.session.isRunning {
+                self.session.startRunning()
+            }
+        }
+    }
+
+    func stopCapture(invalidate: Bool) {
+        self.sessionQueue.async { [weak self] in
+            guard let self else {
+                return
+            }
+            self.wantsRunning = false
+            if self.session.isRunning {
+                self.session.stopRunning()
+            }
+            if invalidate {
+                self.isInvalidated = true
+                self.tearDownSession()
+                DispatchQueue.main.async { [weak self] in
+                    self?.previewView?.invalidate()
+                    self?.secondaryPreviewView?.invalidate()
+                }
+            }
+        }
+
+        if invalidate {
+            self.mediaQueue.async { [weak self] in
+                guard let self else {
+                    return
+                }
+                self.recorder?.cancel()
+                self.recorder = nil
+                let _ = self.recordingActive.modify { _ in false }
+                let _ = self.recordingStopRequested.modify { _ in false }
+            }
+        }
+    }
+
+    var position: Signal<Camera.Position, NoError> {
+        return self.positionPromise.get()
+    }
+
+    func togglePosition() {
+        let currentPosition = self.positionValue.with { $0 }
+        self.setPosition(currentPosition == .front ? .back : .front)
+    }
+
+    func setPosition(_ position: Camera.Position) {
+        let previousPosition = self.positionValue.swap(position)
+        guard previousPosition != position else {
+            return
+        }
+        let _ = self.ggRequestedZoomLevel.swap(nil) // GHOST: the new camera starts at 1× unless asked otherwise
+
+        let switchGeneration = self.useMultiCam ? 0 : self.singleCameraSwitchGeneration.modify { $0 + 1 }
+
+        self.modeChangePromise.set(.position)
+        self.positionPromise.set(position)
+        self.mediaQueue.async { [weak self] in
+            guard let self else {
+                return
+            }
+            if !self.useMultiCam {
+                self.recorder?.beginSingleCameraSwitch(
+                    generation: switchGeneration,
+                    from: previousPosition,
+                    to: position
+                )
+            }
+            self.recorder?.beginPositionChange(to: position)
+            if !self.useMultiCam {
+                self.singleFramesEnabled = false
+            }
+        }
+
+        self.sessionQueue.async { [weak self] in
+            guard let self, self.isConfigured, !self.isInvalidated else {
+                return
+            }
+            if previousPosition == .back, position == .front, let backDevice = self.backDevice {
+                self.withLockedDevice(backDevice) { device in
+                    if device.isTorchModeSupported(.off) {
+                        device.torchMode = .off
+                    }
+                }
+            }
+            if self.useMultiCam {
+                self.updateActiveDeviceState()
+            } else {
+                self.switchSingleCamera(to: position, generation: switchGeneration)
+            }
+            self.sessionQueue.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+                self?.modeChangePromise.set(.none)
+            }
+        }
+    }
+
+    func setDualCameraEnabled(_ enabled: Bool) {
+    }
+
+    func takePhoto() -> Signal<PhotoCaptureResult, NoError> {
+        return .complete()
+    }
+
+    func startRecording() -> Signal<CameraRecordingData, CameraRecordingError> {
+        guard self.configuration.isRoundVideo else {
+            return .complete()
+        }
+        if case let .failed(error) = self.captureInitializationStatus.with({ $0 }) {
+            return .fail(error)
+        }
+
+        var wasActive = false
+        let _ = self.recordingActive.modify { current in
+            wasActive = current
+            return true
+        }
+        guard !wasActive else {
+            return .complete()
+        }
+        let _ = self.recordingStopRequested.modify { _ in false }
+
+        let outputUrl = URL(fileURLWithPath: NSTemporaryDirectory()).appendingPathComponent(UUID().uuidString).appendingPathExtension("mp4")
+        let orientation: AVCaptureVideoOrientation
+        if DeviceModel.current.isIpad {
+            orientation = self.previewView?.captureOrientation ?? .portrait
+        } else {
+            orientation = .portrait
+        }
+        let _ = self.recordingDuration.modify { _ in 0.0 }
+        self.transitionImagePromise.set(nil)
+
+        return Signal { [weak self] subscriber in
+            guard let self else {
+                subscriber.putCompletion()
+                return EmptyDisposable
+            }
+
+            let subscriberActive = Atomic<Bool>(value: true)
+            let recordingPrepared = Atomic<Bool>(value: false)
+            let beginRecording: (RoundVideoDecorationResources?) -> Void = { [weak self] decorationResources in
+                guard let self else {
+                    return
+                }
+                self.mediaQueue.async { [weak self] in
+                    guard let self else {
+                        return
+                    }
+                    guard subscriberActive.with({ $0 }), self.recordingActive.with({ $0 }) else {
+                        let _ = self.recordingActive.modify { _ in false }
+                        let _ = self.recordingStopRequested.modify { _ in false }
+                        return
+                    }
+                    if case let .failed(error) = self.captureInitializationStatus.with({ $0 }) {
+                        let _ = self.recordingActive.modify { _ in false }
+                        let _ = self.recordingStopRequested.modify { _ in false }
+                        if subscriberActive.swap(false) {
+                            subscriber.putError(error)
+                        }
+                        return
+                    }
+
+                    let processor: RoundVideoFrameProcessor
+                    if let current = self.frameProcessor {
+                        processor = current
+                    } else if let decorationResources, let current = RoundVideoFrameProcessor(mediaQueue: self.mediaQueue, decorationResources: decorationResources, outputSide: self.ggOutputSide /* GHOST: round video resolution */) {
+                        self.frameProcessor = current
+                        processor = current
+                    } else {
+                        guard let current = RoundVideoFrameProcessor(mediaQueue: self.mediaQueue, decorationResources: nil, outputSide: self.ggOutputSide /* GHOST: round video resolution */) else {
+                            let _ = self.recordingActive.modify { _ in false }
+                            let _ = self.recordingStopRequested.modify { _ in false }
+                            if subscriberActive.swap(false) {
+                                subscriber.putError(.videoRecorderInitializationError)
+                            }
+                            return
+                        }
+                        self.frameProcessor = current
+                        processor = current
+                    }
+
+                    self.recordingOrientation = orientation
+                    let recorder = VideoRecorder(
+                        mediaQueue: self.mediaQueue,
+                        processor: processor,
+                        url: outputUrl,
+                        hasAudio: self.ggCapturesAudio, // GHOST: «record without sound»
+                        initialPosition: self.positionValue.with { $0 },
+                        // GHOST: bitrate, codec and watermark from the round video settings
+                        ggRecording: self.ggRecording,
+                        ggWatermark: GGRoundVideoConfig.watermark(side: processor.outputSide),
+                        durationUpdated: { [weak self] duration in
+                            guard let self else {
+                                return
+                            }
+                            let _ = self.recordingDuration.modify { _ in duration }
+                        },
+                        transitionImageUpdated: { [weak self] image in
+                            self?.transitionImagePromise.set(image)
+                        },
+                        runtimeFailure: { error in
+                            let wasActive = subscriberActive.swap(false)
+                            if wasActive {
+                                subscriber.putError(error)
+                            }
+                        },
+                        completion: { [weak self] result in
+                            guard let self else {
+                                return
+                            }
+                            self.recorder = nil
+                            let _ = self.recordingActive.modify { _ in false }
+                            let _ = self.recordingStopRequested.modify { _ in false }
+                            switch result {
+                            case let .success(url, thumbnail, duration, positionChangeTimestamps):
+                                self.recordingCompletionPipe.putNext(.finished(
+                                    main: VideoCaptureResult.Result(
+                                        path: url.path,
+                                        thumbnail: thumbnail ?? UIImage(),
+                                        isMirrored: false,
+                                        dimensions: CGSize(width: processor.outputSide, height: processor.outputSide) // GHOST: round video resolution
+                                    ),
+                                    additional: nil,
+                                    duration: duration,
+                                    positionChangeTimestamps: positionChangeTimestamps.map { ($0.0 == .front, $0.1) },
+                                    captureTimestamp: CACurrentMediaTime()
+                                ))
+                            case .failed:
+                                self.recordingCompletionPipe.putNext(.failed)
+                            }
+                        }
+                    )
+                    self.recorder = recorder
+                    let _ = recordingPrepared.modify { _ in true }
+                    if self.recordingStopRequested.with({ $0 }) {
+                        recorder.stop()
+                    }
+                }
+            }
+
+            RoundVideoDecorationProvider.shared.prepare(completion: beginRecording)
+
+            let timer = SwiftSignalKit.Timer(timeout: 0.09, repeat: true, completion: { [weak self] in
+                guard let self, subscriberActive.with({ $0 }), recordingPrepared.with({ $0 }) else {
+                    return
+                }
+                subscriber.putNext(CameraRecordingData(
+                    duration: self.recordingDuration.with { $0 },
+                    filePath: outputUrl.path
+                ))
+            }, queue: Queue.mainQueue())
+            timer.start()
+
+            return ActionDisposable {
+                let _ = subscriberActive.modify { _ in false }
+                timer.invalidate()
+            }
+        }
+    }
+
+    func stopRecording() -> Signal<VideoCaptureResult, NoError> {
+        guard self.recordingActive.with({ $0 }) else {
+            return .complete()
+        }
+        let _ = self.recordingStopRequested.modify { _ in true }
+        self.mediaQueue.async { [weak self] in
+            self?.recorder?.stop()
+        }
+        return self.recordingCompletionPipe.signal()
+        |> take(1)
+    }
+
+    func focus(at point: CGPoint, autoFocus: Bool) {
+        self.sessionQueue.async { [weak self] in
+            guard let device = self?.activeDevice else {
+                return
+            }
+            self?.withLockedDevice(device) { device in
+                let focusMode: AVCaptureDevice.FocusMode = autoFocus ? .continuousAutoFocus : .autoFocus
+                let exposureMode: AVCaptureDevice.ExposureMode = autoFocus ? .continuousAutoExposure : .autoExpose
+                if device.isFocusPointOfInterestSupported && device.isFocusModeSupported(focusMode) {
+                    device.focusPointOfInterest = point
+                    device.focusMode = focusMode
+                }
+                if device.isExposurePointOfInterestSupported && device.isExposureModeSupported(exposureMode) {
+                    device.exposurePointOfInterest = point
+                    device.exposureMode = exposureMode
+                }
+                device.isSubjectAreaChangeMonitoringEnabled = true
+            }
+        }
+    }
+
+    func setFps(_ fps: Double) {
+        self.sessionQueue.async { [weak self] in
+            guard let self, !self.isInvalidated else {
+                return
+            }
+            self.session.beginConfiguration()
+            if self.useMultiCam {
+                if let backDevice = self.backDevice, let backVideoInput = self.backVideoInput {
+                    self.configureFrameRate(fps, device: backDevice, input: backVideoInput)
+                }
+                if let frontDevice = self.frontDevice, let frontVideoInput = self.frontVideoInput {
+                    self.configureFrameRate(fps, device: frontDevice, input: frontVideoInput)
+                }
+            } else if let activeDevice = self.activeDevice, let singleVideoInput = self.singleVideoInput {
+                self.configureFrameRate(fps, device: activeDevice, input: singleVideoInput)
+            }
+            self.session.commitConfiguration()
+            self.configureVideoStabilization()
+        }
+    }
+
+    func setFlashMode(_ flashMode: Camera.FlashMode) {
+        self.flashModePromise.set(flashMode)
+    }
+
+    func setZoomLevel(_ zoomLevel: CGFloat) {
+        let _ = self.ggRequestedZoomLevel.swap(zoomLevel) // GHOST: survives a flip that is still reconfiguring
+        self.updateZoom { [weak self] device in
+            return (self?.ggNeutralZoomFactor(device) ?? 1.0) * (1.0 + zoomLevel) // GHOST: relative to 1× (the ultra-wide camera makes 0.5× possible)
+        }
+    }
+
+    func setZoomDelta(_ zoomDelta: CGFloat) {
+        let _ = self.ggRequestedZoomLevel.swap(nil) // GHOST: a pinch replaces the requested zoom
+        self.updateZoom { device in
+            return device.videoZoomFactor * zoomDelta
+        }
+    }
+
+    func rampZoom(_ zoomLevel: CGFloat, rate: CGFloat) {
+        let _ = self.ggRequestedZoomLevel.swap(zoomLevel - 1.0) // GHOST: the ramp's target is the requested zoom (1.0 = 1×)
+        self.sessionQueue.async { [weak self] in
+            guard let self, let device = self.activeDevice else {
+                return
+            }
+            self.withLockedDevice(device) { device in
+                device.ramp(toVideoZoomFactor: self.clampedZoom(zoomLevel * self.ggNeutralZoomFactor(device), device: device), withRate: Float(rate)) // GHOST: 1.0 = 1×, not the ultra-wide 0.5×
+            }
+        }
+    }
+
+    func setTorchActive(_ active: Bool) {
+        self.sessionQueue.async { [weak self] in
+            guard let self, let device = self.activeDevice else {
+                return
+            }
+            var effectiveActive = false
+            self.withLockedDevice(device) { device in
+                let mode: AVCaptureDevice.TorchMode = active ? .on : .off
+                if device.isTorchModeSupported(mode) {
+                    device.torchMode = mode
+                    effectiveActive = active
+                }
+            }
+            self.isFlashActivePromise.set(effectiveActive)
+        }
+    }
+
+    var hasTorch: Signal<Bool, NoError> {
+        return self.hasTorchPromise.get()
+    }
+
+    var isFlashActive: Signal<Bool, NoError> {
+        return self.isFlashActivePromise.get()
+    }
+
+    var flashMode: Signal<Camera.FlashMode, NoError> {
+        return self.flashModePromise.get()
+    }
+
+    func setMainVideoOutput(_ output: CameraVideoOutput?) {
+        self.mediaQueue.async { [weak self] in
+            self?.mainVideoOutput = output
+        }
+    }
+
+    func setAdditionalVideoOutput(_ output: CameraVideoOutput?) {
+        self.mediaQueue.async { [weak self] in
+            self?.additionalVideoOutput = output
+        }
+    }
+
+    func attachSimplePreviewView(_ view: CameraSimplePreviewView) {
+    }
+
+    var detectedCodes: Signal<[CameraCode], NoError> {
+        return .never()
+    }
+
+    var audioLevel: Signal<Float, NoError> {
+        return .never()
+    }
+
+    var transitionImage: Signal<UIImage?, NoError> {
+        return self.transitionImagePromise.get()
+    }
+
+    var modeChange: Signal<Camera.ModeChange, NoError> {
+        return self.modeChangePromise.get()
+    }
+
+    private var activeDevice: AVCaptureDevice? {
+        if self.positionValue.with({ $0 }) == .front {
+            return self.frontDevice
+        } else {
+            return self.backDevice
+        }
+    }
+
+    private func configureSession() {
+        dispatchPrecondition(condition: .onQueue(self.sessionQueue))
+        guard !self.isConfigured, !self.isInvalidated else {
+            return
+        }
+
+        self.session.beginConfiguration()
+        self.session.sessionPreset = .inputPriority
+        let videoConfigured: Bool
+        if self.useMultiCam {
+            videoConfigured = self.configureMultiCamVideo()
+        } else {
+            videoConfigured = self.configureSingleCameraVideo(position: self.positionValue.with { $0 }, addOutput: true)
+        }
+        let audioConfigured = !self.ggCapturesAudio || self.configureAudio() // GHOST: no microphone when recording without sound
+        self.session.commitConfiguration()
+        self.configureVideoStabilization()
+
+        self.isConfigured = videoConfigured && audioConfigured
+        let initializationStatus: CaptureInitializationStatus
+        if !videoConfigured {
+            initializationStatus = .failed(.videoRecorderInitializationError)
+        } else if !audioConfigured {
+            initializationStatus = .failed(.audioInitializationError)
+        } else {
+            initializationStatus = .ready
+        }
+        let _ = self.captureInitializationStatus.modify { _ in initializationStatus }
+        if !self.isConfigured {
+            self.tearDownSession()
+            if case let .failed(error) = initializationStatus {
+                self.mediaQueue.async { [weak self] in
+                    self?.recorder?.failInitialization(error)
+                }
+            }
+        }
+        self.updateActiveDeviceState()
+        DispatchQueue.main.async { [weak self] in
+            self?.previewView?.updateOrientation()
+            self?.secondaryPreviewView?.updateOrientation()
+        }
+    }
+
+    private func configureSingleCameraVideo(position: Camera.Position, addOutput: Bool) -> Bool {
+        guard var device = self.makeVideoDevice(position: position) else {
+            return false
+        }
+        if !self.configureCaptureFormat(device: device) {
+            // GHOST: the ultra-wide virtual camera has no matching format: the plain wide camera, as upstream
+            guard self.ggIsUltraWideVirtualDevice(device), let fallback = self.makeWideVideoDevice(position: position), self.configureCaptureFormat(device: fallback) else {
+                return false
+            }
+            device = fallback
+        }
+
+        let videoInput: AVCaptureDeviceInput
+        do {
+            videoInput = try AVCaptureDeviceInput(device: device)
+        } catch {
+            return false
+        }
+        guard self.session.canAddInput(videoInput) else {
+            return false
+        }
+        self.session.addInput(videoInput)
+        self.configureFrameRate(self.ggFrameRate, device: device, input: videoInput) // GHOST: 30 or 60 fps
+        self.ggApplyNeutralZoom(device) // GHOST: the ultra-wide virtual camera at 1×, also after a flip
+
+        if addOutput {
+            guard let output = self.makeVideoOutput(), self.session.canAddOutput(output) else {
+                self.session.removeInput(videoInput)
+                return false
+            }
+            self.session.addOutput(output)
+            self.primaryVideoOutput = output
+        }
+
+        self.singleVideoInput = videoInput
+        if position == .front {
+            self.frontDevice = device
+        } else {
+            self.backDevice = device
+        }
+        return true
+    }
+
+    private func configureMultiCamVideo() -> Bool {
+        guard #available(iOS 13.0, *),
+              let multiCamSession = self.session as? AVCaptureMultiCamSession,
+              let backDevice = self.makeVideoDevice(position: .back),
+              let frontDevice = self.makeVideoDevice(position: .front) else {
+            return false
+        }
+        guard self.configureCaptureFormat(device: backDevice), self.configureCaptureFormat(device: frontDevice) else {
+            return false
+        }
+
+        guard let backInput = try? AVCaptureDeviceInput(device: backDevice),
+              let frontInput = try? AVCaptureDeviceInput(device: frontDevice),
+              multiCamSession.canAddInput(backInput),
+              multiCamSession.canAddInput(frontInput),
+              let backOutput = self.makeVideoOutput(),
+              let frontOutput = self.makeVideoOutput(),
+              multiCamSession.canAddOutput(backOutput),
+              multiCamSession.canAddOutput(frontOutput) else {
+            return false
+        }
+
+        multiCamSession.addInputWithNoConnections(backInput)
+        multiCamSession.addInputWithNoConnections(frontInput)
+        // GHOST: 30 or 60 fps (60 records with one camera, so this stays 30 here)
+        self.configureFrameRate(self.ggFrameRate, device: backDevice, input: backInput)
+        self.configureFrameRate(self.ggFrameRate, device: frontDevice, input: frontInput)
+        multiCamSession.addOutputWithNoConnections(backOutput)
+        multiCamSession.addOutputWithNoConnections(frontOutput)
+
+        guard self.connectVideo(
+            input: backInput,
+            output: backOutput,
+            previewView: self.previewView,
+            mirrored: false
+        ), self.connectVideo(
+            input: frontInput,
+            output: frontOutput,
+            previewView: self.secondaryPreviewView,
+            mirrored: true
+        ) else {
+            return false
+        }
+
+        self.backDevice = backDevice
+        self.frontDevice = frontDevice
+        self.backVideoInput = backInput
+        self.frontVideoInput = frontInput
+        self.primaryVideoOutput = backOutput
+        self.secondaryVideoOutput = frontOutput
+        let _ = self.secondaryVideoOutputIdentity.modify { _ in ObjectIdentifier(frontOutput) }
+        return true
+    }
+
+    @available(iOS 13.0, *)
+    private func connectVideo(
+        input: AVCaptureDeviceInput,
+        output: AVCaptureVideoDataOutput,
+        previewView: CameraPreviewView?,
+        mirrored: Bool
+    ) -> Bool {
+        let videoPorts = input.ports.filter { $0.mediaType == .video }
+        guard !videoPorts.isEmpty else {
+            return false
+        }
+
+        let outputConnection = AVCaptureConnection(inputPorts: videoPorts, output: output)
+        outputConnection.automaticallyAdjustsVideoMirroring = false
+        if outputConnection.isVideoMirroringSupported {
+            outputConnection.isVideoMirrored = false
+        }
+        guard self.session.canAddConnection(outputConnection) else {
+            return false
+        }
+        self.session.addConnection(outputConnection)
+
+        if let previewView, let port = videoPorts.first {
+            let previewConnection = AVCaptureConnection(inputPort: port, videoPreviewLayer: previewView.videoPreviewLayer)
+            previewConnection.automaticallyAdjustsVideoMirroring = false
+            if previewConnection.isVideoMirroringSupported {
+                previewConnection.isVideoMirrored = mirrored
+            }
+            guard self.session.canAddConnection(previewConnection) else {
+                return false
+            }
+            self.session.addConnection(previewConnection)
+        }
+        return true
+    }
+
+    private func configureAudio() -> Bool {
+        guard let audioDevice = AVCaptureDevice.default(for: .audio),
+              let input = try? AVCaptureDeviceInput(device: audioDevice) else {
+            return false
+        }
+        let output = AVCaptureAudioDataOutput()
+        output.setSampleBufferDelegate(self, queue: self.mediaQueue)
+
+        if self.useMultiCam, #available(iOS 13.0, *), let multiCamSession = self.session as? AVCaptureMultiCamSession {
+            guard multiCamSession.canAddInput(input), multiCamSession.canAddOutput(output) else {
+                return false
+            }
+            multiCamSession.addInputWithNoConnections(input)
+            multiCamSession.addOutputWithNoConnections(output)
+            let audioPorts = input.ports.filter { $0.mediaType == .audio }
+            guard !audioPorts.isEmpty else {
+                return false
+            }
+            let connection = AVCaptureConnection(inputPorts: audioPorts, output: output)
+            guard multiCamSession.canAddConnection(connection) else {
+                return false
+            }
+            multiCamSession.addConnection(connection)
+        } else {
+            guard self.session.canAddInput(input), self.session.canAddOutput(output) else {
+                return false
+            }
+            self.session.addInput(input)
+            self.session.addOutput(output)
+        }
+
+        self.audioInput = input
+        self.audioOutput = output
+        let _ = self.audioOutputIdentity.modify { _ in ObjectIdentifier(output) }
+        return true
+    }
+
+    private func makeVideoOutput() -> AVCaptureVideoDataOutput? {
+        let output = AVCaptureVideoDataOutput()
+        let formats = output.availableVideoPixelFormatTypes
+        let pixelFormat: OSType
+        if formats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) {
+            pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+        } else if formats.contains(kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) {
+            pixelFormat = kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
+        } else {
+            return nil
+        }
+        output.videoSettings = [
+            kCVPixelBufferPixelFormatTypeKey as String: pixelFormat
+        ]
+        output.alwaysDiscardsLateVideoFrames = true
+        output.setSampleBufferDelegate(self, queue: self.mediaQueue)
+        return output
+    }
+
+    private func makeVideoDevice(position: Camera.Position) -> AVCaptureDevice? {
+        // GHOST: Ghostgram's 0.5× zoom of round videos: the back camera as the virtual camera with the
+        // ultra-wide lens (one camera only; the dual-camera session keeps the plain one)
+        if self.ggRecording.usesUltraWideCamera, position == .back, !self.useMultiCam, #available(iOS 13.0, *) {
+            if let device = AVCaptureDevice.default(.builtInTripleCamera, for: .video, position: .back) {
+                return device
+            }
+            if let device = AVCaptureDevice.default(.builtInDualWideCamera, for: .video, position: .back) {
+                return device
+            }
+        }
+        return self.makeWideVideoDevice(position: position)
+    }
+
+    // GHOST: upstream's own choice, also the fallback of the ultra-wide virtual camera
+    private func makeWideVideoDevice(position: Camera.Position) -> AVCaptureDevice? {
+        if let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: position) {
+            return device
+        }
+        return AVCaptureDevice.DiscoverySession(
+            deviceTypes: [.builtInWideAngleCamera, .builtInTrueDepthCamera],
+            mediaType: .video,
+            position: position
+        ).devices.first
+    }
+
+    private func configureCaptureFormat(device: AVCaptureDevice) -> Bool {
+        // GHOST: capture format and frame rate from the round video settings; the first option that
+        // the device supports wins, the last one is upstream's 640×480 at 30 fps
+        for option in self.ggCaptureOptions {
+            if self.configureCaptureFormat(device: device, width: option.width, height: option.height, frameRate: option.frameRate) {
+                self.ggFrameRate = option.frameRate
+                return true
+            }
+        }
+        return false
+    }
+
+    private func configureCaptureFormat(device: AVCaptureDevice, width: Int32, height: Int32, frameRate: Double) -> Bool {
+        let candidates = device.formats.filter { format in
+            if self.useMultiCam, #available(iOS 13.0, *), !format.isMultiCamSupported {
+                return false
+            }
+            let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+            let mediaSubtype = CMFormatDescriptionGetMediaSubType(format.formatDescription)
+            // GHOST: capture format from the round video settings; width 0 = any 4:3 format at least
+            // `height` high (up to 1440 — the photo-sized ones are slow and heavy)
+            let matchesSize = width == 0 ? (dimensions.width * 3 == dimensions.height * 4 && dimensions.height >= height && dimensions.height <= 1440) : (dimensions.width == width && dimensions.height == height)
+            guard matchesSize,
+                  (mediaSubtype == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange || mediaSubtype == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) else {
+                return false
+            }
+            return format.videoSupportedFrameRateRanges.contains(where: {
+                $0.minFrameRate <= frameRate && $0.maxFrameRate >= frameRate // GHOST: 30 or 60 fps
+            })
+        }
+        let selectedFormat = candidates.min { lhs, rhs in
+            // GHOST: the smallest matching 4:3 format first (one exact size otherwise: a no-op)
+            let lhsHeight = CMVideoFormatDescriptionGetDimensions(lhs.formatDescription).height
+            let rhsHeight = CMVideoFormatDescriptionGetDimensions(rhs.formatDescription).height
+            if lhsHeight != rhsHeight {
+                return lhsHeight < rhsHeight
+            }
+            let lhsMaximumFps = lhs.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 0.0
+            let rhsMaximumFps = rhs.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 0.0
+            return lhsMaximumFps < rhsMaximumFps
+        }
+
+        guard let selectedFormat else {
+            return false
+        }
+        do {
+            try device.lockForConfiguration()
+            device.activeFormat = selectedFormat
+            if device.isLowLightBoostSupported {
+                device.automaticallyEnablesLowLightBoostWhenAvailable = true
+            }
+            if device.isExposureModeSupported(.continuousAutoExposure) {
+                device.exposureMode = .continuousAutoExposure
+            }
+            // GHOST: the ultra-wide virtual camera starts at 1× (its own factor 1 is the 0.5× lens)
+            if self.ggIsUltraWideVirtualDevice(device) {
+                device.videoZoomFactor = self.clampedZoom(self.ggNeutralZoomFactor(device), device: device)
+            }
+            device.unlockForConfiguration()
+            return true
+        } catch {
+            return false
+        }
+    }
+
+    private func configureFrameRate(_ fps: Double, device: AVCaptureDevice, input: AVCaptureDeviceInput) {
+        guard fps.isFinite, fps > 0.0 else {
+            return
+        }
+        guard let range = device.activeFormat.videoSupportedFrameRateRanges.first(where: { $0.minFrameRate <= fps && $0.maxFrameRate >= fps }) else {
+            return
+        }
+        let effectiveFps = min(range.maxFrameRate, max(range.minFrameRate, fps))
+        let duration = CMTime(seconds: 1.0 / effectiveFps, preferredTimescale: 60_000)
+        self.withLockedDevice(device) { device in
+            if #available(iOS 18.0, *), device.activeFormat.isAutoVideoFrameRateSupported, device.isAutoVideoFrameRateEnabled {
+                device.isAutoVideoFrameRateEnabled = false
+            }
+            device.activeVideoMinFrameDuration = duration
+            device.activeVideoMaxFrameDuration = duration
+        }
+        input.videoMinFrameDurationOverride = duration
+    }
+
+    private func configureVideoStabilization() {
+        dispatchPrecondition(condition: .onQueue(self.sessionQueue))
+        for output in [self.primaryVideoOutput, self.secondaryVideoOutput] {
+            guard let connection = output?.connection(with: .video), connection.isVideoStabilizationSupported else {
+                continue
+            }
+            connection.preferredVideoStabilizationMode = self.ggStabilizationMode(connection: connection) // GHOST: stabilization setting
+        }
+    }
+
+    private func switchSingleCamera(to position: Camera.Position, generation: Int) {
+        dispatchPrecondition(condition: .onQueue(self.sessionQueue))
+        self.session.beginConfiguration()
+        if let singleVideoInput = self.singleVideoInput {
+            self.session.removeInput(singleVideoInput)
+        }
+        self.singleVideoInput = nil
+        let configured = self.configureSingleCameraVideo(position: position, addOutput: false)
+        self.session.commitConfiguration()
+        self.configureVideoStabilization()
+
+        if !configured {
+            let error = CameraRecordingError.videoRecorderInitializationError
+            let _ = self.captureInitializationStatus.modify { _ in .failed(error) }
+            if self.session.isRunning {
+                self.session.stopRunning()
+            }
+            self.tearDownSession()
+            self.mediaQueue.async { [weak self] in
+                self?.recorder?.noteSingleCameraSwitchCommitted(generation: generation)
+                self?.singleFramesEnabled = false
+                self?.recorder?.failInitialization(error)
+            }
+            self.updateActiveDeviceState()
+            return
+        }
+
+        self.mediaQueue.async { [weak self] in
+            self?.recorder?.noteSingleCameraSwitchCommitted(generation: generation)
+            self?.singleMediaPosition = position
+            self?.singleFramesEnabled = true
+        }
+        self.updateActiveDeviceState()
+    }
+
+    private func updateActiveDeviceState() {
+        guard let device = self.activeDevice else {
+            self.hasTorchPromise.set(false)
+            self.isFlashActivePromise.set(false)
+            return
+        }
+        self.hasTorchPromise.set(device.hasTorch && device.isTorchAvailable)
+        self.isFlashActivePromise.set(device.torchMode == .on)
+    }
+
+    private func updateZoom(_ value: @escaping (AVCaptureDevice) -> CGFloat) {
+        self.sessionQueue.async { [weak self] in
+            guard let self, let device = self.activeDevice else {
+                return
+            }
+            self.withLockedDevice(device) { device in
+                device.videoZoomFactor = self.clampedZoom(value(device), device: device)
+            }
+        }
+    }
+
+    // GHOST: a virtual camera that starts with the ultra-wide lens (zoom factor 1 = 0.5×)
+    private func ggIsUltraWideVirtualDevice(_ device: AVCaptureDevice) -> Bool {
+        if #available(iOS 13.0, *) {
+            return device.isVirtualDevice && device.constituentDevices.first?.deviceType == .builtInUltraWideCamera
+        }
+        return false
+    }
+
+    // GHOST: the ultra-wide virtual camera at 1× once its input is in the session. The factor set with
+    // the format did not survive adding the input: a flip to the back camera showed the 0.5× lens while
+    // the zoom slider said 1×.
+    private func ggApplyNeutralZoom(_ device: AVCaptureDevice) {
+        guard self.ggIsUltraWideVirtualDevice(device) else {
+            return
+        }
+        // GHOST: the zoom asked for while the flip was reconfiguring («0,5× на задней камере»): applied
+        // to the new device here, or the camera showed 1× under a slider at 0.5×.
+        let requestedLevel = self.ggRequestedZoomLevel.with { $0 } ?? 0.0
+        self.withLockedDevice(device) { device in
+            device.videoZoomFactor = self.clampedZoom(self.ggNeutralZoomFactor(device) * (1.0 + requestedLevel), device: device) // GHOST: see requestedLevel
+        }
+    }
+
+    // GHOST: the zoom factor of 1× — the switch-over to the wide lens on the ultra-wide virtual camera, 1 elsewhere
+    private func ggNeutralZoomFactor(_ device: AVCaptureDevice) -> CGFloat {
+        if #available(iOS 13.0, *), self.ggIsUltraWideVirtualDevice(device), let wideIndex = device.constituentDevices.firstIndex(where: { $0.deviceType == .builtInWideAngleCamera }), wideIndex > 0, wideIndex - 1 < device.virtualDeviceSwitchOverVideoZoomFactors.count {
+            return CGFloat(device.virtualDeviceSwitchOverVideoZoomFactors[wideIndex - 1].doubleValue)
+        }
+        return 1.0
+    }
+
+    private func clampedZoom(_ value: CGFloat, device: AVCaptureDevice) -> CGFloat {
+        let minimum = max(1.0, device.minAvailableVideoZoomFactor)
+        let maximum = max(minimum, device.maxAvailableVideoZoomFactor)
+        return min(maximum, max(minimum, value))
+    }
+
+    private func withLockedDevice(_ device: AVCaptureDevice, _ update: (AVCaptureDevice) -> Void) {
+        do {
+            try device.lockForConfiguration()
+            update(device)
+            device.unlockForConfiguration()
+        } catch {
+        }
+    }
+
+    private func tearDownSession() {
+        dispatchPrecondition(condition: .onQueue(self.sessionQueue))
+        self.primaryVideoOutput?.setSampleBufferDelegate(nil, queue: nil)
+        self.secondaryVideoOutput?.setSampleBufferDelegate(nil, queue: nil)
+        self.audioOutput?.setSampleBufferDelegate(nil, queue: nil)
+
+        self.session.beginConfiguration()
+        for output in self.session.outputs {
+            self.session.removeOutput(output)
+        }
+        for input in self.session.inputs {
+            self.session.removeInput(input)
+        }
+        self.session.commitConfiguration()
+
+        self.primaryVideoOutput = nil
+        self.secondaryVideoOutput = nil
+        self.audioOutput = nil
+        let _ = self.secondaryVideoOutputIdentity.modify { _ in nil }
+        let _ = self.audioOutputIdentity.modify { _ in nil }
+        self.singleVideoInput = nil
+        self.backVideoInput = nil
+        self.frontVideoInput = nil
+        self.audioInput = nil
+        self.backDevice = nil
+        self.frontDevice = nil
+        self.isConfigured = false
+    }
+
+    @objc private func sessionRuntimeError(_ notification: Notification) {
+        // GHOST: two guards — any error other than a media-services reset goes to ggSessionDidFail (upstream returned)
+        guard let errorValue = notification.userInfo?[AVCaptureSessionErrorKey] as? NSError else {
+            return
+        }
+        guard AVError(_nsError: errorValue).code == .mediaServicesWereReset else {
+            self.ggSessionDidFail() // GHOST: see ggSessionDidFail
+            return
+        }
+        self.sessionQueue.async { [weak self] in
+            guard let self, !self.isInvalidated else {
+                return
+            }
+            let shouldRestart = self.wantsRunning
+            let _ = self.captureInitializationStatus.modify { _ in .pending }
+            if self.session.isRunning {
+                self.session.stopRunning()
+            }
+            self.tearDownSession()
+            if shouldRestart {
+                self.configureSession()
+                if self.isConfigured {
+                    self.session.startRunning()
+                }
+            }
+        }
+    }
+
+    @objc private func sessionInterruptionEnded(_ notification: Notification) {
+        self.sessionQueue.async { [weak self] in
+            guard let self, self.wantsRunning, self.isConfigured, !self.isInvalidated, !self.session.isRunning else {
+                return
+            }
+            self.session.startRunning()
+        }
+    }
+}
+
+// GHOST: Ghostgram round video settings and frame processor
+extension CameraNeo {
+    /// Any other runtime error stops the session for good (a dual-camera session over its hardware
+    /// budget, a device it can not run…). Upstream ignored it, so the recording waited for frames that
+    /// never came; now it fails, and the round camera screen goes on with the legacy camera
+    /// (`VideoMessageCameraScreen.Node.ggFallBackToLegacyCamera`). Only once the session has stopped,
+    /// and only before anything was recorded: a clip already under way is finished by «stop» as before.
+    func ggSessionDidFail() {
+        self.sessionQueue.async { [weak self] in
+            guard let self, !self.isInvalidated, !self.session.isRunning, self.recordingDuration.with({ $0 }) == 0.0 else {
+                return
+            }
+            let error = CameraRecordingError.videoRecorderInitializationError
+            let _ = self.captureInitializationStatus.modify { _ in .failed(error) }
+            self.mediaQueue.async { [weak self] in
+                self?.recorder?.failInitialization(error)
+            }
+        }
+    }
+
+    private var ggCapturesAudio: Bool {
+        return self.configuration.audio && !self.ggRecording.muteAudio
+    }
+
+    private var ggOutputSide: Int {
+        return self.ggRecording.outputSide(defaultSide: RoundVideoFrameProcessor.outputWidth)
+    }
+
+    private var ggCaptureOptions: [(width: Int32, height: Int32, frameRate: Double)] {
+        var options: [(width: Int32, height: Int32, frameRate: Double)] = []
+        let frameRate = Double(self.ggRecording.frameRate)
+        if self.ggRecording.needsHighResolutionCapture(defaultSide: RoundVideoFrameProcessor.outputWidth) {
+            // A 4:3 format first (width 0 = «4:3, at least this high», see configureCaptureFormat): the
+            // square of a round video keeps the sensor's whole short side, as upstream's 640×480 does.
+            // From 1280×720 (16:9) it lost a quarter of the view — the front camera looked zoomed in.
+            let side = Int32(self.ggRecording.outputSide(defaultSide: RoundVideoFrameProcessor.outputWidth))
+            options.append((0, side, frameRate))
+            options.append((1280, 720, frameRate))
+            if frameRate != roundVideoFrameRate {
+                options.append((0, side, roundVideoFrameRate))
+                options.append((1280, 720, roundVideoFrameRate))
+            }
+        }
+        if frameRate != roundVideoFrameRate {
+            options.append((640, 480, frameRate))
+        }
+        options.append((640, 480, roundVideoFrameRate))
+        return options
+    }
+
+    private func ggStabilizationMode(connection: AVCaptureConnection) -> AVCaptureVideoStabilizationMode {
+        switch self.ggRecording.stabilization {
+        case .standard:
+            return .standard
+        case .off:
+            return .off
+        case .cinematic:
+            let format = (self.positionValue.with { $0 } == .front ? self.frontDevice : self.backDevice)?.activeFormat
+            if let format, format.isVideoStabilizationModeSupported(.cinematic) {
+                return .cinematic
+            }
+            return .standard
+        }
+    }
+
+    private func ggProcessedSampleBuffer(_ sampleBuffer: CMSampleBuffer, position: Camera.Position) -> CMSampleBuffer {
+        guard let processor = self.ggFrameProcessor, position == self.positionValue.with({ $0 }), let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
+            return sampleBuffer
+        }
+        let quarterTurns: Int
+        switch self.recordingOrientation {
+        case .landscapeLeft:
+            quarterTurns = position == .front ? 0 : 2
+        case .landscapeRight:
+            quarterTurns = position == .front ? 2 : 0
+        case .portraitUpsideDown:
+            quarterTurns = 3
+        default:
+            quarterTurns = 1
+        }
+        let info = GGCameraFrameInfo(
+            facing: position == .front ? .front : .back,
+            timestamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
+            orientation: GGCameraFrameInfo.orientation(quarterTurns: quarterTurns, mirrored: position == .front)
+        )
+        guard let processed = processor.process(pixelBuffer, info: info) else {
+            return sampleBuffer
+        }
+        // One format description is reused while the buffers match it (no allocation per frame).
+        if let current = self.ggFormatDescription, CMVideoFormatDescriptionMatchesImageBuffer(current, imageBuffer: processed) {
+        } else {
+            var formatDescription: CMVideoFormatDescription?
+            guard CMVideoFormatDescriptionCreateForImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: processed, formatDescriptionOut: &formatDescription) == noErr, let formatDescription else {
+                return sampleBuffer
+            }
+            self.ggFormatDescription = formatDescription
+        }
+        guard let formatDescription = self.ggFormatDescription else {
+            return sampleBuffer
+        }
+        var timing = CMSampleTimingInfo(
+            duration: CMSampleBufferGetDuration(sampleBuffer),
+            presentationTimeStamp: CMSampleBufferGetPresentationTimeStamp(sampleBuffer),
+            decodeTimeStamp: CMSampleBufferGetDecodeTimeStamp(sampleBuffer)
+        )
+        var result: CMSampleBuffer?
+        guard CMSampleBufferCreateReadyWithImageBuffer(allocator: kCFAllocatorDefault, imageBuffer: processed, formatDescription: formatDescription, sampleTiming: &timing, sampleBufferOut: &result) == noErr, let result else {
+            return sampleBuffer
+        }
+        return result
+    }
+}
+
+extension CameraNeo: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        dispatchPrecondition(condition: .onQueue(self.mediaQueue))
+
+        let outputIdentity = ObjectIdentifier(output)
+        if self.audioOutputIdentity.with({ $0 }) == outputIdentity {
+            self.recorder?.appendAudioSampleBuffer(sampleBuffer)
+            return
+        }
+
+        let position: Camera.Position
+        if self.useMultiCam {
+            if self.secondaryVideoOutputIdentity.with({ $0 }) == outputIdentity {
+                position = .front
+            } else {
+                position = .back
+            }
+        } else {
+            position = self.singleMediaPosition
+        }
+
+        if !self.useMultiCam, !self.singleFramesEnabled {
+            return
+        }
+
+        // GHOST: Ghostgram frame processor (masks): once per frame of the visible camera, the same
+        // processed frame goes to the recorder and to the live preview
+        let sampleBuffer = self.ggProcessedSampleBuffer(sampleBuffer, position: position)
+
+        self.recorder?.appendVideoSampleBuffer(
+            sampleBuffer,
+            position: position,
+            orientation: self.recordingOrientation
+        )
+
+        if self.useMultiCam {
+            if position == .front {
+                self.additionalVideoOutput?.push(sampleBuffer, mirror: true)
+            } else {
+                self.mainVideoOutput?.push(sampleBuffer, mirror: false)
+            }
+        } else {
+            self.mainVideoOutput?.push(sampleBuffer, mirror: position == .front)
+        }
+    }
+
+}

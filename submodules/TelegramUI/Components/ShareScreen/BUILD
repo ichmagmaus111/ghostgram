@@ -1,0 +1,46 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+
+swift_library(
+    name = "ShareScreen",
+    module_name = "ShareScreen",
+    srcs = glob([
+        "Sources/**/*.swift",
+    ]),
+    copts = [
+        "-warnings-as-errors",
+    ],
+    deps = [
+        "//submodules/AsyncDisplayKit",
+        "//submodules/Display",
+        "//submodules/Postbox",
+        "//submodules/TelegramCore",
+        "//submodules/SSignalKit/SwiftSignalKit",
+        "//submodules/ComponentFlow",
+        "//submodules/Components/ViewControllerComponent",
+        "//submodules/Components/ComponentDisplayAdapters",
+        "//submodules/Components/MultilineTextComponent",
+        "//submodules/Components/BalancedTextComponent",
+        "//submodules/TelegramPresentationData",
+        "//submodules/AccountContext",
+        "//submodules/AppBundle",
+        "//submodules/ItemListUI",
+        "//submodules/TelegramStringFormatting",
+        "//submodules/PresentationDataUtils",
+        "//submodules/ShareController",
+        "//submodules/Components/SheetComponent",
+        "//submodules/UndoUI",
+        "//submodules/TextFormat",
+        "//submodules/TelegramUI/Components/ButtonComponent",
+        "//submodules/Components/BundleIconComponent",
+        "//submodules/TelegramUI/Components/GlassBackgroundComponent",
+        "//submodules/TelegramUI/Components/GlassBarButtonComponent",
+        "//submodules/TelegramUI/Components/EdgeEffect",
+        "//submodules/TelegramUI/Components/PlainButtonComponent",
+        "//submodules/Components/ResizableSheetComponent",
+        "//submodules/TelegramUI/Components/MessageInputPanelComponent",
+        "//submodules/TelegramUI/Components/Chat/MergedAvatarsNode",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)

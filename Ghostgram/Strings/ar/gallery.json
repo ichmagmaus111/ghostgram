@@ -1,0 +1,10 @@
+{
+  "gallery.airPlay": "AirPlay",
+  "gallery.copyPhoto": "نسخ الصورة",
+  "gallery.menu.airPlay": "عنصر «AirPlay»",
+  "gallery.menu.airPlayInfo": "يفتح الفيديو الذي تم تنزيله في مشغّل النظام مع زر AirPlay",
+  "gallery.menu.copyPhoto": "عنصر «نسخ الصورة»",
+  "gallery.photoCopied": "تم نسخ الصورة",
+  "gallery.photoNotLoaded": "لم يتم تحميل الصورة بعد",
+  "gallery.videoNotLoaded": "لم يكتمل تنزيل الفيديو بعد"
+}

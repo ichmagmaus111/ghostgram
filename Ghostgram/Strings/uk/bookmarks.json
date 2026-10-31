@@ -1,0 +1,17 @@
+{
+  "bookmarks.all.empty": "Закладок поки немає. Довге натискання на повідомлення › «Закладка».",
+  "bookmarks.all.footer": "Натискання відкриває повідомлення, свайп ліворуч прибирає закладку.",
+  "bookmarks.all.remove": "Прибрати",
+  "bookmarks.all.title": "Усі закладки",
+  "bookmarks.menu.allInfo": "Закладки всіх чатів цього акаунта",
+  "bookmarks.menu.enabled": "Закладки",
+  "bookmarks.menu.enabledInfo": "«Закладка» в меню повідомлення, позначка 🔖 і ряд закладок під пошуком у чаті",
+  "bookmarks.menu.keywords": "закладки позначки збережені",
+  "bookmarks.messageMenu.add": "Закладка",
+  "bookmarks.messageMenu.defaultTitle": "Закладка",
+  "bookmarks.messageMenu.remove": "Прибрати закладку",
+  "bookmarks.messageMenu.titlePlaceholder": "Назва закладки",
+  "bookmarks.messageMenu.titlePrompt": "Закладка",
+  "bookmarks.messageMenu.titlePromptText": "Назву буде показано під пошуком у цьому чаті та в «Усіх закладках».",
+  "bookmarks.peerMenu.title": "Закладки"
+}

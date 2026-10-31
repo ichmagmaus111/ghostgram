@@ -1,0 +1,17 @@
+{
+  "bookmarks.all.empty": "لا توجد إشارات مرجعية بعد. اضغط مطولًا على رسالة › «إشارة مرجعية».",
+  "bookmarks.all.footer": "النقر يفتح الرسالة، والسحب لليسار يزيل الإشارة المرجعية.",
+  "bookmarks.all.remove": "إزالة",
+  "bookmarks.all.title": "كل الإشارات المرجعية",
+  "bookmarks.menu.allInfo": "الإشارات المرجعية لكل محادثات هذا الحساب",
+  "bookmarks.menu.enabled": "الإشارات المرجعية",
+  "bookmarks.menu.enabledInfo": "«إشارة مرجعية» في قائمة الرسالة، والعلامة 🔖، وصف من الإشارات المرجعية أسفل البحث في المحادثة",
+  "bookmarks.menu.keywords": "إشارات مرجعية علامات محفوظة",
+  "bookmarks.messageMenu.add": "إشارة مرجعية",
+  "bookmarks.messageMenu.defaultTitle": "إشارة مرجعية",
+  "bookmarks.messageMenu.remove": "إزالة الإشارة المرجعية",
+  "bookmarks.messageMenu.titlePlaceholder": "اسم الإشارة المرجعية",
+  "bookmarks.messageMenu.titlePrompt": "إشارة مرجعية",
+  "bookmarks.messageMenu.titlePromptText": "يظهر الاسم أسفل البحث في هذه المحادثة وفي «كل الإشارات المرجعية».",
+  "bookmarks.peerMenu.title": "الإشارات المرجعية"
+}

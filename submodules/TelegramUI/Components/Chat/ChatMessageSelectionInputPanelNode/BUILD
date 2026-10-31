@@ -1,0 +1,35 @@
+load("@build_bazel_rules_swift//swift:swift.bzl", "swift_library")
+
+swift_library(
+    name = "ChatMessageSelectionInputPanelNode",
+    module_name = "ChatMessageSelectionInputPanelNode",
+    srcs = glob([
+        "Sources/**/*.swift",
+    ]),
+    copts = [
+        "-warnings-as-errors",
+    ],
+    deps = [
+        "//submodules/AsyncDisplayKit",
+        "//submodules/Display",
+        "//submodules/TelegramCore",
+        "//submodules/SSignalKit/SwiftSignalKit",
+        "//submodules/TelegramPresentationData",
+        "//submodules/AppBundle",
+        "//submodules/ChatPresentationInterfaceState",
+        "//submodules/TelegramUI/Components/Chat/ChatInputPanelNode",
+        "//submodules/TelegramUI/Components/EntityKeyboard",
+        "//submodules/TelegramUI/Components/Chat/TopMessageReactions",
+        "//submodules/ReactionSelectionNode",
+        "//submodules/TelegramUI/Components/GlassBackgroundComponent",
+        "//submodules/ComponentFlow",
+        "//submodules/Components/ComponentDisplayAdapters",
+        # GHOST: Swiftgram-parity settings and points (W5-SG)
+        "//Ghostgram/GGCore:GGCore",
+        "//Ghostgram/Features/Shared:GGFeaturesShared",
+        "//Ghostgram/Features/Extras:GGExtrasHooks",
+    ],
+    visibility = [
+        "//visibility:public",
+    ],
+)

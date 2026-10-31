@@ -1,0 +1,7 @@
+{
+  "gestures.menu.disableVideoPipSwipe": "بدون «صورة داخل صورة» بالسحب",
+  "gestures.menu.disableVideoPipSwipeInfo": "السحب على فيديو في المعرض يغلقه بدلًا من نقله إلى وضع «صورة داخل صورة»",
+  "gestures.menu.doubleTapToEdit": "النقر المزدوج للتعديل",
+  "gestures.menu.doubleTapToEditInfo": "النقر المزدوج على رسالتك يفتح التعديل بدلًا من التفاعل",
+  "gestures.menu.header": "الإيماءات"
+}

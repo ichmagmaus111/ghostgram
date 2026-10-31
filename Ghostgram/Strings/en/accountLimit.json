@@ -1,0 +1,4 @@
+{
+  "accountLimit.addAccountHelp#one": "You can add up to {count} account with different phone numbers.",
+  "accountLimit.addAccountHelp#other": "You can add up to {count} accounts with different phone numbers."
+}

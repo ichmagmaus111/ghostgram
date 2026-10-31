@@ -1,0 +1,7 @@
+{
+  "gestures.menu.disableVideoPipSwipe": "No picture-in-picture swipe",
+  "gestures.menu.disableVideoPipSwipeInfo": "A swipe on a video in the gallery closes it instead of starting PiP",
+  "gestures.menu.doubleTapToEdit": "Double tap to edit",
+  "gestures.menu.doubleTapToEditInfo": "Double tap on your message opens editing instead of a reaction",
+  "gestures.menu.header": "Gestures"
+}

@@ -1,0 +1,17 @@
+{
+  "subtitles.estimatedTiming": "لا يتضمن تحويل الكلام إلى نص في Telegram توقيتات — لذا وُضعت الأسطر بشكل تقريبي",
+  "subtitles.failed": "لم يتم التعرّف على أي كلام",
+  "subtitles.hide": "إخفاء التسميات التوضيحية",
+  "subtitles.menu.enabled": "التسميات التوضيحية للفيديو",
+  "subtitles.menu.enabledInfo": "يتعرّف على الكلام ويعرضه كأسطر فوق الفيديو",
+  "subtitles.menu.footer": "عنصر «إظهار التسميات التوضيحية» في قائمة «…» لمقاطع الفيديو. يتم التعرّف على الكلام على الجهاز إذا كان نموذج اللغة متوفرًا، وإلا فعبر خادم Apple؛ ومع Telegram Premium يحوّل Telegram رسائل الفيديو الدائرية إلى نص. لا يُرسل أي شيء إلى المحادثات. تتم الترجمة عبر الخدمة المختارة أعلاه.",
+  "subtitles.menu.header": "التسميات التوضيحية للفيديو",
+  "subtitles.menu.keyword": "تسميات توضيحية التعرف على الكلام",
+  "subtitles.menu.language": "لغة التسميات التوضيحية",
+  "subtitles.menu.languageAuto": "كما في التطبيق",
+  "subtitles.menu.translate": "ترجمة التسميات التوضيحية",
+  "subtitles.noAudio": "تعذّر استخراج الصوت من الفيديو",
+  "subtitles.noPermission": "اسمح بالتعرّف على الكلام في إعدادات iOS",
+  "subtitles.recognizing": "جارٍ التعرّف على الكلام…",
+  "subtitles.show": "إظهار التسميات التوضيحية"
+}

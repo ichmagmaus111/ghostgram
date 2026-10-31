@@ -1,0 +1,193 @@
+import Foundation
+import Postbox
+
+public let viewOnceTimeout: Int32 = 0x7fffffff
+
+public func autoremoveExpiryTimestamp(countdownBeginTime: Int32, timeout: Int32) -> Int32 {
+    let (sum, overflow) = countdownBeginTime.addingReportingOverflow(timeout)
+    return overflow ? Int32.max : sum
+}
+
+public class AutoremoveTimeoutMessageAttribute: MessageAttribute {
+    public let timeout: Int32
+    public let countdownBeginTime: Int32?
+    
+    public var associatedMessageIds: [MessageId] = []
+    
+    public let automaticTimestampBasedAttribute: (UInt16, Int32)?
+    
+    public init(timeout: Int32, countdownBeginTime: Int32?) {
+        self.timeout = timeout
+        self.countdownBeginTime = countdownBeginTime
+        
+        if let countdownBeginTime = countdownBeginTime {
+            self.automaticTimestampBasedAttribute = (0, autoremoveExpiryTimestamp(countdownBeginTime: countdownBeginTime, timeout: timeout))
+        } else {
+            self.automaticTimestampBasedAttribute = nil
+        }
+    }
+    
+    required public init(decoder: PostboxDecoder) {
+        self.timeout = decoder.decodeInt32ForKey("t", orElse: 0)
+        self.countdownBeginTime = decoder.decodeOptionalInt32ForKey("c")
+        
+        if let countdownBeginTime = self.countdownBeginTime {
+            self.automaticTimestampBasedAttribute = (0, autoremoveExpiryTimestamp(countdownBeginTime: countdownBeginTime, timeout: self.timeout))
+        } else {
+            self.automaticTimestampBasedAttribute = nil
+        }
+    }
+    
+    public func encode(_ encoder: PostboxEncoder) {
+        encoder.encodeInt32(self.timeout, forKey: "t")
+        if let countdownBeginTime = self.countdownBeginTime {
+            encoder.encodeInt32(countdownBeginTime, forKey: "c")
+        } else {
+            encoder.encodeNil(forKey: "c")
+        }
+    }
+}
+
+public class AutoclearTimeoutMessageAttribute: MessageAttribute {
+    public let timeout: Int32
+    public let countdownBeginTime: Int32?
+    
+    public var associatedMessageIds: [MessageId] = []
+    
+    public let automaticTimestampBasedAttribute: (UInt16, Int32)?
+    
+    public init(timeout: Int32, countdownBeginTime: Int32?) {
+        self.timeout = timeout
+        self.countdownBeginTime = countdownBeginTime
+        
+        if let countdownBeginTime = countdownBeginTime {
+            if self.timeout == viewOnceTimeout {
+                self.automaticTimestampBasedAttribute = (1, countdownBeginTime)
+            } else {
+                self.automaticTimestampBasedAttribute = (1, autoremoveExpiryTimestamp(countdownBeginTime: countdownBeginTime, timeout: timeout))
+            }
+        } else {
+            self.automaticTimestampBasedAttribute = nil
+        }
+    }
+    
+    required public init(decoder: PostboxDecoder) {
+        self.timeout = decoder.decodeInt32ForKey("t", orElse: 0)
+        self.countdownBeginTime = decoder.decodeOptionalInt32ForKey("c")
+        
+        if let countdownBeginTime = self.countdownBeginTime {
+            if self.timeout == viewOnceTimeout {
+                self.automaticTimestampBasedAttribute = (1, countdownBeginTime)
+            } else {
+                self.automaticTimestampBasedAttribute = (1, autoremoveExpiryTimestamp(countdownBeginTime: countdownBeginTime, timeout: self.timeout))
+            }
+        } else {
+            self.automaticTimestampBasedAttribute = nil
+        }
+    }
+    
+    public func encode(_ encoder: PostboxEncoder) {
+        encoder.encodeInt32(self.timeout, forKey: "t")
+        if let countdownBeginTime = self.countdownBeginTime {
+            encoder.encodeInt32(countdownBeginTime, forKey: "c")
+        } else {
+            encoder.encodeNil(forKey: "c")
+        }
+    }
+}
+
+public extension Message {
+    var autoremoveAttribute: AutoremoveTimeoutMessageAttribute? {
+        for attribute in self.attributes {
+            if let attribute = attribute as? AutoremoveTimeoutMessageAttribute {
+                return attribute
+            }
+        }
+        return nil
+    }
+    
+    var autoclearAttribute: AutoclearTimeoutMessageAttribute? {
+        for attribute in self.attributes {
+            if let attribute = attribute as? AutoclearTimeoutMessageAttribute {
+                return attribute
+            }
+        }
+        return nil
+    }
+    
+    // GHOST: what the screens see. Self-destructing media that a feature shows as ordinary media
+    // (GGRestrictionHooks.secretMediaDisplay) has no timeout here; TelegramCore's own read/consume
+    // logic uses `ggRawMinAutoremoveOrClearTimeout`.
+    var minAutoremoveOrClearTimeout: Int32? {
+        let timeout = self.ggRawMinAutoremoveOrClearTimeout
+        if timeout != nil && ggShowsSecretMediaAsRegular(self) {
+            return nil
+        }
+        return timeout
+    }
+
+    // GHOST: the message's own timeout (upstream `minAutoremoveOrClearTimeout`)
+    var ggRawMinAutoremoveOrClearTimeout: Int32? {
+        var timeout: Int32?
+        for attribute in self.attributes {
+            if let attribute = attribute as? AutoremoveTimeoutMessageAttribute {
+                if attribute.timeout == viewOnceTimeout {
+                    return attribute.timeout
+                }
+                if let timeoutValue = timeout {
+                    timeout = min(timeoutValue, attribute.timeout)
+                } else {
+                    timeout = attribute.timeout
+                }
+            } else if let attribute = attribute as? AutoclearTimeoutMessageAttribute {
+                if attribute.timeout == viewOnceTimeout {
+                    return attribute.timeout
+                }
+                if let timeoutValue = timeout {
+                    timeout = min(timeoutValue, attribute.timeout)
+                } else {
+                    timeout = attribute.timeout
+                }
+            }
+        }
+        return timeout
+    }
+    
+    // GHOST: what the screens see (blur, secret viewer, menus); see `minAutoremoveOrClearTimeout`
+    var containsSecretMedia: Bool {
+        let isSecretMedia = self.ggRawContainsSecretMedia
+        return isSecretMedia && !ggShowsSecretMediaAsRegular(self, isSecretMedia: isSecretMedia)
+    }
+
+    // GHOST: the message's own answer (upstream `containsSecretMedia`): view once or a timer of a
+    // minute or less on a photo, video or voice. TelegramCore's read/consume logic and features
+    // that keep such media use this one.
+    var ggRawContainsSecretMedia: Bool {
+        guard let timeout = self.ggRawMinAutoremoveOrClearTimeout else {
+            return false
+        }
+        if timeout > 1 * 60 && timeout != viewOnceTimeout {
+            return false
+        }
+        
+        for media in self.media {
+            switch media {
+                case _ as TelegramMediaImage:
+                    return true
+                case let file as TelegramMediaFile:
+                    if file.isVideo || file.isAnimated || file.isVoice || file.isMusic {
+                        return true
+                    }
+                default:
+                    break
+            }
+        }
+        
+        return false
+    }
+    
+    var isSelfExpiring: Bool {
+        return self.minAutoremoveOrClearTimeout != nil
+    }
+}
+

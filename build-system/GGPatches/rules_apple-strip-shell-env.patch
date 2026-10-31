@@ -1,0 +1,15 @@
+diff --git a/apple/internal/compilation_support.bzl b/apple/internal/compilation_support.bzl
+index 0357b7f..692ab0e 100644
+--- a/apple/internal/compilation_support.bzl
++++ b/apple/internal/compilation_support.bzl
+@@ -195,6 +195,10 @@ def _register_binary_strip_action(
+         inputs = [binary],
+         mnemonic = "ObjcBinarySymbolStrip",
+         outputs = [stripped_binary],
++        # GHOST: take the shell env so DEVELOPER_DIR from build-system/GGXcode.bazelrc reaches
++        # strip; without it bazel resolves the Xcode through LaunchServices, which on macOS 27
++        # does not report the xcode-select'ed Xcode (build-system/GGXcodeConfig.sh).
++        use_default_shell_env = True,
+     )
+     return stripped_binary
+ 

@@ -1,0 +1,8 @@
+{
+  "core.import.invalidFormat": "Це не файл налаштувань Ghostgram, або файл пошкоджено.",
+  "core.import.unsupportedVersion": "Файл створено новішою версією Ghostgram (формат {version}). Оновіть застосунок, щоб імпортувати його.",
+  "core.language.followTelegram": "Як у Telegram",
+  "core.languageNativeName": "Українська",
+  "core.requiresRestart": "Потрібен перезапуск",
+  "core.requiresRestartFooter": "Зміна застосується після перезапуску Ghostgram."
+}

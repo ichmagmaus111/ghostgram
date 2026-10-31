@@ -1,0 +1,17 @@
+{
+  "bookmarks.all.empty": "No bookmarks yet. Long press a message › «Bookmark».",
+  "bookmarks.all.footer": "A tap opens the message, a left swipe removes the bookmark.",
+  "bookmarks.all.remove": "Remove",
+  "bookmarks.all.title": "All bookmarks",
+  "bookmarks.menu.allInfo": "Bookmarks of all chats of this account",
+  "bookmarks.menu.enabled": "Bookmarks",
+  "bookmarks.menu.enabledInfo": "«Bookmark» in the message menu, the 🔖 mark and a row of bookmarks under the chat search",
+  "bookmarks.menu.keywords": "bookmarks marks saved",
+  "bookmarks.messageMenu.add": "Bookmark",
+  "bookmarks.messageMenu.defaultTitle": "Bookmark",
+  "bookmarks.messageMenu.remove": "Remove bookmark",
+  "bookmarks.messageMenu.titlePlaceholder": "Bookmark name",
+  "bookmarks.messageMenu.titlePrompt": "Bookmark",
+  "bookmarks.messageMenu.titlePromptText": "The name is shown under the search in this chat and in «All bookmarks».",
+  "bookmarks.peerMenu.title": "Bookmarks"
+}

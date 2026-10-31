@@ -1,0 +1,12 @@
+/* Localized versions of Info.plist keys */
+
+"NSContactsUsageDescription" = "Telegram barcha qurilmalaringizdan doʻstlaringiz bilan bogʻlana olishingiz uchun muntazam ravishda kontaktlaringizni kuchli shifrlanadigan bulut serverlariga yuklaydi."; /* GHOST: Telegram's cloud, the name stays */
+"NSLocationWhenInUseUsageDescription" = "Joylashuvingizni doʻstlaringizga yuborganingizda Ghostgram ularga xaritani koʻrsatishi uchun ruxsat kerak boʻladi."; /* GHOST: app name */
+"NSLocationAlwaysAndWhenInUseUsageDescription" = "Chatda doʻstlarga Jonli joylashuvingizni ulashishni tanlaganingizda, Ghostgram joylashuvingizni jonli ulashish davomida yangilab turishi uchun undan fonda foydalanishi kerak."; /* GHOST: app name */
+"NSLocationAlwaysUsageDescription" = "Chatda doʻstlarga Jonli joylashuvingizni ulashishni tanlaganingizda, Ghostgram joylashuvingizni jonli ulashish davomida yangilab turishi uchun undan fonda foydalanishi kerak. Sizga bu Apple Watchdan joylashuvlarni yuborish uchun ham kerak."; /* GHOST: app name */
+"NSCameraUsageDescription" = "Bu bizga rasm va videolarga olish, shuningdek, video chaqiruvlar qilish va ularni ulashishingiz uchun kerak.";
+"NSPhotoLibraryUsageDescription" = "Bu bizga galereyangizdan rasm va videolaringizni ulasha olishingiz uchun kerak.";
+"NSPhotoLibraryAddUsageDescription" = "Bu bizga rasm va videolaringizni galereyangizga saqlay olishingiz uchun kerak.";
+"NSMicrophoneUsageDescription" = "Bu bizga ovozli xabarlarni tovush bilan yozishingiz va ulashingiz uchun kerak.";
+"NSSiriUsageDescription" = "Siz xabarlar yuborish uchun Siridan foydalanishingiz mumkin.";
+"NSFaceIDUsageDescription" = "Siz ilovani Face ID yordamida ochishingiz mumkin.";

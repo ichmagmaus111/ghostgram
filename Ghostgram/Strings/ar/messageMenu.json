@@ -1,0 +1,14 @@
+{
+  "messageMenu.forwarded": "تمت إعادة التوجيه",
+  "messageMenu.menu.custom": "قائمة رسالة مخصّصة",
+  "messageMenu.menu.customInfo": "تُزال عناصر Telegram التي توقفها من القائمة",
+  "messageMenu.menu.forwardWithoutAuthor": "إعادة توجيه بدون المرسل",
+  "messageMenu.menu.pin": "تثبيت",
+  "messageMenu.menu.replies": "الردود والنقاش",
+  "messageMenu.menu.reply": "رد",
+  "messageMenu.menu.report": "إبلاغ",
+  "messageMenu.menu.restrict": "تقييد",
+  "messageMenu.menu.saveMedia": "حفظ في الصور",
+  "messageMenu.menu.saveToCloud": "حفظ في الرسائل المحفوظة",
+  "messageMenu.savedToCloud": "تم الحفظ في الرسائل المحفوظة"
+}

@@ -1,0 +1,316 @@
+# Android drawable	iOS asset — generated once from exteraGram's XTGIconPackMap.md, edited here since
+list_mute	Chat List/PeerMutedIcon
+list_pin	Chat List/PeerPinnedIcon
+list_secret	Chat List/StatusLockIcon
+ic_chatlist_add_2	Chat List/ComposeIcon
+msg_stories_add	Chat List/AddStoryIcon
+msg_header_share	Chat List/NavigationShare
+msg_add	Chat List/AddIcon
+outline_header_search	Chat List/SearchIcon
+filled_chatlist_mention	Chat List/MentionBadgeIcon
+filled_chatlist_reaction	Chat List/ReactionsBadgeIcon
+filled_chatlist_poll	Chat List/PollBadgeIcon
+msg_mini_replystory	Chat List/StoryReplyIcon
+msg_mini_autodelete	Chat List/StatusIconAutoremoveOn
+msg_mini_autodelete_empty	Chat List/StatusIconAutoremoveOff
+chats_archive	Chat List/Archive/IconArchived
+msg_folders_archive	Chat List/Filters/Archive
+msg_folders_bots	Chat List/Filters/Bot
+msg_folders_channels	Chat List/Filters/Channel
+msg_folders_private	Chat List/Filters/Contact
+msg_folders_requests	Chat List/Filters/User
+msg_folders_groups	Chat List/Filters/Group
+msg_folders_muted	Chat List/Filters/Muted
+msg_folders_read	Chat List/Filters/Read
+msg_discussion	Chat List/Filters/Chats
+msg_archive	Chat List/Search/Archive
+msg_calendar2	Chat List/Search/Calendar
+msg_channel	Chat List/Search/Channel
+msg_groups	Chat List/Search/Group
+msg_openprofile	Chat List/Search/User
+msg_link	Chat List/Search/Links
+msg_media	Chat List/Search/Media
+tabs_chats_24	Chat List/Tabs/IconChats
+tabs_contacts_24	Chat List/Tabs/IconContacts
+tabs_calls_24	Chat List/Tabs/IconCalls
+msg_settings	Chat List/Tabs/IconSettings
+ic_ab_back	Navigation/Back
+outline_header_search	Navigation/Search
+msg_add	Navigation/Add
+msg_info	Navigation/Info
+msg_help	Navigation/Question
+msg_header_share	Navigation/Share
+msg_groups_create	Navigation/CreateGroup
+input_attach	Chat/Input/Text/IconAttachment
+input_mic	Chat/Input/Text/IconMicrophone
+input_video	Chat/Input/Text/IconVideo
+ic_send	Chat/Input/Text/SendIcon
+input_smile	Chat/Input/Text/AccessoryIconStickers
+input_keyboard	Chat/Input/Text/AccessoryIconKeyboard
+input_bot1	Chat/Input/Text/AccessoryIconCommands
+input_bot2	Chat/Input/Text/AccessoryIconInputButtons
+input_schedule	Chat/Input/Text/AccessoryIconSchedule
+msg_autodelete	Chat/Input/Text/AccessoryIconTimer
+input_notify_on	Chat/Input/Text/AccessoryIconSilentPostOn
+input_notify_off	Chat/Input/Text/AccessoryIconSilentPostOff
+input_gift_s	Chat/Input/Text/AccessoryIconGift
+input_suggest_paid_24	Chat/Input/Text/AccessoryIconSuggestPost
+input_forward	Chat/Input/Text/IconForward
+input_calendar1	Chat/Input/Search/Calendar
+msg_usersearch	Chat/Input/Search/Members
+msg_calendar2	Chat/Input/Menu/ScheduleIcon
+input_notify_off	Chat/Input/Menu/SilentIcon
+msg_online	Chat/Input/Menu/WhenOnlineIcon
+smiles_tab_smiles	Chat/Input/Media/EntityInputEmojiIcon
+smiles_tab_gif	Chat/Input/Media/EntityInputGifsIcon
+smiles_tab_stickers	Chat/Input/Media/EntityInputStickersIcon
+smiles_tab_settings	Chat/Input/Media/EntityInputSettingsIcon
+smiles_tab_clear	Chat/Input/Media/EntityInputClearIcon
+stickers_recent	Chat/Input/Media/PanelRecentIcon
+stickers_favorites	Chat/Input/Media/PanelHeartIcon
+stickers_gifs_trending	Chat/Input/Media/PanelTrendingIcon
+ic_masks_msk1	Chat/Input/Media/EntityInputMasksIcon
+input_reply	Chat/Input/Accessory Panels/ReplyIcon
+msg_edit	Chat/Input/Accessory Panels/EditIcon
+input_forward	Chat/Input/Accessory Panels/ForwardIcon
+msg_forward	Chat/Input/Accessory Panels/MessageSelectionForward
+msg_delete	Chat/Input/Accessory Panels/MessageSelectionTrash
+msg_report	Chat/Input/Accessory Panels/MessageSelectionReport
+filled_reply_settings	Chat/Input/Accessory Panels/ReplySettingsIcon
+filled_reply_quote	Chat/Input/Accessory Panels/ReplyQuoteIcon
+filled_link	Chat/Input/Accessory Panels/LinkSettingsIcon
+filled_forward	Chat/Input/Accessory Panels/ForwardSettingsIcon
+msg_pinnedlist	Chat/Input/Accessory Panels/PinnedList
+msg_help	Chat/Input/Accessory Panels/Help
+input_gift_s	Chat/Input/Accessory Panels/Gift
+input_suggest_paid_24	Chat/Input/Accessory Panels/SuggestPostIcon
+msg_camera	Chat/Attach Menu/Camera
+msg_location	Chat/Attach Menu/Location
+msg_sticker	Chat/Attach Menu/Sticker
+msg_link	Chat/Attach Menu/Link
+msg_photos	Chat/Attach Menu/Image
+msg_mute	Chat/Title Panels/MuteIcon
+msg_translate	Chat/Title Panels/Translate
+msg_delete	Chat/Context Menu/Delete
+msg_copy	Chat/Context Menu/Copy
+msg_edit	Chat/Context Menu/Edit
+msg_select	Chat/Context Menu/Select
+msg_forward	Chat/Context Menu/Forward
+msg_arrow_back	Chat/Context Menu/Back
+msg_clear	Chat/Context Menu/Clear
+tabs_reorder	Chat/Context Menu/ReorderItems
+msg_theme	Chat/Context Menu/ApplyTheme
+msg_link	Chat/Context Menu/Link
+msg_viewchats	Chat/Context Menu/GoToMessage
+msg_search	Chat/Context Menu/Search
+msg_retry	Chat/Context Menu/Resend
+msg_info	Chat/Context Menu/Info
+msg_add	Chat/Context Menu/Add
+msg_download	Chat/Context Menu/Download
+msg_download	Chat/Context Menu/Save
+msg_permissions	Chat/Context Menu/Restrict
+msg_msgbubble	Chat/Context Menu/MessageBubble
+msg_openprofile	Chat/Context Menu/User
+msg_translate	Chat/Context Menu/Translate
+msg_sticker	Chat/Context Menu/Sticker
+msg_tone_on	Chat/Context Menu/SoundOn
+msg_tone_off	Chat/Context Menu/SoundOff
+msg_fave	Chat/Context Menu/Fave
+msg_unfave	Chat/Context Menu/Unfave
+msg_customize	Chat/Context Menu/Customize
+msg_stats	Chat/Context Menu/Statistics
+msg_share	Chat/Context Menu/Share
+msg_report	Chat/Context Menu/Report
+msg_views	Chat/Context Menu/Read
+msg_markread	Chat/Context Menu/MarkAsRead
+msg_markread	Chat/Context Menu/ReadAll
+msg_markunread	Chat/Context Menu/MarkAsUnread
+msg_leave	Chat/Context Menu/Logout
+msg_unpin	Chat/Context Menu/Unpin
+msg_pin	Chat/Context Menu/Pin
+msg_autodelete	Chat/Context Menu/Timer
+msg_calendar2	Chat/Context Menu/Schedule
+msg_calendar2	Chat/Context Menu/Calendar
+menu_reply	Chat/Context Menu/Reply
+msg_calls_regular	Chat/Context Menu/PhoneCall
+msg_calls	Chat/Context Menu/Call
+msg_mute	Chat/Context Menu/Muted
+notifications_mute2d	Chat/Context Menu/Mute2d
+msg_unmute	Chat/Context Menu/Unmute
+msg_gift_premium	Chat/Context Menu/Gift
+msg_clear	Chat/Context Menu/ClearMessages
+msg_channel	Chat/Context Menu/Channels
+msg_addcontact	Chat/Context Menu/AddUser
+msg_voicechat	Chat/Context Menu/VoiceChat
+msg_videocall	Chat/Context Menu/VideoCall
+msg_unvote	Chat/Context Menu/Unvote
+msg_pollstop	Chat/Context Menu/StopPoll
+msg_speed	Chat/Context Menu/Speed
+msg_emoji_smiles	Chat/Context Menu/Smile
+msg_replace	Chat/Context Menu/Replace
+menu_select_quote	Chat/Context Menu/QuoteSelected
+menu_quote_specific	Chat/Context Menu/Quote
+menu_quote_delete	Chat/Context Menu/QuoteRemove
+msg_message	Chat/Context Menu/Message
+msg_groups	Chat/Context Menu/Groups
+msg_language	Chat/Context Menu/Globe
+msg_header_draw	Chat/Context Menu/Draw
+msg_tone_add	Chat/Context Menu/DownloadTone
+msg_openin	Chat/Context Menu/Browser
+msg_bots	Chat/Context Menu/Bots
+msg_archive	Chat/Context Menu/Archive
+msg_unarchive	Chat/Context Menu/Unarchive
+msg_archive_hide	Chat/Context Menu/HideArchive
+msg_settings	Chat/Context Menu/Settings
+msg_menu_stories	Chat/Context Menu/Stories
+msg_stories_archive	Chat/Context Menu/StoryArchive
+menu_tag_plus	Chat/Context Menu/Tag
+menu_tag_delete	Chat/Context Menu/TagRemove
+menu_tag_filter	Chat/Context Menu/TagFilter
+menu_tag_rename	Chat/Context Menu/TagEditName
+msg_rate_up	Chat/Context Menu/ThumbsUp
+msg_rate_down	Chat/Context Menu/ThumbsDown
+msg_ungroup	Chat/Context Menu/Ungroup
+msg_viewreplies	Chat/Context Menu/Replies
+msg_removefolder	Chat/Context Menu/RemoveFromFolder
+msg_reactions	Chat/Context Menu/Reactions
+msg_admins	Chat/Context Menu/Promote
+menu_edit_price	Chat/Context Menu/PriceTag
+msg_pinnedlist	Chat/Context Menu/PinnedList
+msg_mention	Chat/Context Menu/Mention
+msg_secret	Chat/Context Menu/Lock
+msg_help	Chat/Context Menu/Help
+msg_folders	Chat/Context Menu/Folder
+msg_addfolder	Chat/Context Menu/AddToFolder
+msg_addfolder	Chat/Context Menu/AddFolder
+msg_discussion	Chat/Context Menu/Chats
+msg_camera	Chat/Context Menu/Camera
+boosts	Chat/Context Menu/Boost
+msg_block	Chat/Context Menu/Ban
+msg_photos	Chat/Context Menu/Image
+menu_night_mode_24	Chat/Context Menu/NightMode
+menu_privacy_policy	Chat/Context Menu/Privacy
+pencil	Chat/Context Menu/Pencil
+msg_sendfile	Chat/Context Menu/File
+outline_caption_24	Chat/Context Menu/Caption
+outline_caption_24	Chat/Context Menu/AddCaption
+msg_report_xxx	Chat/Context Menu/ReportXxx
+msg_report_violence	Chat/Context Menu/ReportViolence
+msg_report_personal	Chat/Context Menu/ReportPersonal
+msg_report_fake	Chat/Context Menu/ReportFake
+msg_report_drugs	Chat/Context Menu/ReportDrugs
+msg_report_other	Chat/Context Menu/ReportCopyright
+msg_zoomin	Chat/Context Menu/ZoomIn
+msg_zoomout	Chat/Context Menu/ZoomOut
+menu_quality_hd	Chat/Context Menu/QualityHd
+menu_quality_sd	Chat/Context Menu/QualitySd
+menu_share_on_24	Chat/Context Menu/ForwardEnable
+menu_share_off_24	Chat/Context Menu/ForwardDisable
+msg_list	Chat/Context Menu/List
+msg_contacts_time	Chat/Context Menu/Time
+msg_played	Chat/Context Menu/Play
+msg2_notifications	Item List/Icons/Notifications
+msg2_secret	Item List/Icons/Privacy
+msg2_data	Item List/Icons/Data
+msg2_discussion	Item List/Icons/Appearance
+msg2_discussion	Item List/Icons/Chat
+msg2_language	Item List/Icons/Language
+msg2_devices	Item List/Icons/Devices
+msg2_folder	Item List/Icons/Folder
+msg2_sticker	Item List/Icons/Sticker
+msg2_battery	Item List/Icons/PowerSaving
+msg2_ask_question	Item List/Icons/Support
+msg2_help	Item List/Icons/Faq
+msg2_help	Item List/Icons/Tips
+msg2_smile_status	Item List/Icons/Status
+msg_emoji_smiles	Item List/Icons/Emoji
+msg2_gif	Item List/Icons/Gif
+msg2_reactions2	Item List/Icons/Reactions
+msg2_link2	Item List/Icons/Link
+msg2_block2	Item List/Icons/Block
+msg2_videocall	Item List/Icons/Video
+msg2_email	Item List/Icons/Email
+msg2_autodelete	Item List/Icons/Timer
+msg2_archived_stickers	Item List/Icons/ArchivedSticker
+msg2_trending	Item List/Icons/TrendingSticker
+msg_groups	Item List/Icons/Group
+msg_channel	Item List/Icons/Channel
+msg_bot	Item List/Icons/Bot
+msg_bot	Item List/Icons/Chatbot
+msg_contacts	Item List/Icons/Members
+msg_contacts	Item List/Icons/Member
+msg_openprofile	Item List/Icons/Profile
+msg_calls	Item List/Icons/Phone
+menu_phone	Item List/Icons/ChangePhone
+msg_photos	Item List/Icons/Photo
+msg_location	Item List/Icons/Location
+msg_delete	Item List/Icons/Delete
+msg_download	Item List/Icons/Download
+menu_2sv	Item List/Icons/Key
+msg_settings	Item List/Icons/Settings
+msg_saved	Item List/Icons/SavedMessages
+msg_menu_stories	Item List/Icons/Stories
+msg_background	Item List/Icons/Wallpaper
+msg_palette	Item List/Icons/Brush
+menu_birthday	Item List/Icons/Cake
+msg_gift_premium	Item List/Icons/Gift
+msg_speed	Item List/Icons/Speed
+msg_played	Item List/Icons/Play
+input_mic	Item List/Icons/Microphone
+msg_contacts_time	Item List/Icons/LastSeen
+msg_topics	Item List/Icons/Topics
+msg_requests	Item List/Icons/Requests
+msg_admins	Item List/Icons/Admin
+menu_intro	Item List/Icons/Intro
+menu_link_create	Item List/Icons/BusinessLink
+msg_views	Item List/Icons/View
+menu_tag_plus	Item List/Icons/Tag
+msg_translate	Item List/Icons/Translation
+ai_chat	Item List/Icons/AITools
+msg_share	Item List/Icons/Share
+msg_stats	Item List/Icons/Stats
+menu_share_off_24	Item List/Icons/NoForward
+msg_message	Item List/Icons/Messages
+msg_add	Item List/Icons/Add
+msg_report	Item List/Icons/Flag
+msg_filled_storageusage	Item List/Icons/Pie
+msg_filled_data_sent	Item List/Icons/Upload
+msg_filled_data_files	Item List/Icons/File
+fingerprint	Item List/Icons/FaceId
+msg_policy	Item List/Icons/AntiSpam
+menu_shop	Item List/Icons/Business
+menu_wallet	Item List/Icons/Balance
+menu_premium_clock	Item List/Icons/Clock
+menu_feature_paid	Item List/Icons/Stars
+filled_profile_message_24	Peer Info/ButtonMessage
+filled_profile_call_24	Peer Info/ButtonCall
+filled_profile_video_24	Peer Info/ButtonVideo
+filled_profile_mute_24	Peer Info/ButtonMute
+filled_profile_unmute_24	Peer Info/ButtonUnmute
+msg_search	Peer Info/ButtonSearch
+filled_profile_member_24	Peer Info/ButtonAddMember
+msg_leave	Peer Info/ButtonLeave
+filled_profile_stop_24	Peer Info/ButtonStop
+msg_voicechat	Peer Info/ButtonVoiceChat
+msg_location	Peer Info/LocationIcon
+msg_pin	Peer Info/PinnedIcon
+msg_addphoto	Settings/SetAvatar
+msg_qrcode	Settings/QrIcon
+msg_qrcode	Settings/QrButtonIcon
+menu_username_set	Settings/SetUsername
+msg_smile_status	Settings/SetEmojiStatus
+msg_smile_status	Settings/EditEmojiStatus
+msg_reset	Settings/Reset
+media_draw	Media Gallery/Draw
+msg_sticker	Media Gallery/Stickers
+menu_video_pip	Media Gallery/PictureInPictureButton
+media_share	Media Gallery/InlineShare
+media_like	Media Gallery/InlineLike
+msg_addcontact	Contact List/AddMemberIcon
+menu_invit_telegram	Contact List/InviteActionIcon
+msg_groups_create	Contact List/CreateGroupActionIcon
+msg_channel	Contact List/CreateChannelActionIcon
+msg_link	Contact List/LinkActionIcon
+menu_birthday	Contact List/AddBirthdayIcon
+share_arrow	Chat/Message/ShareIcon
+msg_pin_mini	Chat/Message/Pinned
