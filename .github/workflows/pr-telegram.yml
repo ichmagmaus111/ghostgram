@@ -1,0 +1,95 @@
+name: Pull requests to Telegram
+
+# Posts every new pull request to the Ghostgram chat and pins the post.
+#
+# pull_request_target is what gives pull requests from forks access to the bot token, so nothing here
+# may run code from the pull request: there is no checkout, and the title and the description only
+# ever pass through jq as data.
+
+on:
+  pull_request_target:
+    types: [opened]
+  workflow_dispatch:
+    inputs:
+      pr:
+        description: Pull request number
+        required: true
+        type: string
+      dry_run:
+        description: Only print the message, post nothing
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  announce:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Post to Telegram
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: "-1003667190061"
+        run: |
+          set -u
+          cd "$RUNNER_TEMP"
+
+          number=$(jq -r '.pull_request.number // .inputs.pr' "$GITHUB_EVENT_PATH")
+          dry_run=$(jq -r '.inputs.dry_run // "false"' "$GITHUB_EVENT_PATH")
+          [[ $number =~ ^[0-9]+$ ]] || { echo "Not a pull request number: $number"; exit 1; }
+
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$number" > pr.json
+          gh api "repos/$GITHUB_REPOSITORY/pulls/$number/commits?per_page=20" > commits.json
+
+          # The 1200 limit keeps the post under Telegram's 4096 UTF-16 units even if it is all emoji.
+          jq -n --arg chat "$TELEGRAM_CHAT_ID" --slurpfile pr pr.json --slurpfile commits commits.json '
+            def html: gsub("&"; "&amp;") | gsub("<"; "&lt;") | gsub(">"; "&gt;");
+            def cut($n): if length > $n then .[:$n] + "…" else . end;
+            $pr[0] as $p
+            | (($p.body // "")
+                | gsub("\r"; "")
+                | gsub("<!--[\\s\\S]*?-->"; "")
+                | gsub("\n{3,}"; "\n\n")
+                | gsub("\\A\\s+|\\s+\\z"; "")) as $body
+            | (if $body != "" then $body
+               else "Описания нет. Коммиты:\n"
+                 + ([$commits[0][].commit.message | split("\n")[0] | "• " + .][:10] | join("\n"))
+               end) as $about
+            | ([ "<b>🔀 Новый пул-реквест #\($p.number)\(if $p.draft then " (черновик)" else "" end)</b>",
+                 "<b>\($p.title | html)</b>",
+                 "",
+                 ($about | cut(1200) | html),
+                 "",
+                 "👤 \($p.user.login | html)",
+                 "🌿 \(($p.head.label // $p.head.ref // "?") | html) → \($p.base.ref | html)",
+                 "📊 Файлов: \($p.changed_files), +\($p.additions) −\($p.deletions)"
+               ] | join("\n")) as $text
+            | { chat_id: $chat,
+                text: $text,
+                parse_mode: "HTML",
+                link_preview_options: { is_disabled: true },
+                reply_markup: { inline_keyboard: [[{ text: "Открыть на GitHub", url: $p.html_url }]] } }
+          ' > message.json
+
+          if [[ $dry_run == true ]]; then
+            jq -r .text message.json
+            exit 0
+          fi
+
+          telegram() {
+            curl -sS --retry 2 --max-time 30 -H 'Content-Type: application/json' -d "$2" \
+              "https://api.telegram.org/bot$TELEGRAM_BOT_TOKEN/$1"
+          }
+
+          sent=$(telegram sendMessage @message.json)
+          jq -e .ok <<< "$sent" > /dev/null || { jq -r .description <<< "$sent"; exit 1; }
+
+          pin=$(jq -nc --arg chat "$TELEGRAM_CHAT_ID" --argjson id "$(jq .result.message_id <<< "$sent")" \
+            '{ chat_id: $chat, message_id: $id, disable_notification: true }')
+          pinned=$(telegram pinChatMessage "$pin")
+          jq -e .ok <<< "$pinned" > /dev/null || { jq -r .description <<< "$pinned"; exit 1; }
