@@ -155,7 +155,11 @@ final class GGMaskStore {
                 self.reloadFromDisk()
             }
             let id = GGMaskStore.makeId()
-            let manifest = GGMaskManifest(id: id, name: [languageCode: trimmed, "en": trimmed], effects: [])
+            // Not a literal: with English as the language both keys are "en", and a dictionary
+            // literal with a repeated key traps (crash of build 199 on «Создать маску»).
+            var names: [String: String] = ["en": trimmed]
+            names[languageCode] = trimmed
+            let manifest = GGMaskManifest(id: id, name: names, effects: [])
             let success = self.write(manifest)
             DispatchQueue.main.async {
                 completion(success ? .success(id) : .failure(.write))

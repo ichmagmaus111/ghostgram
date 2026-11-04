@@ -171,7 +171,7 @@ enum InterfaceMenu {
             let changed = !InterfaceSettings.tabOrder.isDefault || !InterfaceSettings.tabTitles.isDefault || !InterfaceSettings.hiddenTabs.isDefault
             return changed ? GGStrings.Interface.Menu.changedLabel : nil
         }))
-        GGMenuRegistry.register(GGMenuRow(id: "interface.tabBar.hideTitles", section: main, order: 200, title: { GGStrings.Interface.Menu.hideTabTitles }, kind: .toggle(.global(InterfaceSettings.hideTabTitles))))
+        GGMenuRegistry.register(GGMenuRow(id: "interface.tabBar.hideTitles", section: main, order: 200, title: { GGStrings.Interface.Menu.hideTabTitles }, subtitle: { GGStrings.Interface.Menu.hideTabTitlesInfo }, kind: .toggle(.global(InterfaceSettings.hideTabTitles))))
         GGMenuRegistry.register(GGMenuRow(id: "interface.tabBar.wide", section: main, order: 300, title: { GGStrings.Interface.Menu.wideTabBar }, kind: .toggle(.global(InterfaceSettings.wideTabBar))))
         GGMenuRegistry.register(GGMenuRow(id: "interface.tabBar.hide", section: main, order: 400, title: { GGStrings.Interface.Menu.hideTabBar }, subtitle: { GGStrings.Interface.Menu.hideTabBarInfo }, kind: .toggle(.global(InterfaceSettings.hideTabBar))))
         GGMenuRegistry.register(GGMenuRow(id: "interface.tabBar.heightOffset", section: main, order: 500, title: { GGStrings.Interface.Menu.tabBarHeight }, kind: .slider(.global(InterfaceSettings.tabBarHeightOffset), range: GGTabBarLayout.heightOffsetRange, step: 1.0, format: InterfaceMenu.points), isVisible: { _ in !InterfaceSettings.hideTabBar.value }))
@@ -214,6 +214,17 @@ enum InterfaceMenu {
         // Quick buttons
         GGMenuRegistry.register(section: GGMenuSectionDescriptor(id: InterfaceMenu.panelsButtons, screen: .tab(tab), order: 500, header: { GGStrings.Interface.Menu.buttonsHeader }, footer: { _ in GGStrings.Interface.Menu.buttonsFooter }))
         GGMenuRegistry.register(GGMenuRow(id: "interface.bindButtons.enabled", section: InterfaceMenu.panelsButtons, order: 100, title: { GGStrings.Interface.Menu.bindButtons }, kind: .toggle(.global(InterfaceSettings.bindButtons))))
+        // The buttons on a full chat preview: dragged into place, width and height by sliders.
+        GGMenuRegistry.register(GGMenuRow(id: "interface.bindButtons.layout", section: InterfaceMenu.panelsButtons, order: 150, title: { GGStrings.Interface.Binds.editorTitle }, kind: .action({ menu in
+            menu.push(GGQuickButtonsEditorController(context: menu.context))
+        }), isVisible: { _ in InterfaceSettings.bindButtons.value }, label: { _ in
+            let size = GGQuickButtonsLayout.size()
+            let defaultSide = CGFloat(GGQuickButtonsLayout.defaultSide)
+            if size.width != defaultSide || size.height != defaultSide {
+                return "\(Int(size.width))×\(Int(size.height))"
+            }
+            return InterfaceSettings.bindButtonsPositions.value.isEmpty ? nil : GGStrings.Interface.Binds.customLayout
+        }))
         GGMenuRegistry.register(GGMenuRow(id: "interface.bindButtons.hidden", section: InterfaceMenu.panelsButtons, order: 200, title: { GGStrings.Interface.Binds.buttonsTitle }, kind: .action({ menu in
             menu.push(GGQuickButtonScreens.makeScreen(context: menu.context))
         }), isVisible: { _ in InterfaceSettings.bindButtons.value }, label: { _ in

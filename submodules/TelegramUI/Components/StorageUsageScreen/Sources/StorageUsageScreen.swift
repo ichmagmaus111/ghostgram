@@ -1231,7 +1231,7 @@ final class StorageUsageScreenComponent: Component {
             
             let navigationRightButtonsBackgroundSize = CGSize(width: max(44.0, rightButtonsWidth), height: 44.0)
             self.navigationRightButtonsBackground.update(size: navigationRightButtonsBackgroundSize, cornerRadius: 44.0 * 0.5, isDark: environment.theme.overallDarkAppearance, tintColor: .init(kind: .panel), isInteractive: true, transition: transition)
-            let navigationRightButtonsBackgroundFrame = CGRect(origin: CGPoint(x: availableSize.width - environment.safeInsets.right - 16.0 - navigationRightButtonsBackgroundSize.width, y: environment.statusBarHeight + 2.0 + floor((environment.navigationHeight - environment.statusBarHeight - 44.0) * 0.5)), size: navigationRightButtonsBackgroundSize)
+            let navigationRightButtonsBackgroundFrame = CGRect(origin: CGPoint(x: availableSize.width - environment.safeInsets.right - environment.navigationBarTrailingButtonsInset - 16.0 - navigationRightButtonsBackgroundSize.width, y: environment.statusBarHeight + 2.0 + floor((environment.navigationHeight - environment.statusBarHeight - 44.0) * 0.5)), size: navigationRightButtonsBackgroundSize)
             transition.setFrame(view: self.navigationRightButtonsBackground, frame: navigationRightButtonsBackgroundFrame)
             
             self.backgroundColor = environment.theme.list.blocksBackgroundColor
@@ -1245,6 +1245,10 @@ final class StorageUsageScreenComponent: Component {
             
             let topInset: CGFloat = 19.0
             let sideInset: CGFloat = 16.0 + environment.safeInsets.left
+            // iPhone Duo: one side's safe inset is the side strip, so the right margin is its own and centered
+            // content is centered in the band between the insets. With equal insets both are the old values.
+            let rightSideInset: CGFloat = 16.0 + environment.safeInsets.right
+            let bandCenterX: CGFloat = environment.safeInsets.left + (availableSize.width - environment.safeInsets.left - environment.safeInsets.right) / 2.0
             
             var bottomInset: CGFloat = environment.safeInsets.bottom
             
@@ -1268,6 +1272,8 @@ final class StorageUsageScreenComponent: Component {
                     self.selectionPanel = selectionPanel
                 }
                 
+                // The bottom panel spans iPhone Duo's side strip; it keeps clear only of a corner block at the bottom.
+                let selectionPanelSideInsets = environment.bottomEdgeSideInsets()
                 let selectionPanelSize = selectionPanel.update(
                     transition: selectionPanelTransition,
                     component: AnyComponent(BottomButtonPanelComponent(
@@ -1275,7 +1281,7 @@ final class StorageUsageScreenComponent: Component {
                         title: bottomPanelSelectionData.isComplete ? environment.strings.StorageManagement_ClearCache : environment.strings.StorageManagement_ClearSelected,
                         label: bottomPanelSelectionData.size == 0 ? nil : dataSizeString(Int(bottomPanelSelectionData.size), formatting: DataSizeStringFormatting(strings: environment.strings, decimalSeparator: ".")),
                         isEnabled: bottomPanelSelectionData.size != 0,
-                        insets: UIEdgeInsets(top: 0.0, left: sideInset, bottom: environment.safeInsets.bottom, right: sideInset),
+                        insets: UIEdgeInsets(top: 0.0, left: 16.0 + selectionPanelSideInsets.left, bottom: environment.safeInsets.bottom, right: 16.0 + selectionPanelSideInsets.right),
                         action: { [weak self] in
                             guard let self else {
                                 return
@@ -1465,7 +1471,7 @@ final class StorageUsageScreenComponent: Component {
                 environment: {},
                 containerSize: CGSize(width: availableSize.width, height: 60.0)
             )
-            let pieChartFrame = CGRect(origin: CGPoint(x: 0.0, y: contentHeight), size: pieChartSize)
+            let pieChartFrame = CGRect(origin: CGPoint(x: bandCenterX - availableSize.width / 2.0, y: contentHeight), size: pieChartSize)
             if let pieChartComponentView = self.pieChartView.view {
                 if pieChartComponentView.superview == nil {
                     self.headerOffsetContainer.addSubview(pieChartComponentView)
@@ -1487,7 +1493,7 @@ final class StorageUsageScreenComponent: Component {
                     animateIn = true
                 }
                 let doneSize = CGSize(width: 100.0, height: 100.0)
-                doneStatusNode.frame = CGRect(origin: CGPoint(x: floor((availableSize.width - doneSize.width) / 2.0), y: contentHeight + (92.0 - doneSize.height) * 0.5), size: doneSize)
+                doneStatusNode.frame = CGRect(origin: CGPoint(x: floor(bandCenterX - doneSize.width / 2.0), y: contentHeight + (92.0 - doneSize.height) * 0.5), size: doneSize)
                 
                 let doneStatusCircle: SimpleShapeLayer
                 if let current = self.doneStatusCircle {
@@ -1512,7 +1518,7 @@ final class StorageUsageScreenComponent: Component {
                 doneStatusCircle.fillColor = nil
                 doneStatusCircle.path = UIBezierPath(ovalIn: CGRect(origin: CGPoint(x: doneStatusCircle.lineWidth * 0.5, y: doneStatusCircle.lineWidth * 0.5), size: CGSize(width: doneSize.width - doneStatusCircle.lineWidth * 0.5, height: doneSize.height - doneStatusCircle.lineWidth * 0.5))).cgPath
                 
-                doneStatusCircle.frame = CGRect(origin: CGPoint(x: floor((availableSize.width - doneSize.width) / 2.0), y: contentHeight), size: doneSize).insetBy(dx: -doneStatusCircle.lineWidth * 0.5, dy: -doneStatusCircle.lineWidth * 0.5)
+                doneStatusCircle.frame = CGRect(origin: CGPoint(x: floor(bandCenterX - doneSize.width / 2.0), y: contentHeight), size: doneSize).insetBy(dx: -doneStatusCircle.lineWidth * 0.5, dy: -doneStatusCircle.lineWidth * 0.5)
                 
                 contentHeight += doneSize.height
             } else {
@@ -1548,7 +1554,7 @@ final class StorageUsageScreenComponent: Component {
                 environment: {},
                 containerSize: CGSize(width: floor((availableSize.width - navigationRightButtonMaxWidth * 2.0) / 0.8), height: 100.0)
             )
-            let headerViewFrame = CGRect(origin: CGPoint(x: floor((availableSize.width - headerViewSize.width) / 2.0), y: contentHeight), size: headerViewSize)
+            let headerViewFrame = CGRect(origin: CGPoint(x: floor(bandCenterX - headerViewSize.width / 2.0), y: contentHeight), size: headerViewSize)
             if let headerComponentView = self.headerView.view {
                 if headerComponentView.superview == nil {
                     self.headerOffsetContainer.addSubview(headerComponentView)
@@ -1629,9 +1635,9 @@ final class StorageUsageScreenComponent: Component {
                     linkAttribute: { _ in nil }
                 )), horizontalAlignment: .center, maximumNumberOfLines: 0)),
                 environment: {},
-                containerSize: CGSize(width: availableSize.width - sideInset * 2.0 - 15.0 * 2.0, height: 10000.0)
+                containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset - 15.0 * 2.0, height: 10000.0)
             )
-            let headerDescriptionFrame = CGRect(origin: CGPoint(x: floor((availableSize.width - headerDescriptionSize.width) / 2.0), y: contentHeight), size: headerDescriptionSize)
+            let headerDescriptionFrame = CGRect(origin: CGPoint(x: floor(bandCenterX - headerDescriptionSize.width / 2.0), y: contentHeight), size: headerDescriptionSize)
             if let headerDescriptionComponentView = self.headerDescriptionView.view {
                 if headerDescriptionComponentView.superview == nil {
                     self.scrollContainerView.addSubview(headerDescriptionComponentView)
@@ -1641,8 +1647,8 @@ final class StorageUsageScreenComponent: Component {
             contentHeight += headerDescriptionSize.height
             contentHeight += 8.0
             
-            let headerProgressWidth: CGFloat = min(200.0, availableSize.width - sideInset * 2.0)
-            let headerProgressFrame = CGRect(origin: CGPoint(x: floor((availableSize.width - headerProgressWidth) / 2.0), y: contentHeight), size: CGSize(width: headerProgressWidth, height: 4.0))
+            let headerProgressWidth: CGFloat = min(200.0, availableSize.width - sideInset - rightSideInset)
+            let headerProgressFrame = CGRect(origin: CGPoint(x: floor(bandCenterX - headerProgressWidth / 2.0), y: contentHeight), size: CGSize(width: headerProgressWidth, height: 4.0))
             transition.setFrame(layer: self.headerProgressBackgroundLayer, frame: headerProgressFrame)
             transition.setCornerRadius(layer: self.headerProgressBackgroundLayer, cornerRadius: headerProgressFrame.height * 0.5)
             self.headerProgressBackgroundLayer.backgroundColor = environment.theme.list.itemAccentColor.withMultipliedAlpha(0.2).cgColor
@@ -1771,7 +1777,7 @@ final class StorageUsageScreenComponent: Component {
                         }
                     )),
                     environment: {},
-                    containerSize: CGSize(width: availableSize.width - sideInset * 2.0, height: .greatestFiniteMagnitude)
+                    containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset, height: .greatestFiniteMagnitude)
                 )
                 if let categoriesComponentView = self.categoriesView.view {
                     if categoriesComponentView.superview == nil {
@@ -1793,7 +1799,7 @@ final class StorageUsageScreenComponent: Component {
                         linkAttribute: { _ in nil }
                     )), maximumNumberOfLines: 0)),
                     environment: {},
-                    containerSize: CGSize(width: availableSize.width - sideInset * 2.0 - 15.0 * 2.0, height: 10000.0)
+                    containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset - 15.0 * 2.0, height: 10000.0)
                 )
                 let categoriesDescriptionFrame = CGRect(origin: CGPoint(x: sideInset + 15.0, y: contentHeight), size: categoriesDescriptionSize)
                 if let categoriesDescriptionComponentView = self.categoriesDescriptionView.view {
@@ -1824,7 +1830,7 @@ final class StorageUsageScreenComponent: Component {
                         maximumNumberOfLines: 0
                     )),
                     environment: {},
-                    containerSize: CGSize(width: availableSize.width - sideInset * 2.0 - 15.0 * 2.0, height: 10000.0)
+                    containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset - 15.0 * 2.0, height: 10000.0)
                 )
                 let keepDurationTitleFrame = CGRect(origin: CGPoint(x: sideInset + 15.0, y: contentHeight), size: keepDurationTitleSize)
                 if let keepDurationTitleComponentView = self.keepDurationTitleView.view {
@@ -1901,7 +1907,7 @@ final class StorageUsageScreenComponent: Component {
                             }
                         )),
                         environment: {},
-                        containerSize: CGSize(width: availableSize.width - sideInset * 2.0, height: 10000.0)
+                        containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset, height: 10000.0)
                     )
                     let itemFrame = CGRect(origin: CGPoint(x: 0.0, y: keepContentHeight), size: itemSize)
                     if let itemView = item.view {
@@ -1913,7 +1919,7 @@ final class StorageUsageScreenComponent: Component {
                     keepContentHeight += itemSize.height
                 }
                 self.keepDurationSectionContainerView.backgroundColor = environment.theme.list.itemBlocksBackgroundColor
-                transition.setFrame(view: self.keepDurationSectionContainerView, frame: CGRect(origin: CGPoint(x: sideInset, y: contentHeight), size: CGSize(width: availableSize.width - sideInset * 2.0, height: keepContentHeight)))
+                transition.setFrame(view: self.keepDurationSectionContainerView, frame: CGRect(origin: CGPoint(x: sideInset, y: contentHeight), size: CGSize(width: availableSize.width - sideInset - rightSideInset, height: keepContentHeight)))
                 contentHeight += keepContentHeight
                 contentHeight += 8.0
                 
@@ -1931,7 +1937,7 @@ final class StorageUsageScreenComponent: Component {
                         maximumNumberOfLines: 0
                     )),
                     environment: {},
-                    containerSize: CGSize(width: availableSize.width - sideInset * 2.0 - 15.0 * 2.0, height: 10000.0)
+                    containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset - 15.0 * 2.0, height: 10000.0)
                 )
                 let keepDurationDescriptionFrame = CGRect(origin: CGPoint(x: sideInset + 15.0, y: contentHeight), size: keepDurationDescriptionSize)
                 if let keepDurationDescriptionComponentView = self.keepDurationDescriptionView.view {
@@ -1957,7 +1963,7 @@ final class StorageUsageScreenComponent: Component {
                         maximumNumberOfLines: 0
                     )),
                     environment: {},
-                    containerSize: CGSize(width: availableSize.width - sideInset * 2.0 - 15.0 * 2.0, height: 10000.0)
+                    containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset - 15.0 * 2.0, height: 10000.0)
                 )
                 let keepSizeTitleFrame = CGRect(origin: CGPoint(x: sideInset + 15.0, y: contentHeight), size: keepSizeTitleSize)
                 if let keepSizeTitleComponentView = self.keepSizeTitleView.view {
@@ -1988,7 +1994,7 @@ final class StorageUsageScreenComponent: Component {
                         }
                     )),
                     environment: {},
-                    containerSize: CGSize(width: availableSize.width - sideInset * 2.0, height: 10000.0)
+                    containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset, height: 10000.0)
                 )
                 let keepSizeFrame = CGRect(origin: CGPoint(x: sideInset, y: contentHeight), size: keepSizeSize)
                 if let keepSizeComponentView = self.keepSizeView.view {
@@ -2014,7 +2020,7 @@ final class StorageUsageScreenComponent: Component {
                         maximumNumberOfLines: 0
                     )),
                     environment: {},
-                    containerSize: CGSize(width: availableSize.width - sideInset * 2.0 - 15.0 * 2.0, height: 10000.0)
+                    containerSize: CGSize(width: availableSize.width - sideInset - rightSideInset - 15.0 * 2.0, height: 10000.0)
                 )
                 let keepSizeDescriptionFrame = CGRect(origin: CGPoint(x: sideInset + 15.0, y: contentHeight), size: keepSizeDescriptionSize)
                 if let keepSizeDescriptionComponentView = self.keepSizeDescriptionView.view {
@@ -3356,7 +3362,7 @@ private final class StorageUsageContextReferenceContentSource: ContextReferenceC
     }
     
     func transitionInfo() -> ContextControllerReferenceViewInfo? {
-        return ContextControllerReferenceViewInfo(referenceView: self.sourceView, contentAreaInScreenSpace: UIScreen.main.bounds, insets: UIEdgeInsets(top: -4.0, left: 0.0, bottom: -4.0, right: 0.0))
+        return ContextControllerReferenceViewInfo(referenceView: self.sourceView, contentAreaInScreenSpace: mainWindowScreenBounds, insets: UIEdgeInsets(top: -4.0, left: 0.0, bottom: -4.0, right: 0.0))
     }
 }
 
@@ -3745,10 +3751,10 @@ private final class StorageUsageListContextExtractedContentSource: ContextExtrac
     }
     
     func takeView() -> ContextControllerTakeViewInfo? {
-        return ContextControllerTakeViewInfo(containingItem: .view(self.contentView), contentAreaInScreenSpace: UIScreen.main.bounds)
+        return ContextControllerTakeViewInfo(containingItem: .view(self.contentView), contentAreaInScreenSpace: mainWindowScreenBounds)
     }
     
     func putBack() -> ContextControllerPutBackViewInfo? {
-        return ContextControllerPutBackViewInfo(contentAreaInScreenSpace: UIScreen.main.bounds)
+        return ContextControllerPutBackViewInfo(contentAreaInScreenSpace: mainWindowScreenBounds)
     }
 }

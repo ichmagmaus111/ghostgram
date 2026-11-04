@@ -124,7 +124,7 @@ public final class PrivacyIntroController: ViewController {
         
         self.presentationData = context.sharedContext.currentPresentationData.with { $0 }
         
-        super.init(navigationBarPresentationData: NavigationBarPresentationData(presentationData: self.presentationData, style: .glass))
+        super.init(navigationBarPresentationData: NavigationBarPresentationData(presentationData: self.presentationData))
         
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
         
@@ -165,7 +165,7 @@ public final class PrivacyIntroController: ViewController {
     
     private func updateThemeAndStrings() {
         self.statusBar.statusBarStyle = self.presentationData.theme.rootController.statusBarStyle.style
-        self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData, style: .glass), transition: .immediate)
+        self.navigationBar?.updatePresentationData(NavigationBarPresentationData(presentationData: self.presentationData), transition: .immediate)
         self.navigationItem.backBarButtonItem = UIBarButtonItem(title: self.presentationData.strings.Common_Back, style: .plain, target: nil, action: nil)
         self.controllerNode.updatePresentationData(self.presentationData)
     }
@@ -184,7 +184,6 @@ public final class PrivacyIntroController: ViewController {
         self.displayNode = PrivacyIntroControllerNode(context: self.context, mode: self.mode, proceedAction: self.proceedAction)
         self.displayNodeDidLoad()
         
-        self.navigationBar?.updateBackgroundAlpha(0.0, transition: .immediate)
     }
     
     override public func viewDidAppear(_ animated: Bool) {

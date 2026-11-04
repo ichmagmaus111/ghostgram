@@ -14,6 +14,7 @@ import GGNetworkSpoof
 import GGVless
 import GGProfileExport
 import GGExtras
+import GGRegDate
 
 /// Aggregator of the feature modules, called from `AppDelegate` (see FOUNDATION_SPEC §2):
 /// `GGCore.bootstrap` → `GGFeatures.registerAll()` → `GGCore.runGlobalMigrations()` →
@@ -38,5 +39,7 @@ public enum GGFeatures {
         GGProfileExportModule.register()
         // W5-SG: Swiftgram-parity features.
         GGExtrasModule.register()
+        // W7-RD2: «Дата регистрации».
+        GGRegDateModule.register()
     }
 }

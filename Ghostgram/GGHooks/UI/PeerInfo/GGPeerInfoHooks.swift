@@ -7,6 +7,7 @@ import Foundation
 import UIKit
 import AsyncDisplayKit
 import Display
+import Postbox
 import TelegramCore
 import TelegramPresentationData
 import AccountContext
@@ -24,14 +25,21 @@ public struct GGPeerInfoContext {
     /// The group or channel the profile was opened from (a member's profile opened from a group's
     /// message), if any: for facts about the membership (when they joined).
     public let sourceChatPeerId: EnginePeer.Id?
+    /// The message the profile was opened from (a tap on its author), if any (W7-RD2).
+    public let sourceMessageId: EngineMessage.Id?
+    /// The profile's cached data as the profile shows it (`CachedUserData` of a user: peer settings,
+    /// registration month…), nil until loaded (W7-RD2).
+    public let cachedData: CachedPeerData?
 
-    public init(context: AccountContext, peer: EnginePeer, chatPeer: EnginePeer?, isSettings: Bool, controller: ViewController?, sourceChatPeerId: EnginePeer.Id? = nil) {
+    public init(context: AccountContext, peer: EnginePeer, chatPeer: EnginePeer?, isSettings: Bool, controller: ViewController?, sourceChatPeerId: EnginePeer.Id? = nil, sourceMessageId: EngineMessage.Id? = nil, cachedData: CachedPeerData? = nil) {
         self.context = context
         self.peer = peer
         self.chatPeer = chatPeer
         self.isSettings = isSettings
         self.controller = controller
         self.sourceChatPeerId = sourceChatPeerId
+        self.sourceMessageId = sourceMessageId
+        self.cachedData = cachedData
     }
 }
 
@@ -40,13 +48,16 @@ public struct GGPeerInfoRow {
     public let id: String
     public let label: String
     public let text: String
+    /// Secondary text on the right of the label (e.g. the account's age next to its creation date).
+    public let rightLabel: String?
     public let action: (() -> Void)?
     public let longTapAction: (() -> Void)?
 
-    public init(id: String, label: String, text: String, action: (() -> Void)? = nil, longTapAction: (() -> Void)? = nil) {
+    public init(id: String, label: String, text: String, rightLabel: String? = nil, action: (() -> Void)? = nil, longTapAction: (() -> Void)? = nil) {
         self.id = id
         self.label = label
         self.text = text
+        self.rightLabel = rightLabel
         self.action = action
         self.longTapAction = longTapAction
     }

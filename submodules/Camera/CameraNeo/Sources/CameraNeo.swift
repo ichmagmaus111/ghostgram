@@ -6,10 +6,11 @@ import CoreVideo
 import SwiftSignalKit
 import DeviceModel
 import Camera
+import os.log
 // GHOST: Ghostgram round video settings and frame processor (masks)
 import GGCameraPipeline
 
-private let roundVideoFrameRate: Double = 30.0
+private let cameraCaptureLog = OSLog(subsystem: "org.telegram.CameraNeo", category: "Capture")
 
 private enum CaptureInitializationStatus {
     case pending
@@ -20,6 +21,8 @@ private enum CaptureInitializationStatus {
 final class CameraNeo: NSObject, CameraProtocol {
     private let configuration: Camera.Configuration
     private let useMultiCam: Bool
+    private let roundVideoMode: NeoCameraImpl.RoundVideoMode
+    private let log: ((String) -> Void)?
     private let previewView: CameraPreviewView?
     private let secondaryPreviewView: CameraPreviewView?
 
@@ -43,6 +46,7 @@ final class CameraNeo: NSObject, CameraProtocol {
     private var primaryVideoOutput: AVCaptureVideoDataOutput?
     private var secondaryVideoOutput: AVCaptureVideoDataOutput?
     private var audioOutput: AVCaptureAudioDataOutput?
+    private var stabilizationObservers: [NSKeyValueObservation] = []
     private let secondaryVideoOutputIdentity = Atomic<ObjectIdentifier?>(value: nil)
     private let audioOutputIdentity = Atomic<ObjectIdentifier?>(value: nil)
 
@@ -79,19 +83,23 @@ final class CameraNeo: NSObject, CameraProtocol {
     // reconfigures the session after the request arrives, so the new device takes it from here.
     private let ggRequestedZoomLevel = Atomic<CGFloat?>(value: nil)
     private let ggFrameProcessor: GGCameraFrameProcessor?
-    private var ggFrameRate: Double = roundVideoFrameRate
+    private var ggFrameRate: Double = roundVideoCaptureFrameRate
     private var ggFormatDescription: CMVideoFormatDescription?
 
     init(
         configuration: Camera.Configuration,
         previewView: CameraPreviewView?,
         secondaryPreviewView: CameraPreviewView?,
-        useMultiCam: Bool
+        useMultiCam: Bool,
+        roundVideoMode: NeoCameraImpl.RoundVideoMode,
+        log: ((String) -> Void)?
     ) {
         self.configuration = configuration
         self.previewView = previewView
         self.secondaryPreviewView = secondaryPreviewView
         self.useMultiCam = useMultiCam
+        self.roundVideoMode = roundVideoMode
+        self.log = log
         self.singleMediaPosition = configuration.position
         self.positionValue = Atomic<Camera.Position>(value: configuration.position)
         self.positionPromise = ValuePromise<Camera.Position>(configuration.position)
@@ -128,6 +136,12 @@ final class CameraNeo: NSObject, CameraProtocol {
             self,
             selector: #selector(self.sessionInterruptionEnded(_:)),
             name: .AVCaptureSessionInterruptionEnded,
+            object: self.session
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(self.sessionDidStartRunning(_:)),
+            name: .AVCaptureSessionDidStartRunning,
             object: self.session
         )
 
@@ -335,11 +349,11 @@ final class CameraNeo: NSObject, CameraProtocol {
                     let processor: RoundVideoFrameProcessor
                     if let current = self.frameProcessor {
                         processor = current
-                    } else if let decorationResources, let current = RoundVideoFrameProcessor(mediaQueue: self.mediaQueue, decorationResources: decorationResources, outputSide: self.ggOutputSide /* GHOST: round video resolution */) {
+                    } else if let decorationResources, let current = RoundVideoFrameProcessor(mediaQueue: self.mediaQueue, decorationResources: decorationResources, mode: self.roundVideoMode, outputSide: self.ggOutputSide /* GHOST: round video resolution */) {
                         self.frameProcessor = current
                         processor = current
                     } else {
-                        guard let current = RoundVideoFrameProcessor(mediaQueue: self.mediaQueue, decorationResources: nil, outputSide: self.ggOutputSide /* GHOST: round video resolution */) else {
+                        guard let current = RoundVideoFrameProcessor(mediaQueue: self.mediaQueue, decorationResources: nil, mode: self.roundVideoMode, outputSide: self.ggOutputSide /* GHOST: round video resolution */) else {
                             let _ = self.recordingActive.modify { _ in false }
                             let _ = self.recordingStopRequested.modify { _ in false }
                             if subscriberActive.swap(false) {
@@ -361,6 +375,9 @@ final class CameraNeo: NSObject, CameraProtocol {
                         // GHOST: bitrate, codec and watermark from the round video settings
                         ggRecording: self.ggRecording,
                         ggWatermark: GGRoundVideoConfig.watermark(side: processor.outputSide),
+                        mode: self.roundVideoMode,
+                        usesMultiCam: self.useMultiCam,
+                        log: self.log,
                         durationUpdated: { [weak self] duration in
                             guard let self else {
                                 return
@@ -590,7 +607,7 @@ final class CameraNeo: NSObject, CameraProtocol {
 
         self.session.beginConfiguration()
         self.session.sessionPreset = .inputPriority
-        let videoConfigured: Bool
+        var videoConfigured: Bool
         if self.useMultiCam {
             videoConfigured = self.configureMultiCamVideo()
         } else {
@@ -599,6 +616,10 @@ final class CameraNeo: NSObject, CameraProtocol {
         let audioConfigured = !self.ggCapturesAudio || self.configureAudio() // GHOST: no microphone when recording without sound
         self.session.commitConfiguration()
         self.configureVideoStabilization()
+        if videoConfigured && self.useMultiCam {
+            videoConfigured = self.configureSupportedMultiCamCosts()
+        }
+        self.logCaptureState(reason: "configured")
 
         self.isConfigured = videoConfigured && audioConfigured
         let initializationStatus: CaptureInitializationStatus
@@ -841,53 +862,28 @@ final class CameraNeo: NSObject, CameraProtocol {
     }
 
     private func configureCaptureFormat(device: AVCaptureDevice) -> Bool {
-        // GHOST: capture format and frame rate from the round video settings; the first option that
-        // the device supports wins, the last one is upstream's 640×480 at 30 fps
-        for option in self.ggCaptureOptions {
-            if self.configureCaptureFormat(device: device, width: option.width, height: option.height, frameRate: option.frameRate) {
-                self.ggFrameRate = option.frameRate
-                return true
+        // GHOST: capture format and frame rate from the round video settings when they differ from
+        // Telegram's: the first option that the device supports wins, the last one is 640×480 at 30 fps
+        if self.ggUsesOwnCaptureFormat {
+            for option in self.ggCaptureOptions {
+                if let format = self.ggCaptureFormat(device: device, width: option.width, height: option.height, frameRate: option.frameRate), self.applyCaptureFormat(format, device: device) {
+                    self.ggFrameRate = option.frameRate
+                    return true
+                }
             }
-        }
-        return false
-    }
-
-    private func configureCaptureFormat(device: AVCaptureDevice, width: Int32, height: Int32, frameRate: Double) -> Bool {
-        let candidates = device.formats.filter { format in
-            if self.useMultiCam, #available(iOS 13.0, *), !format.isMultiCamSupported {
-                return false
-            }
-            let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
-            let mediaSubtype = CMFormatDescriptionGetMediaSubType(format.formatDescription)
-            // GHOST: capture format from the round video settings; width 0 = any 4:3 format at least
-            // `height` high (up to 1440 — the photo-sized ones are slow and heavy)
-            let matchesSize = width == 0 ? (dimensions.width * 3 == dimensions.height * 4 && dimensions.height >= height && dimensions.height <= 1440) : (dimensions.width == width && dimensions.height == height)
-            guard matchesSize,
-                  (mediaSubtype == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange || mediaSubtype == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) else {
-                return false
-            }
-            return format.videoSupportedFrameRateRanges.contains(where: {
-                $0.minFrameRate <= frameRate && $0.maxFrameRate >= frameRate // GHOST: 30 or 60 fps
-            })
-        }
-        let selectedFormat = candidates.min { lhs, rhs in
-            // GHOST: the smallest matching 4:3 format first (one exact size otherwise: a no-op)
-            let lhsHeight = CMVideoFormatDescriptionGetDimensions(lhs.formatDescription).height
-            let rhsHeight = CMVideoFormatDescriptionGetDimensions(rhs.formatDescription).height
-            if lhsHeight != rhsHeight {
-                return lhsHeight < rhsHeight
-            }
-            let lhsMaximumFps = lhs.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 0.0
-            let rhsMaximumFps = rhs.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 0.0
-            return lhsMaximumFps < rhsMaximumFps
-        }
-
-        guard let selectedFormat else {
             return false
         }
+        guard let selectedFormat = roundVideoCaptureFormat(for: device, requiresMultiCam: self.useMultiCam, mode: self.roundVideoMode) else {
+            return false
+        }
+        return self.applyCaptureFormat(selectedFormat, device: device)
+    }
+
+    private func applyCaptureFormat(_ format: AVCaptureDevice.Format, device: AVCaptureDevice) -> Bool {
         do {
             try device.lockForConfiguration()
-            device.activeFormat = selectedFormat
+            defer { device.unlockForConfiguration() }
+            device.activeFormat = format
             if device.isLowLightBoostSupported {
                 device.automaticallyEnablesLowLightBoostWhenAvailable = true
             }
@@ -898,11 +894,44 @@ final class CameraNeo: NSObject, CameraProtocol {
             if self.ggIsUltraWideVirtualDevice(device) {
                 device.videoZoomFactor = self.clampedZoom(self.ggNeutralZoomFactor(device), device: device)
             }
-            device.unlockForConfiguration()
             return true
         } catch {
             return false
         }
+    }
+
+    private func configureSupportedMultiCamCosts() -> Bool {
+        dispatchPrecondition(condition: .onQueue(self.sessionQueue))
+        guard #available(iOS 13.0, *), let session = self.session as? AVCaptureMultiCamSession,
+              let backDevice = self.backDevice, let frontDevice = self.frontDevice,
+              let backInput = self.backVideoInput, let frontInput = self.frontVideoInput else {
+            return false
+        }
+
+        let initialProfile: RoundVideoCaptureProfile = self.roundVideoMode == .vga ? .vga : .high
+        for maximumProfile in RoundVideoCaptureProfile.allCases where maximumProfile.rawValue >= initialProfile.rawValue {
+            if maximumProfile != initialProfile {
+                guard let backFormat = roundVideoCaptureFormat(for: backDevice, requiresMultiCam: true, mode: self.roundVideoMode, maximumProfile: maximumProfile),
+                      let frontFormat = roundVideoCaptureFormat(for: frontDevice, requiresMultiCam: true, mode: self.roundVideoMode, maximumProfile: maximumProfile) else {
+                    continue
+                }
+                session.beginConfiguration()
+                let backConfigured = self.applyCaptureFormat(backFormat, device: backDevice)
+                let frontConfigured = self.applyCaptureFormat(frontFormat, device: frontDevice)
+                self.configureFrameRate(roundVideoCaptureFrameRate, device: backDevice, input: backInput)
+                self.configureFrameRate(roundVideoCaptureFrameRate, device: frontDevice, input: frontInput)
+                session.commitConfiguration()
+                guard backConfigured && frontConfigured else {
+                    return false
+                }
+                self.configureVideoStabilization()
+            }
+            self.logCaptureState(reason: "MultiCam budget")
+            if roundVideoCaptureCostsAreSupported(hardwareCost: session.hardwareCost, systemPressureCost: session.systemPressureCost) {
+                return true
+            }
+        }
+        return false
     }
 
     private func configureFrameRate(_ fps: Double, device: AVCaptureDevice, input: AVCaptureDeviceInput) {
@@ -926,11 +955,47 @@ final class CameraNeo: NSObject, CameraProtocol {
 
     private func configureVideoStabilization() {
         dispatchPrecondition(condition: .onQueue(self.sessionQueue))
-        for output in [self.primaryVideoOutput, self.secondaryVideoOutput] {
-            guard let connection = output?.connection(with: .video), connection.isVideoStabilizationSupported else {
+        self.stabilizationObservers.removeAll()
+        for (output, device) in [
+            (self.primaryVideoOutput, self.useMultiCam ? self.backDevice : self.activeDevice),
+            (self.secondaryVideoOutput, self.frontDevice)
+        ] {
+            guard let connection = output?.connection(with: .video), let device else {
                 continue
             }
-            connection.preferredVideoStabilizationMode = self.ggStabilizationMode(connection: connection) // GHOST: stabilization setting
+            let supportsStandard = connection.isVideoStabilizationSupported && device.activeFormat.isVideoStabilizationModeSupported(.standard)
+            connection.preferredVideoStabilizationMode = self.ggStabilizationMode(device: device, upstream: supportsStandard ? .standard : .off) // GHOST: stabilization setting
+            self.stabilizationObservers.append(connection.observe(\.activeVideoStabilizationMode, options: [.new]) { [weak self, weak connection] _, _ in
+                self?.sessionQueue.async { [weak self, weak connection] in
+                    guard let self, let connection,
+                          connection === self.primaryVideoOutput?.connection(with: .video) || connection === self.secondaryVideoOutput?.connection(with: .video) else {
+                        return
+                    }
+                    self.logCaptureState(reason: "stabilization changed")
+                }
+            })
+        }
+    }
+
+    private func logCaptureState(reason: String) {
+        dispatchPrecondition(condition: .onQueue(self.sessionQueue))
+        for (output, device, preview) in [
+            (self.primaryVideoOutput, self.useMultiCam ? self.backDevice : self.activeDevice, self.previewView),
+            (self.secondaryVideoOutput, self.frontDevice, self.secondaryPreviewView)
+        ] {
+            guard let connection = output?.connection(with: .video), let device else {
+                continue
+            }
+            let format = device.activeFormat
+            let previewMode = preview?.videoPreviewLayer.connection?.activeVideoStabilizationMode.rawValue ?? -1
+            let message = "\(reason): mode=\(self.roundVideoMode.rawValue), position=\(device.position.rawValue), format=\(format), frameDuration=\(device.activeVideoMinFrameDuration.seconds), standardSupported=\(format.isVideoStabilizationModeSupported(.standard)), requested=\(connection.preferredVideoStabilizationMode.rawValue), active=\(connection.activeVideoStabilizationMode.rawValue), previewActive=\(previewMode), zoom=\(device.videoZoomFactor), upscaleThreshold=\(format.videoZoomFactorUpscaleThreshold)"
+            os_log("%{public}@", log: cameraCaptureLog, type: .info, message)
+            self.log?(message)
+        }
+        if #available(iOS 13.0, *), let session = self.session as? AVCaptureMultiCamSession {
+            let message = "\(reason): hardwareCost=\(session.hardwareCost), systemPressureCost=\(session.systemPressureCost)"
+            os_log("%{public}@", log: cameraCaptureLog, type: .info, message)
+            self.log?(message)
         }
     }
 
@@ -944,6 +1009,7 @@ final class CameraNeo: NSObject, CameraProtocol {
         let configured = self.configureSingleCameraVideo(position: position, addOutput: false)
         self.session.commitConfiguration()
         self.configureVideoStabilization()
+        self.logCaptureState(reason: "camera switched")
 
         if !configured {
             let error = CameraRecordingError.videoRecorderInitializationError
@@ -1038,6 +1104,7 @@ final class CameraNeo: NSObject, CameraProtocol {
 
     private func tearDownSession() {
         dispatchPrecondition(condition: .onQueue(self.sessionQueue))
+        self.stabilizationObservers.removeAll()
         self.primaryVideoOutput?.setSampleBufferDelegate(nil, queue: nil)
         self.secondaryVideoOutput?.setSampleBufferDelegate(nil, queue: nil)
         self.audioOutput?.setSampleBufferDelegate(nil, queue: nil)
@@ -1063,6 +1130,12 @@ final class CameraNeo: NSObject, CameraProtocol {
         self.backDevice = nil
         self.frontDevice = nil
         self.isConfigured = false
+    }
+
+    @objc private func sessionDidStartRunning(_ notification: Notification) {
+        self.sessionQueue.async { [weak self] in
+            self?.logCaptureState(reason: "started")
+        }
     }
 
     @objc private func sessionRuntimeError(_ notification: Notification) {
@@ -1131,6 +1204,42 @@ extension CameraNeo {
         return self.ggRecording.outputSide(defaultSide: RoundVideoFrameProcessor.outputWidth)
     }
 
+    /// The round video settings ask for a capture of their own (a side or a frame rate other than
+    /// Telegram's); otherwise the capture is Telegram's (`roundVideoCaptureFormat`).
+    private var ggUsesOwnCaptureFormat: Bool {
+        return self.ggRecording.side != nil || Double(self.ggRecording.frameRate) != roundVideoCaptureFrameRate
+    }
+
+    /// The format of one capture option: `width` 0 = any 4:3 format at least `height` high (up to
+    /// 1440 — the photo-sized ones are slow and heavy), the smallest matching one first.
+    private func ggCaptureFormat(device: AVCaptureDevice, width: Int32, height: Int32, frameRate: Double) -> AVCaptureDevice.Format? {
+        let candidates = device.formats.filter { format in
+            if self.useMultiCam, #available(iOS 13.0, *), !format.isMultiCamSupported {
+                return false
+            }
+            let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+            let mediaSubtype = CMFormatDescriptionGetMediaSubType(format.formatDescription)
+            let matchesSize = width == 0 ? (dimensions.width * 3 == dimensions.height * 4 && dimensions.height >= height && dimensions.height <= 1440) : (dimensions.width == width && dimensions.height == height)
+            guard matchesSize,
+                  (mediaSubtype == kCVPixelFormatType_420YpCbCr8BiPlanarFullRange || mediaSubtype == kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange) else {
+                return false
+            }
+            return format.videoSupportedFrameRateRanges.contains(where: {
+                $0.minFrameRate <= frameRate && $0.maxFrameRate >= frameRate
+            })
+        }
+        return candidates.min { lhs, rhs in
+            let lhsHeight = CMVideoFormatDescriptionGetDimensions(lhs.formatDescription).height
+            let rhsHeight = CMVideoFormatDescriptionGetDimensions(rhs.formatDescription).height
+            if lhsHeight != rhsHeight {
+                return lhsHeight < rhsHeight
+            }
+            let lhsMaximumFps = lhs.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 0.0
+            let rhsMaximumFps = rhs.videoSupportedFrameRateRanges.map(\.maxFrameRate).max() ?? 0.0
+            return lhsMaximumFps < rhsMaximumFps
+        }
+    }
+
     private var ggCaptureOptions: [(width: Int32, height: Int32, frameRate: Double)] {
         var options: [(width: Int32, height: Int32, frameRate: Double)] = []
         let frameRate = Double(self.ggRecording.frameRate)
@@ -1141,30 +1250,30 @@ extension CameraNeo {
             let side = Int32(self.ggRecording.outputSide(defaultSide: RoundVideoFrameProcessor.outputWidth))
             options.append((0, side, frameRate))
             options.append((1280, 720, frameRate))
-            if frameRate != roundVideoFrameRate {
-                options.append((0, side, roundVideoFrameRate))
-                options.append((1280, 720, roundVideoFrameRate))
+            if frameRate != roundVideoCaptureFrameRate {
+                options.append((0, side, roundVideoCaptureFrameRate))
+                options.append((1280, 720, roundVideoCaptureFrameRate))
             }
         }
-        if frameRate != roundVideoFrameRate {
+        if frameRate != roundVideoCaptureFrameRate {
             options.append((640, 480, frameRate))
         }
-        options.append((640, 480, roundVideoFrameRate))
+        options.append((640, 480, roundVideoCaptureFrameRate))
         return options
     }
 
-    private func ggStabilizationMode(connection: AVCaptureConnection) -> AVCaptureVideoStabilizationMode {
+    /// Stabilization from the settings; `upstream` is Telegram's own choice for this format.
+    private func ggStabilizationMode(device: AVCaptureDevice, upstream: AVCaptureVideoStabilizationMode) -> AVCaptureVideoStabilizationMode {
         switch self.ggRecording.stabilization {
         case .standard:
-            return .standard
+            return upstream
         case .off:
             return .off
         case .cinematic:
-            let format = (self.positionValue.with { $0 } == .front ? self.frontDevice : self.backDevice)?.activeFormat
-            if let format, format.isVideoStabilizationModeSupported(.cinematic) {
+            if device.activeFormat.isVideoStabilizationModeSupported(.cinematic) {
                 return .cinematic
             }
-            return .standard
+            return upstream
         }
     }
 
@@ -1217,6 +1326,17 @@ extension CameraNeo {
 }
 
 extension CameraNeo: AVCaptureVideoDataOutputSampleBufferDelegate, AVCaptureAudioDataOutputSampleBufferDelegate {
+    func captureOutput(_ output: AVCaptureOutput, didDrop sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        dispatchPrecondition(condition: .onQueue(self.mediaQueue))
+        let position: Camera.Position
+        if self.useMultiCam {
+            position = self.secondaryVideoOutputIdentity.with({ $0 }) == ObjectIdentifier(output) ? .front : .back
+        } else {
+            position = self.singleMediaPosition
+        }
+        self.recorder?.noteDroppedVideoSampleBuffer(sampleBuffer, position: position)
+    }
+
     func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         dispatchPrecondition(condition: .onQueue(self.mediaQueue))
 

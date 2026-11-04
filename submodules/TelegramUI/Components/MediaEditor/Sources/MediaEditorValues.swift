@@ -167,8 +167,8 @@ public enum MediaQualityPreset: Int32 {
         case .compressedVeryHigh:
             return 1920.0
         case .videoMessage:
-            // GHOST: side of the round video from its settings; 400 (upstream) by default.
-            return GGRoundVideoConfig.exportSide(400.0)
+            // GHOST: side of the round video from its settings; upstream's by default.
+            return GGRoundVideoConfig.exportSide(VideoMessageExportSettings.maximumDimension)
         case .profileLow:
             return 720.0
         case .profile, .profileHigh, .profileVeryHigh:
@@ -193,8 +193,8 @@ public enum MediaQualityPreset: Int32 {
         case .compressedVeryHigh:
             return 6600
         case .videoMessage:
-            // GHOST: bitrate of the round video from its settings; 1000 (upstream) by default.
-            return GGRoundVideoConfig.exportBitrate(1000)
+            // GHOST: bitrate of the round video from its settings; 1200 (upstream) by default.
+            return GGRoundVideoConfig.exportBitrate(1200)
         case .profileLow:
             return 1100
         case .profile:
@@ -1914,20 +1914,32 @@ private let hasHEVCHardwareEncoder: Bool = {
 
 func targetSize(cropSize: CGSize, rotateSideward: Bool = false) -> CGSize {
     let blockSize: CGFloat = 16.0
-    
-    var adjustedCropSize = cropSize
-    if rotateSideward {
-        adjustedCropSize = CGSize(width: cropSize.height, height: cropSize.width)
-    }
-    
+    let adjustedCropSize = rotateSideward ? CGSize(width: cropSize.height, height: cropSize.width) : cropSize
     let renderWidth = (adjustedCropSize.width / blockSize).rounded(.down) * blockSize
     let renderHeight = (adjustedCropSize.height * renderWidth / adjustedCropSize.width).rounded(.down)
-    
-//    if fmod(renderHeight, blockSize) != 0 {
-//        renderHeight = (adjustedCropSize.height / blockSize).rounded(.down) * blockSize
-//    }
-    
     return CGSize(width: renderWidth, height: renderHeight)
+}
+
+private struct VideoMessageExportSettings {
+    static let maximumDimension: CGFloat = 480.0
+
+    let dimensions: CGSize
+    let bitrateKbps: Int
+
+    init(sourceSize: CGSize, cropSize: CGSize, rotateSideward: Bool, maximumDimension: CGFloat = VideoMessageExportSettings.maximumDimension) { // GHOST: maximumDimension — round video side setting
+        // A quality ceiling must never enlarge a legacy recording or a smaller crop.
+        let scale = min(
+            1.0,
+            maximumDimension / max(cropSize.width, cropSize.height),
+            sourceSize.width / cropSize.width,
+            sourceSize.height / cropSize.height
+        )
+        self.dimensions = targetSize(
+            cropSize: CGSize(width: cropSize.width * scale, height: cropSize.height * scale),
+            rotateSideward: rotateSideward
+        )
+        self.bitrateKbps = max(self.dimensions.width, self.dimensions.height) <= 400.0 ? 1000 : 1200
+    }
 }
 
 public func recommendedVideoExportConfiguration(values: MediaEditorValues, duration: Double, image: Bool = false, forceFullHd: Bool = false, frameRate: Float, isSticker: Bool = false, isAvatar: Bool = false) -> MediaEditorVideoExport.Configuration {
@@ -1958,6 +1970,13 @@ public func recommendedVideoExportConfiguration(values: MediaEditorValues, durat
             videoBitrate = 5500
         } else if duration < 30 {
             videoBitrate = 5000
+        } else {
+            // The rungs above trade bitrate for duration so the file size stays bounded, but they
+            // stopped at 30s and anything longer fell back to the 3700 default — so crossing 30s
+            // made a story both smaller and visibly worse. Ramp the same slope out to the 60s cap
+            // instead, which keeps size growing monotonically and leaves no step to fall off.
+            let longVideoFraction = min(1.0, (duration - 30.0) / 30.0)
+            videoBitrate = Int(5000.0 - (5000.0 - 3700.0) * longVideoFraction)
         }
     }
 
@@ -1969,18 +1988,24 @@ public func recommendedVideoExportConfiguration(values: MediaEditorValues, durat
     var useHEVC = hasHEVCHardwareEncoder
     var useVP9 = false
     if let qualityPreset = values.qualityPreset {
-        let maxSize = CGSize(width: qualityPreset.maximumDimensions, height: qualityPreset.maximumDimensions)
-        var resultSize = values.originalDimensions.cgSize
-        if let cropRect = values.cropRect, !cropRect.isEmpty {
-            resultSize = targetSize(cropSize: cropRect.size.aspectFitted(maxSize), rotateSideward: values.cropOrientation?.isSideward ?? false)
+        let sourceSize = values.originalDimensions.cgSize
+        let cropSize = values.cropRect.flatMap { $0.isEmpty ? nil : $0.size } ?? sourceSize
+        let rotateSideward = values.cropOrientation?.isSideward ?? false
+        let resultSize: CGSize
+        if qualityPreset == .videoMessage {
+            // GHOST: side and bitrate of the round video from its settings (GGRoundVideoConfig); upstream's by default
+            let settings = VideoMessageExportSettings(sourceSize: sourceSize, cropSize: cropSize, rotateSideward: rotateSideward, maximumDimension: GGRoundVideoConfig.exportSide(VideoMessageExportSettings.maximumDimension))
+            resultSize = settings.dimensions
+            videoBitrate = GGRoundVideoConfig.exportBitrate(settings.bitrateKbps)
         } else {
-            resultSize = targetSize(cropSize: resultSize.aspectFitted(maxSize), rotateSideward: values.cropOrientation?.isSideward ?? false)
+            let maxSize = CGSize(width: qualityPreset.maximumDimensions, height: qualityPreset.maximumDimensions)
+            resultSize = targetSize(cropSize: cropSize.aspectFitted(maxSize), rotateSideward: rotateSideward)
+            videoBitrate = qualityPreset.videoBitrateKbps
         }
         
         width = Int(resultSize.width)
         height = Int(resultSize.height)
         
-        videoBitrate = qualityPreset.videoBitrateKbps
         audioBitrate = qualityPreset.audioBitrateKbps
         audioNumberOfChannels = qualityPreset.audioChannelsCount
         

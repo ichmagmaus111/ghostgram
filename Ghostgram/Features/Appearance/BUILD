@@ -69,6 +69,10 @@ swift_library(
         "//submodules/TelegramUI/Components/ChatListHeaderComponent:ChatListHeaderComponent",
         "//submodules/ItemListUI:ItemListUI",
         "//submodules/UndoUI:UndoUI",
+        # The sticker-size preview: the chat's wallpaper, the time format, the account's name.
+        "//submodules/WallpaperBackgroundNode:WallpaperBackgroundNode",
+        "//submodules/TextFormat:TextFormat",
+        "//submodules/LocalizedPeerData:LocalizedPeerData",
     ],
     visibility = [
         "//visibility:public",

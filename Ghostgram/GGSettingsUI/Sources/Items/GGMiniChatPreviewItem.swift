@@ -104,17 +104,17 @@ private func ggMiniChatHidesEmojiStatus() -> Bool {
     return GGChatListStyleHooks.rowStyle.handlers[0]().hidesEmojiStatus
 }
 
-private func ggPreviewTimestamp(ageSeconds: Int32) -> Int32 {
+func ggPreviewTimestamp(ageSeconds: Int32) -> Int32 {
     return Int32(CFAbsoluteTimeGetCurrent() + kCFAbsoluteTimeIntervalSince1970) - ageSeconds
 }
 
-private func ggDemoUser(id: Int64, name: String) -> TelegramUser {
+func ggDemoUser(id: Int64, name: String) -> TelegramUser {
     return TelegramUser(id: EnginePeer.Id(namespace: Namespaces.Peer.CloudUser, id: EnginePeer.Id.Id._internalFromInt64Value(id)), accessHash: nil, firstName: name, lastName: "", username: nil, phone: nil, photo: [], botInfo: nil, restrictionInfo: nil, flags: [], emojiStatus: nil, usernames: [], storiesHidden: nil, nameColor: nil, backgroundEmojiId: nil, profileColor: nil, profileBackgroundEmojiId: nil, subscriberCount: nil, verificationIconFileId: nil)
 }
 
 /// The chat's glass back arrow (`glassBackArrowImage` of NavigationBarImpl: a 2 pt round-capped
 /// chevron in a 44 pt square), drawn into a `side` square in the chat's button color.
-private func ggMiniChatBackArrowImage(side: CGFloat, color: UIColor) -> UIImage? {
+func ggMiniChatBackArrowImage(side: CGFloat, color: UIColor) -> UIImage? {
     let scale = side / 44.0
     return generateImage(CGSize(width: side, height: side), rotatedContext: { size, context in
         context.clear(CGRect(origin: CGPoint(), size: size))
@@ -156,6 +156,59 @@ private func ggStatusLineFrame(in node: ASDisplayNode) -> CGRect? {
         stack.append(contentsOf: current.subnodes ?? [])
     }
     return nil
+}
+
+/// The real bubbles of `messages`, in the given order, built as the chat builds them
+/// (`makeChatMessagePreviewItem`): a demo peer and the account's side, replies, quotes, «edited»,
+/// pending and unread states. Main thread (the wallpaper node and the theme images are main-only).
+func ggPreviewMessageItems(context: AccountContext, presentationData: PresentationData, messages: [GGPreviewMessage], backgroundNode: WallpaperBackgroundNode?) -> [ListViewItem] {
+    let peerId = EnginePeer.Id(namespace: Namespaces.Peer.CloudUser, id: EnginePeer.Id.Id._internalFromInt64Value(1))
+    let otherPeerId = EnginePeer.Id(namespace: Namespaces.Peer.CloudUser, id: EnginePeer.Id.Id._internalFromInt64Value(2))
+    var items: [ListViewItem] = []
+    for message in messages {
+        var peers = EngineSimpleDictionary<EnginePeer.Id, EngineRawPeer>()
+        var associatedMessages = EngineSimpleDictionary<EngineMessage.Id, EngineRawMessage>()
+        let timestamp = ggPreviewTimestamp(ageSeconds: message.ageSeconds)
+
+        var attributes: [EngineMessage.Attribute] = []
+        let replyMessageId = EngineMessage.Id(peerId: peerId, namespace: 0, id: 1000 &+ message.id)
+        if let reply = message.reply {
+            let replyAuthor = ggDemoUser(id: 1, name: reply.author)
+            peers[peerId] = replyAuthor
+            associatedMessages[replyMessageId] = EngineRawMessage(stableId: UInt32(truncatingIfNeeded: 1000 &+ message.id), stableVersion: 0, id: replyMessageId, globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: timestamp - 60, flags: [.Incoming], tags: [], globalTags: [], localTags: [], customTags: [], forwardInfo: nil, author: replyAuthor, text: reply.text, attributes: [], media: [], peers: peers, associatedMessages: EngineSimpleDictionary(), associatedMessageIds: [], associatedMedia: [:], associatedThreadInfo: nil, associatedStories: [:])
+            attributes.append(ReplyMessageAttribute(messageId: replyMessageId, threadMessageId: nil, quote: nil, isQuote: false, innerSubject: nil))
+        }
+        if message.isEdited {
+            attributes.append(EditedMessageAttribute(date: timestamp, isHidden: false))
+        }
+        var messageText = message.text
+        if let quote = message.quote, !quote.isEmpty {
+            let quoteLength = (quote as NSString).length
+            messageText = message.text.isEmpty ? quote : quote + "\n" + message.text
+            attributes.append(TextEntitiesMessageAttribute(entities: [MessageTextEntity(range: 0 ..< quoteLength, type: .BlockQuote(isCollapsed: false))]))
+        }
+
+        var flags: EngineMessage.Flags = message.isOutgoing ? [] : [.Incoming]
+        if message.isOutgoing && message.isPending {
+            flags.insert(.Unsent)
+        }
+        var author: EngineRawPeer?
+        if message.isOutgoing {
+            author = ggDemoUser(id: 2, name: "")
+        }
+        // Every preview message carries the menu's id base: the bubble then shows the time
+        // only, as in the chat (GGPreviewMessageDecorations.isMenuPreview). A status-line mark
+        // goes through the chat's own status prefix, «not read yet» through the preview item's
+        // read state (both by this id).
+        let isUnread = message.isOutgoing && message.isUnread && !message.isPending
+        let globallyUniqueId = GGPreviewMessageDecorations.globallyUniqueIdBase | Int64(UInt32(bitPattern: max(1, message.id)))
+        GGPreviewMessageDecorations.setStatusPrefix(message.mark?.statusText, globallyUniqueId: globallyUniqueId)
+        GGPreviewMessageDecorations.setUnread(isUnread, globallyUniqueId: globallyUniqueId)
+        let rawMessage = EngineRawMessage(stableId: UInt32(truncatingIfNeeded: max(1, message.id)), stableVersion: 0, id: EngineMessage.Id(peerId: message.isOutgoing ? otherPeerId : peerId, namespace: 0, id: max(1, message.id)), globallyUniqueId: globallyUniqueId, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: timestamp, flags: flags, tags: [], globalTags: [], localTags: [], customTags: [], forwardInfo: nil, author: author, text: messageText, attributes: attributes, media: [], peers: peers, associatedMessages: associatedMessages, associatedMessageIds: [], associatedMedia: [:], associatedThreadInfo: nil, associatedStories: [:])
+
+        items.append(context.sharedContext.makeChatMessagePreviewItem(context: context, messages: [EngineMessage(rawMessage)], theme: presentationData.theme, strings: presentationData.strings, wallpaper: presentationData.chatWallpaper, fontSize: presentationData.chatFontSize, chatBubbleCorners: presentationData.chatBubbleCorners, dateTimeFormat: presentationData.dateTimeFormat, nameOrder: presentationData.nameDisplayOrder, forcedResourceStatus: nil, tapMessage: nil, clickThroughMessage: nil, backgroundNode: backgroundNode, availableReactions: nil, accountPeer: nil, isCentered: false, isPreview: true, isStandalone: false, rank: nil, rankRole: nil, isGiftMessageComposerPreview: false, activateGiftMessageInput: nil))
+    }
+    return items
 }
 
 private final class GGMiniChatPreviewItemNode: ListViewItemNode {
@@ -252,55 +305,9 @@ private final class GGMiniChatPreviewItemNode: ListViewItemNode {
             currentBackgroundNode?.update(wallpaper: presentationData.chatWallpaper, animated: false)
             currentBackgroundNode?.updateBubbleTheme(bubbleTheme: presentationData.theme, bubbleCorners: presentationData.chatBubbleCorners)
 
-            let peerId = EnginePeer.Id(namespace: Namespaces.Peer.CloudUser, id: EnginePeer.Id.Id._internalFromInt64Value(1))
-            let otherPeerId = EnginePeer.Id(namespace: Namespaces.Peer.CloudUser, id: EnginePeer.Id.Id._internalFromInt64Value(2))
-
             // The list is drawn bottom-up (the container is rotated), so messages go in reversed.
             let orderedMessages = Array(item.content.messages.reversed())
-            var items: [ListViewItem] = []
-            for message in orderedMessages {
-                var peers = EngineSimpleDictionary<EnginePeer.Id, EngineRawPeer>()
-                var associatedMessages = EngineSimpleDictionary<EngineMessage.Id, EngineRawMessage>()
-                let timestamp = ggPreviewTimestamp(ageSeconds: message.ageSeconds)
-
-                var attributes: [EngineMessage.Attribute] = []
-                let replyMessageId = EngineMessage.Id(peerId: peerId, namespace: 0, id: 1000 &+ message.id)
-                if let reply = message.reply {
-                    let replyAuthor = ggDemoUser(id: 1, name: reply.author)
-                    peers[peerId] = replyAuthor
-                    associatedMessages[replyMessageId] = EngineRawMessage(stableId: UInt32(truncatingIfNeeded: 1000 &+ message.id), stableVersion: 0, id: replyMessageId, globallyUniqueId: nil, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: timestamp - 60, flags: [.Incoming], tags: [], globalTags: [], localTags: [], customTags: [], forwardInfo: nil, author: replyAuthor, text: reply.text, attributes: [], media: [], peers: peers, associatedMessages: EngineSimpleDictionary(), associatedMessageIds: [], associatedMedia: [:], associatedThreadInfo: nil, associatedStories: [:])
-                    attributes.append(ReplyMessageAttribute(messageId: replyMessageId, threadMessageId: nil, quote: nil, isQuote: false, innerSubject: nil))
-                }
-                if message.isEdited {
-                    attributes.append(EditedMessageAttribute(date: timestamp, isHidden: false))
-                }
-                var messageText = message.text
-                if let quote = message.quote, !quote.isEmpty {
-                    let quoteLength = (quote as NSString).length
-                    messageText = message.text.isEmpty ? quote : quote + "\n" + message.text
-                    attributes.append(TextEntitiesMessageAttribute(entities: [MessageTextEntity(range: 0 ..< quoteLength, type: .BlockQuote(isCollapsed: false))]))
-                }
-
-                var flags: EngineMessage.Flags = message.isOutgoing ? [] : [.Incoming]
-                if message.isOutgoing && message.isPending {
-                    flags.insert(.Unsent)
-                }
-                var author: EngineRawPeer?
-                if message.isOutgoing {
-                    author = ggDemoUser(id: 2, name: "")
-                }
-                // Every preview message carries the menu's id base: the bubble then shows the time
-                // only, as in the chat (GGPreviewMessageDecorations.isMenuPreview). A status-line mark
-                // goes through the chat's own status prefix, «not read yet» through the preview item's
-                // read state (both by this id).
-                let isUnread = message.isOutgoing && message.isUnread && !message.isPending
-                let globallyUniqueId = GGPreviewMessageDecorations.globallyUniqueIdBase | Int64(UInt32(bitPattern: max(1, message.id)))
-                GGPreviewMessageDecorations.setStatusPrefix(message.mark?.statusText, globallyUniqueId: globallyUniqueId)
-                GGPreviewMessageDecorations.setUnread(isUnread, globallyUniqueId: globallyUniqueId)
-                let rawMessage = EngineRawMessage(stableId: UInt32(truncatingIfNeeded: max(1, message.id)), stableVersion: 0, id: EngineMessage.Id(peerId: message.isOutgoing ? otherPeerId : peerId, namespace: 0, id: max(1, message.id)), globallyUniqueId: globallyUniqueId, groupingKey: nil, groupInfo: nil, threadId: nil, timestamp: timestamp, flags: flags, tags: [], globalTags: [], localTags: [], customTags: [], forwardInfo: nil, author: author, text: messageText, attributes: attributes, media: [], peers: peers, associatedMessages: associatedMessages, associatedMessageIds: [], associatedMedia: [:], associatedThreadInfo: nil, associatedStories: [:])
-
-                items.append(item.context.sharedContext.makeChatMessagePreviewItem(context: item.context, messages: [rawMessage], theme: presentationData.theme, strings: presentationData.strings, wallpaper: presentationData.chatWallpaper, fontSize: presentationData.chatFontSize, chatBubbleCorners: presentationData.chatBubbleCorners, dateTimeFormat: presentationData.dateTimeFormat, nameOrder: presentationData.nameDisplayOrder, forcedResourceStatus: nil, tapMessage: nil, clickThroughMessage: nil, backgroundNode: currentBackgroundNode, availableReactions: nil, accountPeer: nil, isCentered: false, isPreview: true, isStandalone: false, rank: nil, rankRole: nil, isGiftMessageComposerPreview: false))
-            }
+            let items = ggPreviewMessageItems(context: item.context, presentationData: presentationData, messages: orderedMessages, backgroundNode: currentBackgroundNode)
 
             // Reuse the nodes while the number of messages is the same; a modifier that adds or
             // removes a message gets a fresh set (updateNode cannot change the node count).

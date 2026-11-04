@@ -35,6 +35,12 @@ public struct GGTabBarStyle: Equatable {
     }
 
     public static let upstream = GGTabBarStyle(hidesTitles: false, isWide: false, fitsItems: false, hidesBar: false, heightOffset: 0.0, bottomOffset: 0.0, titlesRevision: 0)
+
+    /// Height of a tab before `heightOffset`: Telegram's 56 pt, or 40 pt without labels — the compact
+    /// bar of Swiftgram / the old Ghostgram (`showTabNames` off), 48 pt with its glass inset.
+    public var baseItemHeight: CGFloat {
+        return self.hidesTitles ? 40.0 : 56.0
+    }
 }
 
 /// The width the bar lays its tabs out in. A narrow bar (`fitsItems`) is Swiftgram's: four tabs

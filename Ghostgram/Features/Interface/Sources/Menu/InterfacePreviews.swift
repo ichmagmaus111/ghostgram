@@ -226,6 +226,8 @@ final class GGTabBarPreviewView: UIView, GGMenuPreviewView {
                 search: nil,
                 selectedId: selectedId,
                 outerInsets: UIEdgeInsets(top: 0.0, left: sideInset, bottom: bottomInset, right: sideInset),
+                axis: .horizontal,
+                isCompact: false,
                 ggStyle: style
             )),
             environment: {},

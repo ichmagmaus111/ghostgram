@@ -1326,6 +1326,11 @@ public enum GGStrings {
                 return GGLocalization.shared.string("appearance.stickers.hideTime")
             }
 
+            /// So cute! Got more?
+            public static var previewReply: Swift.String {
+                return GGLocalization.shared.string("appearance.stickers.previewReply")
+            }
+
             /// Sticker size
             public static var size: Swift.String {
                 return GGLocalization.shared.string("appearance.stickers.size")
@@ -1348,7 +1353,7 @@ public enum GGStrings {
                 return GGLocalization.shared.string("appearance.theme.amoledKeyboard")
             }
 
-            /// Dark system keyboard and black emoji and sticker panels in the dark theme
+            /// A black keyboard in every text field, and black emoji and sticker panels in the dark theme
             public static var amoledKeyboardInfo: Swift.String {
                 return GGLocalization.shared.string("appearance.theme.amoledKeyboardInfo")
             }
@@ -6139,6 +6144,48 @@ public enum GGStrings {
             }
         }
 
+        public enum Stars {
+            /// Only the number on screen changes — payments still use your real Stars.
+            public static var footer: Swift.String {
+                return GGLocalization.shared.string("fakeGifts.stars.footer")
+            }
+
+            /// Stars
+            public static var header: Swift.String {
+                return GGLocalization.shared.string("fakeGifts.stars.header")
+            }
+
+            /// Your own Stars balance instead of the real one — only you see it
+            public static var info: Swift.String {
+                return GGLocalization.shared.string("fakeGifts.stars.info")
+            }
+
+            /// stars balance local
+            public static var keywords: Swift.String {
+                return GGLocalization.shared.string("fakeGifts.stars.keywords")
+            }
+
+            /// Amount
+            public static var placeholder: Swift.String {
+                return GGLocalization.shared.string("fakeGifts.stars.placeholder")
+            }
+
+            /// How many Stars to show. Leave empty for the real balance
+            public static var promptText: Swift.String {
+                return GGLocalization.shared.string("fakeGifts.stars.promptText")
+            }
+
+            /// Reset Local Stars
+            public static var reset: Swift.String {
+                return GGLocalization.shared.string("fakeGifts.stars.reset")
+            }
+
+            /// Local Stars
+            public static var title: Swift.String {
+                return GGLocalization.shared.string("fakeGifts.stars.title")
+            }
+        }
+
         public enum Toast {
             /// The gift was added to your profile
             public static var added: Swift.String {
@@ -7240,9 +7287,49 @@ public enum GGStrings {
                 return GGLocalization.shared.string("interface.binds.buttonsTitle")
             }
 
+            /// Custom
+            public static var customLayout: Swift.String {
+                return GGLocalization.shared.string("interface.binds.customLayout")
+            }
+
+            /// All buttons are off. Turn on the ones you need in “Buttons”.
+            public static var editorEmpty: Swift.String {
+                return GGLocalization.shared.string("interface.binds.editorEmpty")
+            }
+
+            /// Drag a button where you want it
+            public static var editorHint: Swift.String {
+                return GGLocalization.shared.string("interface.binds.editorHint")
+            }
+
+            /// Position and Size
+            public static var editorTitle: Swift.String {
+                return GGLocalization.shared.string("interface.binds.editorTitle")
+            }
+
+            /// Height
+            public static var height: Swift.String {
+                return GGLocalization.shared.string("interface.binds.height")
+            }
+
+            /// Reset
+            public static var reset: Swift.String {
+                return GGLocalization.shared.string("interface.binds.reset")
+            }
+
             /// Scroll to Top
             public static var scrollToTop: Swift.String {
                 return GGLocalization.shared.string("interface.binds.scrollToTop")
+            }
+
+            /// Button Size
+            public static var sizeHeader: Swift.String {
+                return GGLocalization.shared.string("interface.binds.sizeHeader")
+            }
+
+            /// Width
+            public static var width: Swift.String {
+                return GGLocalization.shared.string("interface.binds.width")
             }
         }
 
@@ -7860,6 +7947,11 @@ public enum GGStrings {
             /// No Titles
             public static var hideTabTitles: Swift.String {
                 return GGLocalization.shared.string("interface.menu.hideTabTitles")
+            }
+
+            /// A compact bar: tab icons only
+            public static var hideTabTitlesInfo: Swift.String {
+                return GGLocalization.shared.string("interface.menu.hideTabTitlesInfo")
             }
 
             /// Your own icons instead of Telegram's
@@ -8797,6 +8889,26 @@ public enum GGStrings {
                 return GGLocalization.shared.string("menu.preview.chatListText3")
             }
 
+            /// Have you watched the movie I recommended?
+            public static var fullChat1: Swift.String {
+                return GGLocalization.shared.string("menu.preview.fullChat1")
+            }
+
+            /// Not yet, I will watch it tonight 🍿
+            public static var fullChat2: Swift.String {
+                return GGLocalization.shared.string("menu.preview.fullChat2")
+            }
+
+            /// Tell me what you think!
+            public static var fullChat3: Swift.String {
+                return GGLocalization.shared.string("menu.preview.fullChat3")
+            }
+
+            /// Sure 👍
+            public static var fullChat4: Swift.String {
+                return GGLocalization.shared.string("menu.preview.fullChat4")
+            }
+
             /// Hi! See you tonight?
             public static var incomingText: Swift.String {
                 return GGLocalization.shared.string("menu.preview.incomingText")
@@ -9213,7 +9325,7 @@ public enum GGStrings {
                     return GGLocalization.shared.string("menu.tab.more.fakeGifts")
                 }
 
-                /// Gifts on your profile that only you see
+                /// Gifts and Stars on your profile that only you see
                 public static var fakeGiftsInfo: Swift.String {
                     return GGLocalization.shared.string("menu.tab.more.fakeGiftsInfo")
                 }
@@ -9724,6 +9836,74 @@ public enum GGStrings {
             /// Pinned messages
             public static var pinned: Swift.String {
                 return GGLocalization.shared.string("notifications.menu.pinned")
+            }
+        }
+    }
+
+    public enum RegDate {
+        public enum Age {
+            /// ≈ {age}
+            public static func approximate(age: Swift.String) -> Swift.String {
+                return GGLocalization.shared.format("regDate.age.approximate", [("age", age)])
+            }
+
+            /// under a month
+            public static var lessThanMonth: Swift.String {
+                return GGLocalization.shared.string("regDate.age.lessThanMonth")
+            }
+
+            /// {count} mo
+            public static func months(count: Swift.Int) -> Swift.String {
+                return GGLocalization.shared.plural("regDate.age.months", count: count, [])
+            }
+
+            /// {count} yrs
+            public static func years(count: Swift.Int) -> Swift.String {
+                return GGLocalization.shared.plural("regDate.age.years", count: count, [])
+            }
+
+            /// {years} {months}
+            public static func yearsMonths(years: Swift.String, months: Swift.String) -> Swift.String {
+                return GGLocalization.shared.format("regDate.age.yearsMonths", [("years", years), ("months", months)])
+            }
+        }
+
+        public enum Menu {
+            /// registration created account age date id
+            public static var keywords: Swift.String {
+                return GGLocalization.shared.string("regDate.menu.keywords")
+            }
+
+            /// Telegram's own month when it tells it, otherwise an estimate from the ID and what is on this device. No requests to third-party servers
+            public static var subtitle: Swift.String {
+                return GGLocalization.shared.string("regDate.menu.subtitle")
+            }
+
+            /// Registration date
+            public static var title: Swift.String {
+                return GGLocalization.shared.string("regDate.menu.title")
+            }
+        }
+
+        public enum Profile {
+            /// ≈ {date}
+            public static func approximate(date: Swift.String) -> Swift.String {
+                return GGLocalization.shared.format("regDate.profile.approximate", [("date", date)])
+            }
+
+            /// Copied
+            public static var copied: Swift.String {
+                return GGLocalization.shared.string("regDate.profile.copied")
+            }
+
+            /// Registration date
+            public static var label: Swift.String {
+                return GGLocalization.shared.string("regDate.profile.label")
+            }
+
+            /// {from} — {to}
+            public static func range(from: Swift.String, to: Swift.String) -> Swift.String {
+                return GGLocalization.shared.format("regDate.profile.range", [("from", from), ("to", to)])
             }
         }
     }

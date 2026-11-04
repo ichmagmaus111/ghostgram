@@ -131,14 +131,18 @@ enum GGAppearanceTheme {
             inAppNotification = inAppNotification.withUpdated(fillColor: elevated)
         }
 
-        if snapshot.amoledKeyboard && source.overallDarkAppearance {
-            // The darkest system keyboard is `.dark`; the panels Telegram draws itself go black.
-            let black = UIColor(rgb: 0x000000)
+        if snapshot.amoledKeyboard {
+            // Telegram's own inputs ask for the dark keyboard in any theme, as in the old client; the
+            // keyboard itself is painted black by GGAmoledKeyboard. The panels Telegram draws itself go
+            // black in a dark theme only (a light theme's icons would vanish on black).
             rootController = rootController.withUpdated(keyboardColor: .dark)
-            chat = chat.withUpdated(
-                inputMediaPanel: chat.inputMediaPanel.withUpdated(stickersBackgroundColor: black, gifsBackgroundColor: black, backgroundColor: black),
-                inputButtonPanel: chat.inputButtonPanel.withUpdated(panelBackgroundColor: black)
-            )
+            if source.overallDarkAppearance {
+                let black = UIColor(rgb: 0x000000)
+                chat = chat.withUpdated(
+                    inputMediaPanel: chat.inputMediaPanel.withUpdated(stickersBackgroundColor: black, gifsBackgroundColor: black, backgroundColor: black),
+                    inputButtonPanel: chat.inputButtonPanel.withUpdated(panelBackgroundColor: black)
+                )
+            }
         }
 
         if snapshot.hideSeparators {

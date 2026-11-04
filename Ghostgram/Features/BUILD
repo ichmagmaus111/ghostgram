@@ -28,6 +28,8 @@ swift_library(
         "//Ghostgram/Features/ProfileExport:GGProfileExport",
         # W5-SG: Swiftgram-parity features
         "//Ghostgram/Features/Extras:GGExtras",
+        # W7-RD2: «Дата регистрации»
+        "//Ghostgram/Features/RegDate:GGRegDate",
     ],
     visibility = [
         "//visibility:public",

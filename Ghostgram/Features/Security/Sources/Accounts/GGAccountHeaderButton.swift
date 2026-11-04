@@ -10,7 +10,7 @@ import AccountContext
 import ContextUI
 import AvatarNode
 import AccountPeerContextItem
-import ChatListHeaderComponent
+import NavigationBarComponent
 import ChatListUI
 import GGCore
 import GGHooks
@@ -34,17 +34,42 @@ enum GGAccountHeaderButton {
             guard GGSecuritySettings.accountsHeaderButton.value, GGAccountsList.shared.otherAccountCount > 0, case .chatList(.root) = header.location else {
                 return buttons
             }
+            let context = header.context
             var result = buttons
-            result.append(AnyComponentWithIdentity(id: GGAccountHeaderButton.buttonId, component: AnyComponent(GGAccountHeaderButtonComponent(context: header.context))))
+            result.append(NavigationBarComponent.Button(
+                id: GGAccountHeaderButton.buttonId,
+                content: .custom(AnyComponent(GGAccountHeaderButtonComponent(context: context, theme: context.sharedContext.currentPresentationData.with { $0 }.theme))),
+                action: { _ in
+                    GGAccountHeaderButton.switchToNextAccount(context: context)
+                },
+                contextAction: { sourceView, gesture in
+                    GGAccountHeaderButton.presentMenu(context: context, sourceView: sourceView, gesture: gesture)
+                }
+            ))
             return result
         })
-        GGChatListChromeHooks.rightButtonsCornerRadius.register({ buttonIds, height in
-            guard buttonIds.contains(GGAccountHeaderButton.buttonId), GGAvatarHooks.currentShape().squareAvatars else {
-                return nil
+    }
+
+    /// The glass under the button with square avatars («Скругление углов»): a rounded square
+    /// concentric with the avatar's corners, not Telegram's circle. nil = Telegram's capsule.
+    static func glassCornerRadius(height: CGFloat) -> CGFloat? {
+        guard GGAvatarHooks.currentShape().squareAvatars else {
+            return nil
+        }
+        let side = GGAccountHeaderButton.avatarSide
+        let avatarRadius = ggAvatarRoundedRectRadius(side, upstream: floor(side * 0.5))
+        return avatarRadius + max(0.0, (height - side) * 0.5)
+    }
+
+    /// A tap: the next signed-in account (the one whose avatar the button shows).
+    static func switchToNextAccount(context: AccountContext) {
+        let _ = (GGAccountHeaderButton.otherAccounts(context: context)
+        |> take(1)
+        |> deliverOnMainQueue).start(next: { accounts in
+            guard let next = accounts.first else {
+                return
             }
-            let side = GGAccountHeaderButton.avatarSide
-            let avatarRadius = ggAvatarRoundedRectRadius(side, upstream: floor(side * 0.5))
-            return avatarRadius + max(0.0, (height - side) * 0.5)
+            context.sharedContext.switchToAccount(id: next.account.id, fromSettingsController: nil, withChatListController: nil)
         })
     }
 
@@ -92,21 +117,24 @@ private final class GGAccountHeaderReferenceSource: ContextReferenceContentSourc
     }
 }
 
+/// The button's content: the next account's avatar. Taps and the long press are the bar's
+/// (`NavigationBarComponent.Button.action` / `contextAction`).
 final class GGAccountHeaderButtonComponent: Component {
-    typealias EnvironmentType = NavigationButtonComponentEnvironment
+    typealias EnvironmentType = NavigationButtonEnvironment
 
     let context: AccountContext
+    let theme: PresentationTheme
 
-    init(context: AccountContext) {
+    init(context: AccountContext, theme: PresentationTheme) {
         self.context = context
+        self.theme = theme
     }
 
     static func ==(lhs: GGAccountHeaderButtonComponent, rhs: GGAccountHeaderButtonComponent) -> Bool {
-        return lhs.context === rhs.context
+        return lhs.context === rhs.context && lhs.theme === rhs.theme
     }
 
-    final class View: UIView {
-        private let sourceView = ContextControllerSourceView()
+    final class View: UIView, GGNavigationButtonGlassShape {
         private let avatarNode = AvatarNode(font: avatarPlaceholderFont(size: 12.0))
         private var component: GGAccountHeaderButtonComponent?
         private var theme: PresentationTheme?
@@ -115,18 +143,8 @@ final class GGAccountHeaderButtonComponent: Component {
 
         override init(frame: CGRect) {
             super.init(frame: frame)
-            self.sourceView.animateScale = true
-            self.addSubview(self.sourceView)
-            self.sourceView.addSubview(self.avatarNode.view)
-            self.sourceView.activated = { [weak self] gesture, _ in
-                guard let self, let component = self.component else {
-                    gesture.cancel()
-                    return
-                }
-                GGAccountHeaderButton.presentMenu(context: component.context, sourceView: self.sourceView, gesture: gesture)
-            }
-            let tap = UITapGestureRecognizer(target: self, action: #selector(self.tapped))
-            self.sourceView.addGestureRecognizer(tap)
+            self.avatarNode.isUserInteractionEnabled = false
+            self.addSubview(self.avatarNode.view)
         }
 
         required init?(coder: NSCoder) {
@@ -137,11 +155,8 @@ final class GGAccountHeaderButtonComponent: Component {
             self.disposable?.dispose()
         }
 
-        @objc private func tapped() {
-            guard let component = self.component, let next = self.nextAccount else {
-                return
-            }
-            component.context.sharedContext.switchToAccount(id: next.account.id, fromSettingsController: nil, withChatListController: nil)
+        func ggGlassCornerRadius(height: CGFloat) -> CGFloat? {
+            return GGAccountHeaderButton.glassCornerRadius(height: height)
         }
 
         private func applyAvatar() {
@@ -152,8 +167,8 @@ final class GGAccountHeaderButtonComponent: Component {
             self.avatarNode.setPeer(accountPeerId: account.peerId, postbox: account.postbox, network: account.network, contentSettings: .default, theme: theme, peer: next.peer, displayDimensions: CGSize(width: GGAccountHeaderButton.avatarSide, height: GGAccountHeaderButton.avatarSide))
         }
 
-        func update(component: GGAccountHeaderButtonComponent, availableSize: CGSize, environment: Environment<NavigationButtonComponentEnvironment>) -> CGSize {
-            let theme = environment[NavigationButtonComponentEnvironment.self].value.theme
+        func update(component: GGAccountHeaderButtonComponent, availableSize: CGSize) -> CGSize {
+            let theme = component.theme
             let contextChanged = self.component?.context !== component.context
             let themeChanged = self.theme !== theme
             self.component = component
@@ -168,7 +183,6 @@ final class GGAccountHeaderButtonComponent: Component {
                     let next = accounts.first
                     self.nextAccount = next
                     self.avatarNode.isHidden = next == nil
-                    self.sourceView.isGestureEnabled = next != nil
                     self.applyAvatar()
                 })
             } else if themeChanged {
@@ -176,7 +190,6 @@ final class GGAccountHeaderButtonComponent: Component {
             }
             let size = CGSize(width: 44.0, height: availableSize.height)
             let avatarSize = CGSize(width: GGAccountHeaderButton.avatarSide, height: GGAccountHeaderButton.avatarSide)
-            self.sourceView.frame = CGRect(origin: CGPoint(), size: size)
             self.avatarNode.frame = CGRect(origin: CGPoint(x: floor((size.width - avatarSize.width) / 2.0), y: floor((size.height - avatarSize.height) / 2.0)), size: avatarSize)
             return size
         }
@@ -186,7 +199,7 @@ final class GGAccountHeaderButtonComponent: Component {
         return View(frame: CGRect())
     }
 
-    func update(view: View, availableSize: CGSize, state: EmptyComponentState, environment: Environment<NavigationButtonComponentEnvironment>, transition: ComponentTransition) -> CGSize {
-        return view.update(component: self, availableSize: availableSize, environment: environment)
+    func update(view: View, availableSize: CGSize, state: EmptyComponentState, environment: Environment<NavigationButtonEnvironment>, transition: ComponentTransition) -> CGSize {
+        return view.update(component: self, availableSize: availableSize)
     }
 }

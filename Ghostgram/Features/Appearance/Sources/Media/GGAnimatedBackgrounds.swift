@@ -15,7 +15,8 @@ import GGAppearanceSettings
 /// Here a picked GIF is converted ONCE, at import, on a background queue, frame by frame
 /// (`CGImageSource` → `AVAssetWriter`, never more than one decoded frame in memory) into a looping
 /// H.264 video without an audio track; a picked video is re-exported without its audio. The result
-/// lives at a fixed place in the app container; the settings keep only a version number.
+/// lives at a fixed place in the app container; the settings keep only a version number. It is played
+/// by `GGLoopingVideoView`'s own reader: `AVPlayer` took the audio session even for such a file.
 enum GGAnimatedBackgroundKind {
     case chat
     case profile

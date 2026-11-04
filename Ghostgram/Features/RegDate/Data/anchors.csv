@@ -1,0 +1,822 @@
+id,ts,date,kind,weight,sources,note
+25,1384473600,2013-11-15,obs,1.0,sepiol-k,
+217509,1382662080,2013-10-25,obs,1.0,sepiol-k,
+1000000,1380326400,2013-09-28,obs,1.0,aayco;exteraless;sepiol-k,
+2768400,1383264000,2013-11-01,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 6 h; copies carry IDs 2768400/2768409
+3941874,1388448000,2013-12-31,obs,1.0,sepiol-k,
+6256671,1390013486,2014-01-18,obs,1.0,sepiol-k,
+7679610,1388448000,2013-12-31,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,
+11538510,1391212000,2014-01-31,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 30 h; copies carry IDs 11538510/11538514
+15835240,1392940000,2014-02-20,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 30 h; copies carry IDs 15835240/15835244
+23646070,1393459000,2014-02-26,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 30 h; copies carry IDs 23646070/23646077
+38015510,1393632000,2014-03-01,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,
+44634660,1396720800,2014-04-05,obs,0.5,sepiol-k,conflict: ID 44634663 (aayco/exteraless/getids/jobians/lastochkin/sepiol-k/tdage/wizardloop) is 3 away and 30 d off
+44634663,1399334400,2014-05-06,obs,0.5,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,conflict: ID 44634660 (sepiol-k) is 3 away and 30 d off; copies differ by up to 0 h
+45641754,1398167867,2014-04-22,obs,1.0,sepiol-k,
+46145305,1400198000,2014-05-15,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+54845230,1403287200,2014-06-20,obs,0.5,sepiol-k,conflict: ID 54845238 (aayco/exteraless/getids/jobians/lastochkin/sepiol-k/tdage/wizardloop) is 8 away and 92 d off
+54845238,1411257000,2014-09-20,obs,0.5,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,conflict: ID 54845230 (sepiol-k) is 8 away and 92 d off; copies differ by up to 24 h
+60457419,1408075000,2014-08-15,obs,1.0,sepiol-k,
+63263518,1414454000,2014-10-27,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+72776425,1427835600,2015-03-31,obs,1.0,sepiol-k,
+95308423,1428238000,2015-04-05,obs,1.0,sepiol-k,
+101260938,1425600000,2015-03-06,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,
+101323197,1426204800,2015-03-13,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+103151531,1433376000,2015-06-04,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+103204956,1433032767,2015-05-31,obs,1.0,sepiol-k,
+103258382,1432771000,2015-05-27,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+109393468,1439078000,2015-08-08,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+110306836,1434314267,2015-06-14,obs,1.0,sepiol-k,
+111220210,1429574400,2015-04-21,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+112594714,1439683000,2015-08-15,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+115831565,1438524943,2015-08-02,obs,1.0,sepiol-k,
+116812045,1437696000,2015-07-24,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+122600695,1437782000,2015-07-24,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+124872440,1439856000,2015-08-18,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h; copies carry IDs 124872440/124872445
+125828524,1444003200,2015-10-05,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+127929226,1442623033,2015-09-19,obs,1.0,sepiol-k,
+130029930,1441324000,2015-09-03,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h
+133909600,1444176000,2015-10-07,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 5 h; copies carry IDs 133909600/133909606
+139646974,1444273680,2015-10-08,obs,1.0,sepiol-k,
+143445120,1448928000,2015-12-01,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 5 h; copies carry IDs 143445120/143445125
+148670295,1452211200,2016-01-08,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+152079341,1453420000,2016-01-21,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+155983984,1449370973,2015-12-06,obs,1.0,sepiol-k,
+157242073,1446768000,2015-11-06,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,
+171295414,1457481600,2016-03-09,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+172144707,1454045640,2016-01-29,obs,1.0,sepiol-k,
+181783990,1460246400,2016-04-10,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+188459175,1457850160,2016-03-13,obs,1.0,sepiol-k,
+222021230,1465344000,2016-06-08,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 5 h; copies carry IDs 222021230/222021233
+225034350,1466208000,2016-06-18,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 5 h; copies carry IDs 225034350/225034354
+267103082,1472677200,2016-08-31,obs,1.0,sepiol-k,
+278941742,1473465600,2016-09-10,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+279333717,1473142920,2016-09-06,obs,1.0,sepiol-k,
+281973858,1475301600,2016-10-01,obs,1.0,sepiol-k,
+285253070,1476835000,2016-10-18,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h; copies carry IDs 285253070/285253072
+294851030,1479600000,2016-11-20,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 24 h; copies carry IDs 294851030/294851037
+297621220,1481846000,2016-12-15,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 5 h; copies carry IDs 297621220/297621225
+310042805,1487106000,2017-02-14,obs,1.0,sepiol-k,
+328122828,1487205960,2017-02-16,obs,1.0,sepiol-k,
+328594461,1482969000,2016-12-28,obs,0.5,aayco;exteraless;getids;lastochkin;tdage,conflict: ID 328594461 (jobians/sepiol-k/wizardloop) is 0 away and 30 d off; copies differ by up to 0 h
+328594461,1485561600,2017-01-28,obs,0.5,jobians;sepiol-k;wizardloop,conflict: ID 328594461 (aayco/exteraless/getids/lastochkin/tdage) is 0 away and 30 d off
+337808429,1487707000,2017-02-21,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 20 h
+339965214,1489772244,2017-03-17,obs,1.0,sepiol-k,
+341546272,1487782000,2017-02-22,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 17 h
+352940995,1487894400,2017-02-24,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 0 h
+369669040,1490918000,2017-03-30,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 29 h; copies carry IDs 369669040/369669043
+399597034,1496257200,2017-05-31,obs,1.0,sepiol-k,
+400169470,1501459000,2017-07-30,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 5 h; copies carry IDs 400169470/400169472
+409518943,1506848400,2017-10-01,obs,1.0,sepiol-k,
+484976017,1516084200,2018-01-16,obs,1.0,sepiol-k,
+501535268,1518638400,2018-02-14,obs,1.0,sepiol-k,
+554990133,1521187200,2018-03-16,obs,1.0,sepiol-k,
+573604341,1523822400,2018-04-15,obs,1.0,sepiol-k,
+601341900,1531829829,2018-07-17,obs,1.0,sepiol-k,
+616816630,1529625600,2018-06-22,obs,1.0,aayco;exteraless;sepiol-k,
+655730151,1537472400,2018-09-20,obs,1.0,sepiol-k,
+675879664,1539510300,2018-10-14,obs,1.0,sepiol-k,
+681896077,1532821500,2018-07-28,obs,1.0,aayco;exteraless;sepiol-k,
+695531082,1541019600,2018-10-31,obs,1.0,sepiol-k,
+707751101,1542304800,2018-11-15,obs,1.0,sepiol-k,
+717887953,1545429600,2018-12-21,obs,1.0,sepiol-k,
+727572658,1543708800,2018-12-02,obs,1.0,aayco;exteraless;sepiol-k,
+774723749,1550821640,2019-02-22,obs,1.0,sepiol-k,
+796147074,1541371800,2018-11-04,obs,1.0,aayco;exteraless;sepiol-k,
+805158066,1563208000,2019-07-15,obs,1.0,getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,copies differ by up to 16 h
+820050353,1557302400,2019-05-08,obs,1.0,sepiol-k,
+871177218,1561951200,2019-07-01,obs,1.0,sepiol-k,
+920778234,1568803164,2019-09-18,obs,1.0,sepiol-k,
+925078064,1563290000,2019-07-16,obs,1.0,aayco;exteraless;sepiol-k,copies differ by up to 0 h
+928636984,1581513420,2020-02-12,obs,1.0,aayco;exteraless;sepiol-k,
+970269006,1574693313,2019-11-25,obs,1.0,sepiol-k,
+979195258,1568332800,2019-09-13,obs,1.0,sepiol-k,
+1020178246,1576957200,2019-12-21,obs,1.0,sepiol-k,
+1040151903,1577817000,2019-12-31,obs,1.0,sepiol-k,
+1054883348,1585674420,2020-03-31,obs,1.0,aayco;exteraless;sepiol-k,
+1057704545,1580393640,2020-01-30,obs,1.0,aayco;exteraless;sepiol-k,
+1059845356,1578848886,2020-01-12,obs,1.0,sepiol-k,
+1081554131,1580504400,2020-01-31,obs,1.0,sepiol-k,
+1130489378,1583002800,2020-02-29,obs,1.0,sepiol-k,
+1145856008,1586342040,2020-04-08,obs,1.0,aayco;exteraless;sepiol-k,
+1170070589,1588284000,2020-04-30,obs,1.0,sepiol-k,
+1202891775,1588310640,2020-05-01,obs,1.0,sepiol-k,
+1227964864,1596127860,2020-07-30,obs,1.0,aayco;exteraless;sepiol-k,
+1232810985,1590890220,2020-05-31,obs,1.0,sepiol-k,
+1279382482,1590934320,2020-05-31,obs,1.0,sepiol-k,
+1334421204,1597360114,2020-08-13,obs,1.0,sepiol-k,
+1382531194,1600188120,2020-09-15,obs,1.0,aayco;exteraless;sepiol-k,
+1383895297,1601492400,2020-09-30,obs,1.0,sepiol-k,
+1415571066,1604817900,2020-11-08,obs,1.0,sepiol-k,
+1439824385,1606762800,2020-11-30,obs,1.0,sepiol-k,
+1471194210,1606813200,2020-12-01,obs,1.0,sepiol-k,
+1485680298,1609437600,2020-12-31,obs,1.0,sepiol-k,
+1514538817,1609441200,2020-12-31,obs,1.0,sepiol-k,
+1578805533,1612119600,2021-01-31,obs,1.0,sepiol-k,
+1649902679,1612670965,2021-02-07,obs,1.0,sepiol-k,
+1658586909,1613148540,2021-02-12,obs,1.0,aayco;exteraless;sepiol-k,
+1660971491,1613329440,2021-02-14,obs,1.0,aayco;exteraless;sepiol-k,
+1692464211,1615402500,2021-03-10,obs,1.0,aayco;exteraless;sepiol-k,
+1719536397,1619293500,2021-04-24,obs,1.0,aayco;exteraless;sepiol-k,
+1721844091,1620224820,2021-05-05,obs,1.0,aayco;exteraless;sepiol-k,
+1735271901,1618786994,2021-04-18,obs,1.0,sepiol-k,
+1772991138,1617540360,2021-04-04,obs,1.0,aayco;exteraless;sepiol-k,
+1787945512,1616791827,2021-03-26,obs,1.0,sepiol-k,
+1788462219,1622458800,2021-05-31,obs,1.0,sepiol-k,
+1807942741,1625520300,2021-07-05,obs,1.0,aayco;exteraless;sepiol-k,
+1824157837,1622576984,2021-06-01,obs,1.0,sepiol-k,
+1881430862,1623440640,2021-06-11,obs,1.0,sepiol-k,
+1893429550,1622040000,2021-05-26,obs,1.0,aayco;exteraless;sepiol-k,
+1938921569,1626933294,2021-07-22,obs,1.0,sepiol-k,
+1972424006,1631669400,2021-09-15,obs,1.0,aayco;exteraless;sepiol-k,
+1974255900,1634000000,2021-10-12,obs,1.0,aayco;exteraless;getids;jobians;lastochkin;sepiol-k;tdage;wizardloop,ID rounded to 100 by the table author (2026 additions); copies differ by up to 1 h
+1991158335,1630556060,2021-09-02,obs,1.0,sepiol-k,
+2030606431,1631992680,2021-09-18,obs,1.0,aayco;exteraless;sepiol-k,
+2041327411,1631989620,2021-09-18,obs,1.0,aayco;exteraless;sepiol-k,
+2078711279,1634321820,2021-10-15,obs,1.0,aayco;exteraless;sepiol-k,
+2104178931,1638353220,2021-12-01,obs,1.0,aayco;exteraless;sepiol-k,
+2120496865,1636714020,2021-11-12,obs,1.0,aayco;exteraless;sepiol-k,
+2123596685,1636503180,2021-11-10,obs,1.0,aayco;exteraless;sepiol-k,
+2138472342,1637590800,2021-11-22,obs,1.0,aayco;exteraless;sepiol-k,
+2250645697,1633515812,2021-10-06,obs,1.0,sepiol-k,
+5017595749,1638309600,2021-11-30,obs,1.0,sepiol-k,
+5022636255,1639094400,2021-12-10,obs,1.0,jobians;sepiol-k;wizardloop,
+5031711230,1638748800,2021-12-06,obs,1.0,jobians;sepiol-k;wizardloop,
+5035057026,1640352847,2021-12-24,obs,1.0,sepiol-k,
+5045293264,1642032000,2022-01-13,obs,1.0,jobians;sepiol-k;wizardloop,
+5047148663,1649116800,2022-04-05,obs,1.0,jobians;sepiol-k;wizardloop,
+5065900297,1640977200,2021-12-31,obs,1.0,sepiol-k,
+5070164216,1642550400,2022-01-19,obs,1.0,jobians;sepiol-k;wizardloop,
+5106451106,1646438400,2022-03-05,obs,1.0,jobians;sepiol-k;wizardloop,
+5124099423,1643662800,2022-01-31,obs,1.0,sepiol-k,
+5124771193,1645488000,2022-02-22,obs,1.0,jobians;sepiol-k;wizardloop,
+5144324763,1649203200,2022-04-06,obs,1.0,jobians;sepiol-k;wizardloop,
+5149590651,1642809600,2022-01-22,obs,1.0,jobians;sepiol-k;wizardloop,
+5153900870,1647907200,2022-03-22,obs,1.0,jobians;sepiol-k;wizardloop,
+5155903109,1647907200,2022-03-22,obs,1.0,jobians;sepiol-k;wizardloop,
+5159326926,1655337600,2022-06-16,obs,1.0,jobians;sepiol-k;wizardloop,
+5162494923,1652449800,2022-05-13,obs,1.0,aayco;exteraless;sepiol-k,
+5166844465,1652054400,2022-05-09,obs,1.0,jobians;sepiol-k;wizardloop,
+5169485538,1646092800,2022-03-01,obs,1.0,jobians;sepiol-k;wizardloop,
+5170390109,1646006400,2022-02-28,obs,1.0,jobians;sepiol-k;wizardloop,
+5177789190,1642982400,2022-01-24,obs,1.0,jobians;sepiol-k;wizardloop,
+5179102906,1647043200,2022-03-12,obs,1.0,jobians;sepiol-k;wizardloop,
+5186883095,1648764360,2022-03-31,obs,1.0,aayco;exteraless;sepiol-k,
+5196353812,1644883200,2022-02-15,obs,1.0,jobians;sepiol-k;wizardloop,
+5199399786,1645002097,2022-02-16,obs,1.0,sepiol-k,
+5207110227,1643846400,2022-02-03,obs,1.0,jobians;sepiol-k;wizardloop,
+5210565134,1644364800,2022-02-09,obs,1.0,jobians;sepiol-k;wizardloop,
+5244529493,1650326400,2022-04-19,obs,1.0,jobians;sepiol-k;wizardloop,
+5249255238,1646383782,2022-03-04,obs,1.0,sepiol-k,
+5259159476,1651795200,2022-05-06,obs,1.0,jobians;sepiol-k;wizardloop,
+5260388619,1646179200,2022-03-02,obs,1.0,jobians;sepiol-k;wizardloop,
+5268253519,1647907200,2022-03-22,obs,1.0,jobians;sepiol-k;wizardloop,
+5271530336,1651276800,2022-04-30,obs,1.0,jobians;sepiol-k;wizardloop,
+5288930461,1643241600,2022-01-27,obs,1.0,jobians;sepiol-k;wizardloop,
+5290311052,1647451401,2022-03-16,obs,1.0,sepiol-k,
+5297354132,1648760400,2022-03-31,obs,1.0,sepiol-k,
+5304951856,1656718440,2022-07-01,obs,1.0,aayco;exteraless;sepiol-k,
+5308260177,1650844800,2022-04-25,obs,1.0,jobians;sepiol-k;wizardloop,
+5317829834,1653152820,2022-05-21,obs,1.0,aayco;exteraless;sepiol-k,
+5318092331,1652024220,2022-05-08,obs,1.0,aayco;exteraless;sepiol-k,
+5318972588,1651937341,2022-05-07,obs,1.0,sepiol-k,
+5336336790,1646368100,2022-03-04,obs,1.0,aayco;exteraless;sepiol-k,
+5340744210,1666742400,2022-10-26,obs,1.0,jobians;sepiol-k;wizardloop,
+5349830748,1651190400,2022-04-29,obs,1.0,jobians;sepiol-k;wizardloop,
+5351497367,1653350400,2022-05-24,obs,1.0,jobians;sepiol-k;wizardloop,
+5362593868,1652024520,2022-05-08,obs,1.0,aayco;exteraless;sepiol-k,
+5363536419,1659312000,2022-08-01,obs,1.0,jobians;sepiol-k;wizardloop,
+5387234031,1662137700,2022-09-02,obs,1.0,aayco;exteraless;sepiol-k,
+5394432429,1653264000,2022-05-23,obs,1.0,jobians;sepiol-k;wizardloop,
+5396515972,1650499200,2022-04-21,obs,1.0,jobians;sepiol-k;wizardloop,
+5396575599,1654553525,2022-06-06,obs,1.0,sepiol-k,
+5396587273,1648014800,2022-03-23,obs,1.0,aayco;exteraless;sepiol-k,
+5402540458,1656615600,2022-06-30,obs,1.0,sepiol-k,
+5409444610,1659025020,2022-07-28,obs,1.0,aayco;exteraless;sepiol-k,
+5416026704,1660925460,2022-08-19,obs,1.0,aayco;exteraless;sepiol-k,
+5428357996,1657497600,2022-07-11,obs,1.0,jobians;sepiol-k;wizardloop,
+5433708969,1653696000,2022-05-28,obs,1.0,jobians;sepiol-k;wizardloop,
+5434011049,1656460800,2022-06-29,obs,1.0,jobians;sepiol-k;wizardloop,
+5442755368,1658534400,2022-07-23,obs,1.0,jobians;sepiol-k;wizardloop,
+5451256696,1659744000,2022-08-06,obs,1.0,jobians;sepiol-k;wizardloop,
+5465223076,1661710860,2022-08-28,obs,1.0,aayco;exteraless;sepiol-k,
+5468433192,1658275200,2022-07-20,obs,1.0,jobians;sepiol-k;wizardloop,
+5468950164,1657756800,2022-07-14,obs,1.0,jobians;sepiol-k;wizardloop,
+5472518401,1667347200,2022-11-02,obs,1.0,jobians;sepiol-k;wizardloop,
+5480654757,1660926300,2022-08-19,obs,1.0,aayco;exteraless;sepiol-k,
+5488407539,1653782400,2022-05-29,obs,1.0,jobians;sepiol-k;wizardloop,
+5499934702,1662130740,2022-09-02,obs,1.0,aayco;exteraless;sepiol-k,
+5502182459,1658314837,2022-07-20,obs,1.0,sepiol-k,
+5505809357,1653609600,2022-05-27,obs,1.0,jobians;sepiol-k;wizardloop,
+5513192189,1659626400,2022-08-04,obs,1.0,aayco;exteraless;sepiol-k,
+5515826405,1664755200,2022-10-03,obs,1.0,jobians;sepiol-k;wizardloop,
+5519218712,1660435200,2022-08-14,obs,1.0,jobians;sepiol-k;wizardloop,
+5520018289,1721847912,2024-07-24,obs,1.0,lastochkin,
+5522237606,1654167240,2022-06-02,obs,1.0,aayco;exteraless;sepiol-k,
+5537251684,1664269800,2022-09-27,obs,1.0,aayco;exteraless;sepiol-k,
+5542245357,1657152000,2022-07-07,obs,1.0,jobians;sepiol-k;wizardloop,
+5546930145,1658620800,2022-07-24,obs,1.0,jobians;sepiol-k;wizardloop,
+5558980075,1667088000,2022-10-30,obs,1.0,jobians;sepiol-k;wizardloop,
+5559167331,1656718560,2022-07-01,obs,1.0,aayco;exteraless;sepiol-k,
+5559594088,1668038400,2022-11-10,obs,1.0,jobians;sepiol-k;wizardloop,
+5562600534,1659301200,2022-07-31,obs,1.0,sepiol-k,
+5567880858,1674604800,2023-01-25,obs,1.0,jobians;sepiol-k;wizardloop,
+5568348673,1654642200,2022-06-07,obs,1.0,aayco;exteraless;sepiol-k,
+5584365163,1659366750,2022-08-01,obs,1.0,sepiol-k,
+5591759222,1659025500,2022-07-28,obs,1.0,aayco;exteraless;sepiol-k,
+5595045952,1666483200,2022-10-23,obs,1.0,jobians;sepiol-k;wizardloop,
+5596032583,1655337600,2022-06-16,obs,1.0,jobians;sepiol-k;wizardloop,
+5598262640,1654905600,2022-06-11,obs,1.0,jobians;sepiol-k;wizardloop,
+5601951167,1664668800,2022-10-02,obs,1.0,jobians;sepiol-k;wizardloop,
+5608562550,1664012820,2022-09-24,obs,1.0,aayco;exteraless;sepiol-k,
+5614111200,1661780160,2022-08-29,obs,1.0,aayco;exteraless;sepiol-k,
+5627539474,1669939200,2022-12-02,obs,1.0,jobians;sepiol-k;wizardloop,
+5644144970,1664703130,2022-10-02,obs,1.0,sepiol-k,
+5666819340,1664112240,2022-09-25,obs,1.0,aayco;exteraless;sepiol-k,
+5681900282,1665964800,2022-10-17,obs,1.0,jobians;sepiol-k;wizardloop,
+5684254605,1662134040,2022-09-02,obs,1.0,aayco;exteraless;sepiol-k,
+5684689868,1661304720,2022-08-24,obs,1.0,aayco;exteraless;sepiol-k,
+5694365966,1661644800,2022-08-28,obs,1.0,jobians;sepiol-k;wizardloop,
+5705427359,1665014400,2022-10-06,obs,1.0,jobians;sepiol-k;wizardloop,
+5707112959,1663803300,2022-09-21,obs,1.0,aayco;exteraless;sepiol-k,
+5721138769,1663891200,2022-09-23,obs,1.0,jobians;sepiol-k;wizardloop,
+5731896020,1667242122,2022-10-31,obs,1.0,sepiol-k,
+5735455201,1665100800,2022-10-07,obs,1.0,jobians;sepiol-k;wizardloop,
+5738347976,1682380800,2023-04-25,obs,1.0,jobians;sepiol-k;wizardloop,
+5744374534,1665360000,2022-10-10,obs,1.0,jobians;sepiol-k;wizardloop,
+5756095415,1660925940,2022-08-19,obs,1.0,aayco;exteraless;sepiol-k,
+5765259845,1667088000,2022-10-30,obs,1.0,jobians;sepiol-k;wizardloop,
+5772670706,1661539140,2022-08-26,obs,1.0,aayco;exteraless;sepiol-k,
+5778063231,1667477640,2022-11-03,obs,1.0,aayco;exteraless;sepiol-k,
+5795034000,1662076800,2022-09-02,obs,0.8,getids,ID rounded to 100 by the table author (2026 additions)
+5795660441,1667692800,2022-11-06,obs,1.0,jobians;sepiol-k;wizardloop,
+5802242180,1671821040,2022-12-23,obs,1.0,aayco;exteraless;sepiol-k,
+5802659303,1679356800,2023-03-21,obs,1.0,jobians;sepiol-k;wizardloop,
+5804028268,1677974400,2023-03-05,obs,1.0,jobians;sepiol-k;wizardloop,
+5806925457,1673481600,2023-01-12,obs,1.0,jobians;sepiol-k;wizardloop,
+5815100469,1672272000,2022-12-29,obs,1.0,jobians;sepiol-k;wizardloop,
+5821105646,1671677863,2022-12-22,obs,1.0,sepiol-k,
+5839137822,1671148800,2022-12-16,obs,1.0,jobians;jobians-extra;sepiol-k;wizardloop,
+5844821188,1672506000,2022-12-31,obs,1.0,sepiol-k,
+5853442730,1674866100,2023-01-28,obs,1.0,aayco;exteraless;sepiol-k,
+5854845236,1682553600,2023-04-27,obs,1.0,jobians;sepiol-k;wizardloop,
+5856660622,1673991930,2023-01-17,obs,1.0,sepiol-k,
+5859861622,1668816000,2022-11-19,obs,1.0,jobians;sepiol-k;wizardloop,
+5859878513,1673117760,2023-01-07,obs,1.0,aayco;exteraless;sepiol-k,
+5862080962,1670889600,2022-12-13,obs,1.0,jobians;sepiol-k;wizardloop,
+5869015726,1674259200,2023-01-21,obs,1.0,sepiol-k,
+5869978651,1679616000,2023-03-24,obs,1.0,jobians;sepiol-k;wizardloop,
+5885964106,1671081840,2022-12-15,obs,1.0,aayco;exteraless;sepiol-k,
+5891297818,1683158400,2023-05-04,obs,1.0,jobians;sepiol-k;wizardloop,
+5903848700,1675280531,2023-02-01,obs,1.0,sepiol-k,
+5904140174,1684540800,2023-05-20,obs,1.0,jobians;sepiol-k;wizardloop,
+5931294587,1668816000,2022-11-19,obs,1.0,jobians;sepiol-k;wizardloop,
+5964221956,1673222400,2023-01-09,obs,1.0,jobians;sepiol-k;wizardloop,
+5982648124,1686941700,2023-06-16,obs,1.0,aayco;exteraless;sepiol-k,
+5983654523,1681223063,2023-04-11,obs,1.0,sepiol-k,
+5983753471,1671753600,2022-12-23,obs,1.0,jobians;sepiol-k;wizardloop,
+5994561143,1684195200,2023-05-16,obs,1.0,jobians;sepiol-k;wizardloop,
+6000582627,1685404800,2023-05-30,obs,1.0,jobians;sepiol-k;wizardloop,
+6001287799,1683676800,2023-05-10,obs,1.0,jobians;sepiol-k;wizardloop,
+6020888206,1675534800,2023-02-04,obs,1.0,aayco;exteraless;sepiol-k,
+6025903944,1681680600,2023-04-16,obs,1.0,sepiol-k,
+6032606998,1686998640,2023-06-17,obs,1.0,aayco;exteraless;sepiol-k,
+6057123350,1676198350,2023-02-12,obs,1.0,aayco;exteraless;sepiol-k,
+6058560984,1686907980,2023-06-16,obs,1.0,aayco;exteraless;sepiol-k,
+6074830852,1682899200,2023-05-01,obs,1.0,jobians;sepiol-k;wizardloop,
+6101607245,1686830760,2023-06-15,obs,1.0,aayco;exteraless;sepiol-k,
+6108011341,1681032060,2023-04-09,obs,1.0,aayco;exteraless;sepiol-k,
+6108395402,1684368000,2023-05-18,obs,1.0,jobians;sepiol-k;wizardloop,
+6115110768,1683830609,2023-05-11,obs,1.0,sepiol-k,
+6132325730,1692033840,2023-08-14,obs,1.0,aayco;exteraless;sepiol-k,
+6135597783,1684886400,2023-05-24,obs,1.0,jobians;sepiol-k;wizardloop,
+6175817126,1683417600,2023-05-07,obs,1.0,jobians;sepiol-k;wizardloop,
+6180394472,1685318400,2023-05-29,obs,1.0,jobians;sepiol-k;wizardloop,
+6182056052,1687870740,2023-06-27,obs,1.0,aayco;exteraless;sepiol-k,
+6188508923,1687392000,2023-06-22,obs,1.0,jobians;sepiol-k;wizardloop,
+6227468000,1679270400,2023-03-20,obs,0.8,getids,ID rounded to 100 by the table author (2026 additions)
+6254094947,1677456000,2023-02-27,obs,1.0,jobians;sepiol-k;wizardloop,
+6271031786,1676160000,2023-02-12,obs,1.0,jobians;sepiol-k;wizardloop,
+6277658932,1679011200,2023-03-17,obs,1.0,jobians;sepiol-k;wizardloop,
+6279839148,1688399160,2023-07-03,obs,1.0,aayco;exteraless;sepiol-k,
+6297860552,1688115560,2023-06-30,obs,1.0,sepiol-k,
+6306077724,1692442920,2023-08-19,obs,1.0,aayco;exteraless;sepiol-k,
+6321562426,1688486760,2023-07-04,obs,1.0,aayco;exteraless;sepiol-k,
+6326011828,1688688000,2023-07-07,obs,1.0,jobians;sepiol-k;wizardloop,
+6364973680,1696349340,2023-10-03,obs,1.0,aayco;exteraless;sepiol-k,
+6373693377,1692301478,2023-08-17,obs,1.0,sepiol-k,
+6386727079,1691696880,2023-08-10,obs,1.0,aayco;exteraless;sepiol-k,
+6401027363,1700870400,2023-11-25,obs,1.0,jobians;sepiol-k;wizardloop,
+6429580803,1692082680,2023-08-15,obs,1.0,aayco;exteraless;sepiol-k,
+6433264186,1692763697,2023-08-23,obs,1.0,sepiol-k,
+6451891234,1701475200,2023-12-02,obs,1.0,jobians;sepiol-k;wizardloop,
+6507968649,1695301080,2023-09-21,obs,1.0,sepiol-k,
+6513268158,1701475200,2023-12-02,obs,1.0,jobians;sepiol-k;wizardloop,
+6514802524,1700092800,2023-11-16,obs,1.0,jobians;sepiol-k;wizardloop,
+6520005489,1695081600,2023-09-19,obs,1.0,sepiol-k,
+6523424924,1690934400,2023-08-02,obs,1.0,jobians;sepiol-k;wizardloop,
+6527226055,1690289160,2023-07-25,obs,1.0,aayco;exteraless;sepiol-k,
+6536173556,1704931200,2024-01-11,obs,1.0,jobians;sepiol-k;wizardloop,
+6545049031,1702944000,2023-12-19,obs,1.0,jobians;sepiol-k;wizardloop,
+6559717847,1708819200,2024-02-25,obs,1.0,jobians;sepiol-k;wizardloop,
+6606876583,1710633600,2024-03-17,obs,1.0,jobians;sepiol-k;wizardloop,
+6609923725,1696100400,2023-09-30,obs,1.0,sepiol-k,
+6639644540,1698760800,2023-10-31,obs,1.0,sepiol-k,
+6651640269,1715990400,2024-05-18,obs,1.0,jobians;sepiol-k;wizardloop,
+6670760749,1705190400,2024-01-14,obs,1.0,jobians;sepiol-k;wizardloop,
+6684986493,1695600000,2023-09-25,obs,1.0,jobians;jobians-extra;sepiol-k;wizardloop,
+6703731755,1714867200,2024-05-05,obs,1.0,jobians;sepiol-k;wizardloop,
+6715889959,1707091200,2024-02-05,obs,1.0,jobians;sepiol-k;wizardloop,
+6720229740,1710633600,2024-03-17,obs,1.0,jobians;sepiol-k;wizardloop,
+6732829831,1707609600,2024-02-11,obs,1.0,jobians;sepiol-k;wizardloop,
+6749492866,1700611200,2023-11-22,obs,1.0,jobians;sepiol-k;wizardloop,
+6765129195,1698883200,2023-11-02,obs,1.0,jobians;sepiol-k;wizardloop,
+6813121418,1698489600,2023-10-28,obs,1.0,aayco;exteraless;sepiol-k,
+6827058708,1699228800,2023-11-06,obs,1.0,jobians;sepiol-k;wizardloop,
+6829119388,1701475200,2023-12-02,obs,1.0,jobians;sepiol-k;wizardloop,
+6845043276,1704907301,2024-01-10,obs,1.0,sepiol-k,
+6854829938,1706745600,2024-02-01,obs,1.0,jobians;sepiol-k;wizardloop,
+6865576492,1699052400,2023-11-03,obs,1.0,aayco;exteraless;sepiol-k,
+6872061796,1716595200,2024-05-25,obs,1.0,jobians;sepiol-k;wizardloop,
+6903333095,1706659200,2024-01-31,obs,1.0,jobians;sepiol-k;wizardloop,
+6925870357,1701192327,2023-11-28,obs,1.0,aayco;exteraless;sepiol-k,
+6926984452,1704758400,2024-01-09,obs,1.0,jobians;sepiol-k;wizardloop,
+6944368668,1726144496,2024-09-12,obs,1.0,aayco,
+6947316117,1702598400,2023-12-15,obs,1.0,jobians;sepiol-k;wizardloop,
+7000000000,1711889200,2024-03-31,obs,0.5,exteraless;sepiol-k,rounded ID
+7002435197,1712361600,2024-04-06,obs,1.0,jobians;sepiol-k;wizardloop,
+7043862629,1711876800,2024-03-31,obs,1.0,sepiol-k,
+7078066115,1725753600,2024-09-08,obs,1.0,jobians;sepiol-k;wizardloop,
+7085776398,1715299200,2024-05-10,obs,1.0,jobians;sepiol-k;wizardloop,
+7100000000,1720224000,2024-07-06,obs,0.5,sepiol-k,rounded ID
+7103700000,1713866400,2024-04-23,obs,0.5,exteraless;sepiol-k,rounded ID
+7104310277,1713484800,2024-04-19,obs,1.0,jobians;sepiol-k;wizardloop,
+7107400000,1718272800,2024-06-13,obs,0.5,exteraless;sepiol-k,rounded ID
+7129689557,1715623200,2024-05-13,obs,1.0,sepiol-k,
+7191651807,1721136600,2024-07-16,obs,1.0,sepiol-k,
+7224009547,1722556800,2024-08-02,obs,1.0,jobians;sepiol-k;wizardloop,
+7229898489,1723075200,2024-08-08,obs,1.0,sepiol-k,
+7242296450,1716940800,2024-05-29,obs,1.0,jobians;sepiol-k;wizardloop,
+7243375923,1724544000,2024-08-25,obs,1.0,jobians;sepiol-k;wizardloop,
+7254607307,1717977600,2024-06-10,obs,1.0,jobians;sepiol-k;wizardloop,
+7255466649,1724214000,2024-08-21,obs,1.0,sepiol-k,
+7273085448,1732147200,2024-11-21,obs,1.0,jobians;sepiol-k;wizardloop,
+7280136256,1720051200,2024-07-04,obs,1.0,jobians;sepiol-k;wizardloop,
+7293965553,1718496000,2024-06-16,obs,1.0,jobians;sepiol-k;wizardloop,
+7321742406,1726835696,2024-09-20,obs,1.0,aayco,
+7342300216,1736985600,2025-01-16,obs,1.0,jobians;sepiol-k;wizardloop,
+7347120414,1724655600,2024-08-26,obs,1.0,sepiol-k,
+7357703634,1725926400,2024-09-10,obs,1.0,jobians;sepiol-k;wizardloop,
+7363299295,1721865600,2024-07-25,obs,1.0,jobians;sepiol-k;wizardloop,
+7366200000,1723024800,2024-08-07,obs,0.5,exteraless;sepiol-k,rounded ID
+7398600000,1723024800,2024-08-07,obs,0.5,exteraless;sepiol-k,rounded ID
+7409259451,1718841600,2024-06-20,obs,1.0,jobians;sepiol-k;wizardloop,
+7423300000,1723716000,2024-08-15,obs,0.5,exteraless;sepiol-k,rounded ID
+7424559477,1727733600,2024-09-30,obs,1.0,sepiol-k,
+7444300000,1723975200,2024-08-18,obs,0.5,exteraless;sepiol-k,rounded ID
+7450316621,1733097600,2024-12-02,obs,1.0,jobians;sepiol-k;wizardloop,
+7458668365,1722556800,2024-08-02,obs,1.0,jobians;sepiol-k;wizardloop,
+7469400000,1725098400,2024-08-31,obs,0.5,exteraless;sepiol-k,rounded ID
+7469700000,1726221600,2024-09-13,obs,0.5,exteraless;sepiol-k,rounded ID
+7490725809,1729065600,2024-10-16,obs,1.0,sepiol-k,
+7509628470,1732991400,2024-11-30,obs,1.0,sepiol-k,
+7519637470,1734202800,2024-12-14,obs,1.0,sepiol-k,
+7533900000,1726480800,2024-09-16,obs,0.5,exteraless;sepiol-k,rounded ID
+7537361651,1735686000,2024-12-31,obs,1.0,sepiol-k,
+7538420552,1723379696,2024-08-11,obs,1.0,aayco,
+7552093513,1738224000,2025-01-30,obs,1.0,sepiol-k,
+7583599300,1739664000,2025-02-16,obs,0.8,getids,ID rounded to 100 by the table author (2026 additions)
+7591351660,1742515200,2025-03-21,obs,1.0,jobians;sepiol-k;wizardloop,
+7600158321,1733356800,2024-12-05,obs,1.0,sepiol-k,
+7625100000,1727690400,2024-09-30,obs,0.5,exteraless;sepiol-k,rounded ID
+7654300000,1728208800,2024-10-06,obs,0.5,exteraless;sepiol-k,rounded ID
+7657400000,1731841200,2024-11-17,obs,0.5,exteraless;sepiol-k,rounded ID
+7664959631,1734566400,2024-12-19,obs,1.0,jobians;sepiol-k;wizardloop,
+7682429075,1725539696,2024-09-05,obs,1.0,aayco,
+7683400000,1732446000,2024-11-24,obs,0.5,exteraless;sepiol-k,rounded ID
+7708562823,1746835200,2025-05-10,obs,1.0,jobians;sepiol-k;wizardloop,
+7716779743,1739042100,2025-02-08,obs,1.0,sepiol-k,
+7745089650,1745584496,2025-04-25,obs,1.0,aayco,
+7747102337,1730851200,2024-11-06,obs,1.0,jobians;sepiol-k;wizardloop,
+7793034911,1727049600,2024-09-23,obs,1.0,jobians;sepiol-k;wizardloop,
+7798375391,1745411696,2025-04-23,obs,1.0,aayco,
+7817256746,1750204800,2025-06-18,obs,1.0,jobians;sepiol-k;wizardloop,
+7825518194,1736985600,2025-01-16,obs,1.0,jobians;sepiol-k;wizardloop,
+7829910989,1746921600,2025-05-11,obs,1.0,jobians;sepiol-k;wizardloop,
+7831448272,1731283200,2024-11-11,obs,1.0,jobians;sepiol-k;wizardloop,
+7832006200,1726704000,2024-09-19,obs,1.0,jobians;sepiol-k;wizardloop,
+7834356221,1756684800,2025-09-01,obs,1.0,jobians;sepiol-k;wizardloop,
+7851389063,1733097600,2024-12-02,obs,1.0,sepiol-k,
+7852083588,1748822400,2025-06-02,obs,1.0,jobians;sepiol-k;wizardloop,
+7857659678,1727222400,2024-09-25,obs,1.0,sepiol-k,
+7870888707,1749340800,2025-06-08,obs,1.0,jobians;sepiol-k;wizardloop,
+7884373548,1732233600,2024-11-22,obs,1.0,sepiol-k,
+7899152800,1744070400,2025-04-08,obs,1.0,jobians;sepiol-k;wizardloop,
+7912577935,1757894400,2025-09-15,obs,1.0,jobians;sepiol-k;wizardloop,
+7915901421,1751846400,2025-07-07,obs,1.0,jobians;sepiol-k;wizardloop,
+7939700000,1732791600,2024-11-28,obs,0.5,exteraless;sepiol-k,rounded ID
+7947063900,1754092800,2025-08-02,obs,0.8,getids,ID rounded to 100 by the table author (2026 additions)
+7958700000,1735642800,2024-12-31,obs,0.5,exteraless;sepiol-k,rounded ID
+7964511972,1742947200,2025-03-26,obs,1.0,jobians;sepiol-k;wizardloop,
+7967849270,1743318900,2025-03-30,obs,1.0,sepiol-k,
+8000499714,1745152496,2025-04-20,obs,1.0,aayco,
+8017192943,1759622400,2025-10-05,obs,1.0,jobians;sepiol-k;wizardloop,
+8044853035,1742428800,2025-03-20,obs,1.0,jobians;sepiol-k;wizardloop,
+8060910775,1736294400,2025-01-08,obs,1.0,sepiol-k,
+8085100000,1738494000,2025-02-02,obs,0.5,exteraless;sepiol-k,rounded ID
+8089817806,1736899200,2025-01-15,obs,1.0,sepiol-k,
+8096580061,1745982867,2025-04-30,obs,1.0,sepiol-k,
+8096742229,1756598400,2025-08-31,obs,1.0,jobians;sepiol-k;wizardloop,
+8102800000,1739012400,2025-02-08,obs,0.5,exteraless;sepiol-k,rounded ID
+8117852491,1760400000,2025-10-14,obs,1.0,jobians;sepiol-k;wizardloop,
+8135088730,1741132800,2025-03-05,obs,1.0,jobians;sepiol-k;wizardloop,
+8173852075,1740096000,2025-02-21,obs,1.0,jobians;sepiol-k;wizardloop,
+8174700000,1740567600,2025-02-26,obs,0.5,exteraless;sepiol-k,rounded ID
+8178600000,1740999600,2025-03-03,obs,0.5,exteraless;sepiol-k,rounded ID
+8179125032,1752019200,2025-07-09,obs,1.0,jobians;sepiol-k;wizardloop,
+8200159552,1757635200,2025-09-12,obs,1.0,jobians;sepiol-k;wizardloop,
+8209194945,1761436800,2025-10-26,obs,1.0,jobians;sepiol-k;wizardloop,
+8218310808,1758394800,2025-09-20,obs,1.0,sepiol-k,
+8235679900,1758758400,2025-09-25,obs,0.8,getids,ID rounded to 100 by the table author (2026 additions)
+8238766847,1753920000,2025-07-31,obs,1.0,jobians;sepiol-k;wizardloop,
+8325327280,1760313600,2025-10-13,obs,1.0,jobians;sepiol-k;wizardloop,
+8343786378,1754611200,2025-08-08,obs,1.0,jobians;sepiol-k;wizardloop,
+8369442459,1754611200,2025-08-08,obs,1.0,jobians;sepiol-k;wizardloop,
+8379482677,1759605750,2025-10-04,obs,1.0,sepiol-k,
+8384648263,1761177600,2025-10-23,obs,1.0,jobians;sepiol-k;wizardloop,
+8393200797,1761350400,2025-10-25,obs,1.0,jobians;sepiol-k;wizardloop,
+8454563873,1764979200,2025-12-06,obs,1.0,sepiol-k,
+8461412540,1755628800,2025-08-19,obs,1.0,sepiol-k,
+8461579295,1757548800,2025-09-11,obs,1.0,jobians;sepiol-k;wizardloop,
+8480708838,1762300800,2025-11-05,obs,1.0,jobians;sepiol-k;wizardloop,
+8541347308,1763236800,2025-11-15,obs,1.0,sepiol-k,
+8559682245,1762819200,2025-11-11,obs,1.0,jobians;sepiol-k;wizardloop,
+8587904527,1764543600,2025-11-30,obs,1.0,sepiol-k,
+8619075604,1785163223,2026-07-27,obs,1.0,sepiol-k,
+8631703617,1783607260,2026-07-09,obs,1.0,sepiol-k,
+8660097409,1779795758,2026-05-26,obs,1.0,sepiol-k,
+8681634807,1778399645,2026-05-10,obs,1.0,sepiol-k,
+8695922065,1785314402,2026-07-29,obs,1.0,sepiol-k,
+8874594977,1781654400,2026-06-17,obs,1.0,sepiol-k,
+8966578432,1788444779,2026-09-03,obs,1.0,sepiol-k,
+441343998,1501545600,2017-08,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+660511546,1554076800,2019-04,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+998725855,1572566400,2019-11,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+1047436723,1577836800,2020-01,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+1355237859,1596240000,2020-08,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+1384783988,1601510400,2020-10,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+1432107681,1606780800,2020-12,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+1468778795,1606780800,2020-12,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+1488888443,1606780800,2020-12,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+1530835010,1614556800,2021-03,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+2107129437,1635724800,2021-11,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+6637805363,1693526400,2023-09,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+7433746267,1717200000,2024-06,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+8343319353,1756684800,2025-09,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+8608772687,1780272000,2026-06,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+8636864387,1780272000,2026-06,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+8706747990,1788220800,2026-09,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+8867646692,1785542400,2026-08,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+8893764521,1780272000,2026-06,month,1.0,sepiol-k,month label stored as the 16th 00:00 (research keeps registration_month as points)
+93372553,1435104000,2015-06-24,upper,0,manual,@BotFather: the bot platform launched 2015-06-24 (telegram.org/blog/bot-revolution)
+1087968824,1601424000,2020-09-30,upper,0,manual,@GroupAnonymousBot: anonymous admins launched 2020-09-30 (telegram.org/blog/filters-anonymous-admins-comments); ID: PTB constants.ANONYMOUS_ADMIN
+1271266957,1601424000,2020-09-30,upper,0,manual,@replies: channel comments launched 2020-09-30 (same post); ID: Telegram-iOS PeerUtils.isReplies
+8662290370,1791570660,2026-10-09,upper,0,sepiol-k,"one of six IDs 8.66e9..8.89e9 dated within 26 h before publication: session times, existed-by bound only"
+8713587395,1791595249,2026-10-10,upper,0,sepiol-k,"one of six IDs 8.66e9..8.89e9 dated within 26 h before publication: session times, existed-by bound only"
+8736786596,1791576199,2026-10-09,upper,0,sepiol-k,"one of six IDs 8.66e9..8.89e9 dated within 26 h before publication: session times, existed-by bound only"
+8865450032,1791616340,2026-10-10,upper,0,sepiol-k,"one of six IDs 8.66e9..8.89e9 dated within 26 h before publication: session times, existed-by bound only"
+8890167640,1791565889,2026-10-09,upper,0,sepiol-k,"one of six IDs 8.66e9..8.89e9 dated within 26 h before publication: session times, existed-by bound only"
+8892165325,1791660642,2026-10-10,upper,0,sepiol-k,"one of six IDs 8.66e9..8.89e9 dated within 26 h before publication: session times, existed-by bound only"
+0,1376438400,2013-08-14,rejected,0,jobians;wizardloop,"sentinel ID (0 = Telegram launch marker), not an account"
+3318845111,1618028800,2021-04-10,rejected,0,aayco;exteraless;sepiol-k,"synthetic: inside the 2.26e9..5.0e9 range no user got, contradicts neighbours"
+4317845111,1620028800,2021-05-03,rejected,0,aayco;exteraless;sepiol-k,"synthetic: inside the 2.26e9..5.0e9 range no user got, contradicts neighbours"
+1,1375315200,2013-08-01,derived,0,tgidmcp,"model output, comparison only"
+25,1383873634,2013-11-08,derived,0,sepiol-fit,"model output, comparison only"
+1000000,1380326400,2013-09-28,derived,0,nagram,"model output, comparison only"
+1000000,1380585600,2013-10-01,derived,0,tgidmcp,"model output, comparison only"
+2768409,1383264000,2013-11-01,derived,0,nagram,"model output, comparison only"
+3941874,1388448000,2013-12-31,derived,0,sepiol-fit,"model output, comparison only"
+6256671,1389230743,2014-01-09,derived,0,sepiol-fit,"model output, comparison only"
+7679610,1388448000,2013-12-31,derived,0,nagram,"model output, comparison only"
+10000000,1388534400,2014-01-01,derived,0,tgidmcp,"model output, comparison only"
+11538510,1391104800,2014-01-30,derived,0,sepiol-fit,"model output, comparison only"
+11538514,1391212000,2014-01-31,derived,0,nagram,"model output, comparison only"
+11538514,1391212800,2014-02-01,derived,0,sepiol-fit,"model output, comparison only"
+15835240,1392832800,2014-02-19,derived,0,sepiol-fit,"model output, comparison only"
+15835244,1392940000,2014-02-20,derived,0,nagram,"model output, comparison only"
+23646070,1393351200,2014-02-25,derived,0,sepiol-fit,"model output, comparison only"
+23646077,1393459000,2014-02-26,derived,0,nagram,"model output, comparison only"
+30000000,1401580800,2014-06-01,derived,0,tgidmcp,"model output, comparison only"
+38015510,1393632000,2014-03-01,derived,0,nagram,"model output, comparison only"
+38015510,1393632000,2014-03-01,derived,0,sepiol-fit,"model output, comparison only"
+44634660,1396720800,2014-04-05,derived,0,sepiol-fit,"model output, comparison only"
+44634663,1398751134,2014-04-29,derived,0,sepiol-fit,"model output, comparison only"
+44634663,1399334000,2014-05-05,derived,0,nagram,"model output, comparison only"
+46145305,1400112000,2014-05-15,derived,0,sepiol-fit,"model output, comparison only"
+46145305,1400198000,2014-05-15,derived,0,nagram,"model output, comparison only"
+50000000,1404172800,2014-07-01,derived,0,tgidmcp,"model output, comparison only"
+54845230,1403287200,2014-06-20,derived,0,sepiol-fit,"model output, comparison only"
+54845238,1409623100,2014-09-02,derived,0,sepiol-fit,"model output, comparison only"
+54845238,1411257000,2014-09-20,derived,0,nagram,"model output, comparison only"
+63263518,1414368000,2014-10-27,derived,0,sepiol-fit,"model output, comparison only"
+63263518,1414454000,2014-10-27,derived,0,nagram,"model output, comparison only"
+72776425,1426969600,2015-03-21,derived,0,sepiol-fit,"model output, comparison only"
+80000000,1412121600,2014-10-01,derived,0,tgidmcp,"model output, comparison only"
+100000000,1422748800,2015-02-01,derived,0,tgidmcp,"model output, comparison only"
+101260938,1425600000,2015-03-06,derived,0,nagram,"model output, comparison only"
+101323197,1426204000,2015-03-12,derived,0,nagram,"model output, comparison only"
+103151531,1433002389,2015-05-30,derived,0,sepiol-fit,"model output, comparison only"
+103151531,1433073500,2015-05-31,derived,0,nagram,"model output, comparison only"
+103258382,1433073500,2015-05-31,derived,0,nagram,"model output, comparison only"
+109393468,1434293556,2015-06-14,derived,0,sepiol-fit,"model output, comparison only"
+109393468,1434326000,2015-06-14,derived,0,nagram,"model output, comparison only"
+111220210,1434326000,2015-06-14,derived,0,nagram,"model output, comparison only"
+112594714,1438356836,2015-07-31,derived,0,sepiol-fit,"model output, comparison only"
+112594714,1438387000,2015-07-31,derived,0,nagram,"model output, comparison only"
+116812045,1438387000,2015-07-31,derived,0,nagram,"model output, comparison only"
+122600695,1438387000,2015-07-31,derived,0,nagram,"model output, comparison only"
+124872440,1439803800,2015-08-17,derived,0,sepiol-fit,"model output, comparison only"
+124872445,1439856000,2015-08-18,derived,0,nagram,"model output, comparison only"
+125828524,1442621544,2015-09-19,derived,0,sepiol-fit,"model output, comparison only"
+125828524,1442663500,2015-09-19,derived,0,nagram,"model output, comparison only"
+130029930,1442663500,2015-09-19,derived,0,nagram,"model output, comparison only"
+133909600,1444158000,2015-10-06,derived,0,sepiol-fit,"model output, comparison only"
+133909606,1444176000,2015-10-07,derived,0,nagram,"model output, comparison only"
+139646974,1444273680,2015-10-08,derived,0,sepiol-fit,"model output, comparison only"
+143445120,1448910000,2015-11-30,derived,0,sepiol-fit,"model output, comparison only"
+143445125,1448928000,2015-12-01,derived,0,nagram,"model output, comparison only"
+148670295,1450442743,2015-12-18,derived,0,sepiol-fit,"model output, comparison only"
+148670295,1450799667,2015-12-22,derived,0,nagram,"model output, comparison only"
+150000000,1435708800,2015-07-01,derived,0,tgidmcp,"model output, comparison only"
+152079341,1450799667,2015-12-22,derived,0,nagram,"model output, comparison only"
+157242073,1450799667,2015-12-22,derived,0,nagram,"model output, comparison only"
+171295414,1455763620,2016-02-18,derived,0,sepiol-fit,"model output, comparison only"
+171295414,1457481000,2016-03-08,derived,0,nagram,"model output, comparison only"
+181783990,1459048280,2016-03-27,derived,0,sepiol-fit,"model output, comparison only"
+181783990,1460246000,2016-04-09,derived,0,nagram,"model output, comparison only"
+200000000,1451606400,2016-01-01,derived,0,tgidmcp,"model output, comparison only"
+222021230,1465326000,2016-06-07,derived,0,sepiol-fit,"model output, comparison only"
+222021233,1465344000,2016-06-08,derived,0,nagram,"model output, comparison only"
+225034350,1466190000,2016-06-17,derived,0,sepiol-fit,"model output, comparison only"
+225034354,1466208000,2016-06-18,derived,0,nagram,"model output, comparison only"
+250000000,1462060800,2016-05-01,derived,0,tgidmcp,"model output, comparison only"
+267103082,1472677200,2016-08-31,derived,0,sepiol-fit,"model output, comparison only"
+278941742,1473304260,2016-09-08,derived,0,sepiol-fit,"model output, comparison only"
+278941742,1473465000,2016-09-09,derived,0,nagram,"model output, comparison only"
+281973858,1475301600,2016-10-01,derived,0,sepiol-fit,"model output, comparison only"
+285253070,1476783000,2016-10-18,derived,0,sepiol-fit,"model output, comparison only"
+285253072,1476835000,2016-10-18,derived,0,nagram,"model output, comparison only"
+294851030,1479547800,2016-11-19,derived,0,sepiol-fit,"model output, comparison only"
+294851037,1479600000,2016-11-20,derived,0,nagram,"model output, comparison only"
+297621220,1481828400,2016-12-15,derived,0,sepiol-fit,"model output, comparison only"
+297621225,1481846000,2016-12-15,derived,0,nagram,"model output, comparison only"
+300000000,1470009600,2016-08-01,derived,0,tgidmcp,"model output, comparison only"
+310042805,1486624520,2017-02-09,derived,0,sepiol-fit,"model output, comparison only"
+328594461,1482969000,2016-12-28,derived,0,nagram,"model output, comparison only"
+337808429,1487635200,2017-02-21,derived,0,sepiol-fit,"model output, comparison only"
+337808429,1487707000,2017-02-21,derived,0,nagram,"model output, comparison only"
+339965214,1488462748,2017-03-02,derived,0,sepiol-fit,"model output, comparison only"
+341546272,1487782000,2017-02-22,derived,0,nagram,"model output, comparison only"
+350000000,1480550400,2016-12-01,derived,0,tgidmcp,"model output, comparison only"
+352940995,1487894000,2017-02-23,derived,0,nagram,"model output, comparison only"
+369669040,1490814000,2017-03-29,derived,0,sepiol-fit,"model output, comparison only"
+369669043,1490918000,2017-03-30,derived,0,nagram,"model output, comparison only"
+369669043,1490918400,2017-03-31,derived,0,sepiol-fit,"model output, comparison only"
+399597034,1496257200,2017-05-31,derived,0,sepiol-fit,"model output, comparison only"
+400000000,1488326400,2017-03-01,derived,0,tgidmcp,"model output, comparison only"
+400169470,1501441200,2017-07-30,derived,0,sepiol-fit,"model output, comparison only"
+400169472,1501459000,2017-07-30,derived,0,nagram,"model output, comparison only"
+409518943,1504845000,2017-09-08,derived,0,sepiol-fit,"model output, comparison only"
+450000000,1498867200,2017-07-01,derived,0,tgidmcp,"model output, comparison only"
+484976017,1516084200,2018-01-16,derived,0,sepiol-fit,"model output, comparison only"
+500000000,1514764800,2018-01-01,derived,0,tgidmcp,"model output, comparison only"
+501535268,1518638400,2018-02-14,derived,0,sepiol-fit,"model output, comparison only"
+550000000,1522540800,2018-04-01,derived,0,tgidmcp,"model output, comparison only"
+554990133,1521187200,2018-03-16,derived,0,sepiol-fit,"model output, comparison only"
+573604341,1523822400,2018-04-15,derived,0,sepiol-fit,"model output, comparison only"
+600000000,1527811200,2018-06-01,derived,0,tgidmcp,"model output, comparison only"
+601341900,1530727714,2018-07-04,derived,0,sepiol-fit,"model output, comparison only"
+616816630,1529625600,2018-06-22,derived,0,nagram,"model output, comparison only"
+650000000,1533081600,2018-08-01,derived,0,tgidmcp,"model output, comparison only"
+655730151,1537472400,2018-09-20,derived,0,sepiol-fit,"model output, comparison only"
+660511546,1542181050,2018-11-14,derived,0,sepiol-fit,"model output, comparison only"
+681896077,1532821500,2018-07-28,derived,0,nagram,"model output, comparison only"
+700000000,1535760000,2018-09-01,derived,0,tgidmcp,"model output, comparison only"
+707751101,1542304800,2018-11-15,derived,0,sepiol-fit,"model output, comparison only"
+717887953,1544569200,2018-12-11,derived,0,sepiol-fit,"model output, comparison only"
+727572658,1542540300,2018-11-18,derived,0,nagram,"model output, comparison only"
+750000000,1541030400,2018-11-01,derived,0,tgidmcp,"model output, comparison only"
+774723749,1546096720,2018-12-29,derived,0,sepiol-fit,"model output, comparison only"
+796147074,1542540300,2018-11-18,derived,0,nagram,"model output, comparison only"
+800000000,1546300800,2019-01-01,derived,0,tgidmcp,"model output, comparison only"
+805158066,1560225600,2019-06-11,derived,0,sepiol-fit,"model output, comparison only"
+850000000,1551398400,2019-03-01,derived,0,tgidmcp,"model output, comparison only"
+871177218,1561951200,2019-07-01,derived,0,sepiol-fit,"model output, comparison only"
+900000000,1556668800,2019-05-01,derived,0,tgidmcp,"model output, comparison only"
+920778234,1566046582,2019-08-17,derived,0,sepiol-fit,"model output, comparison only"
+925078064,1563290000,2019-07-16,derived,0,nagram,"model output, comparison only"
+928636984,1574600483,2019-11-24,derived,0,sepiol-fit,"model output, comparison only"
+928636984,1581513420,2020-02-12,derived,0,nagram,"model output, comparison only"
+950000000,1561939200,2019-07-01,derived,0,tgidmcp,"model output, comparison only"
+1000000000,1567296000,2019-09-01,derived,0,tgidmcp,"model output, comparison only"
+1020178246,1576957200,2019-12-21,derived,0,sepiol-fit,"model output, comparison only"
+1040151903,1577817000,2019-12-31,derived,0,sepiol-fit,"model output, comparison only"
+1047436723,1579132800,2020-01-16,derived,0,sepiol-fit,"model output, comparison only"
+1054883348,1581355336,2020-02-10,derived,0,sepiol-fit,"model output, comparison only"
+1054883348,1583034030,2020-03-01,derived,0,nagram,"model output, comparison only"
+1057704545,1583034030,2020-03-01,derived,0,nagram,"model output, comparison only"
+1100000000,1580515200,2020-02-01,derived,0,tgidmcp,"model output, comparison only"
+1130489378,1583002800,2020-02-29,derived,0,sepiol-fit,"model output, comparison only"
+1145856008,1586342040,2020-04-08,derived,0,nagram,"model output, comparison only"
+1145856008,1586342040,2020-04-08,derived,0,sepiol-fit,"model output, comparison only"
+1170070589,1588284000,2020-04-30,derived,0,sepiol-fit,"model output, comparison only"
+1200000000,1590969600,2020-06-01,derived,0,tgidmcp,"model output, comparison only"
+1227964864,1592650800,2020-06-20,derived,0,sepiol-fit,"model output, comparison only"
+1227964864,1596127860,2020-07-30,derived,0,nagram,"model output, comparison only"
+1300000000,1601510400,2020-10-01,derived,0,tgidmcp,"model output, comparison only"
+1334421204,1597360114,2020-08-13,derived,0,sepiol-fit,"model output, comparison only"
+1355237859,1597536000,2020-08-16,derived,0,sepiol-fit,"model output, comparison only"
+1382531194,1600188120,2020-09-15,derived,0,nagram,"model output, comparison only"
+1382531194,1600188120,2020-09-15,derived,0,sepiol-fit,"model output, comparison only"
+1383895297,1601492400,2020-09-30,derived,0,sepiol-fit,"model output, comparison only"
+1384783988,1602806400,2020-10-16,derived,0,sepiol-fit,"model output, comparison only"
+1400000000,1609459200,2021-01-01,derived,0,tgidmcp,"model output, comparison only"
+1415571066,1604817900,2020-11-08,derived,0,sepiol-fit,"model output, comparison only"
+1432107681,1607419800,2020-12-08,derived,0,sepiol-fit,"model output, comparison only"
+1485680298,1608757200,2020-12-23,derived,0,sepiol-fit,"model output, comparison only"
+1500000000,1617235200,2021-04-01,derived,0,tgidmcp,"model output, comparison only"
+1514538817,1609441200,2020-12-31,derived,0,sepiol-fit,"model output, comparison only"
+1530835010,1613424269,2021-02-15,derived,0,sepiol-fit,"model output, comparison only"
+1600000000,1622505600,2021-06-01,derived,0,tgidmcp,"model output, comparison only"
+1658586909,1613148540,2021-02-12,derived,0,nagram,"model output, comparison only"
+1660971491,1613329440,2021-02-14,derived,0,nagram,"model output, comparison only"
+1692464211,1615402500,2021-03-10,derived,0,nagram,"model output, comparison only"
+1692464211,1615402500,2021-03-10,derived,0,sepiol-fit,"model output, comparison only"
+1700000000,1627776000,2021-08-01,derived,0,tgidmcp,"model output, comparison only"
+1719536397,1618527500,2021-04-15,derived,0,sepiol-fit,"model output, comparison only"
+1719536397,1619019560,2021-04-21,derived,0,nagram,"model output, comparison only"
+1721844091,1619019560,2021-04-21,derived,0,nagram,"model output, comparison only"
+1772991138,1619019560,2021-04-21,derived,0,nagram,"model output, comparison only"
+1788462219,1622458800,2021-05-31,derived,0,sepiol-fit,"model output, comparison only"
+1800000000,1633046400,2021-10-01,derived,0,tgidmcp,"model output, comparison only"
+1807942741,1623394481,2021-06-11,derived,0,sepiol-fit,"model output, comparison only"
+1807942741,1623780150,2021-06-15,derived,0,nagram,"model output, comparison only"
+1893429550,1623780150,2021-06-15,derived,0,nagram,"model output, comparison only"
+1900000000,1640995200,2022-01-01,derived,0,tgidmcp,"model output, comparison only"
+1938921569,1626933294,2021-07-22,derived,0,sepiol-fit,"model output, comparison only"
+1972424006,1631669400,2021-09-15,derived,0,nagram,"model output, comparison only"
+1972424006,1631669400,2021-09-15,derived,0,sepiol-fit,"model output, comparison only"
+1974255900,1632133790,2021-09-20,derived,0,sepiol-fit,"model output, comparison only"
+1974255900,1632660767,2021-09-26,derived,0,nagram,"model output, comparison only"
+2000000000,1646092800,2022-03-01,derived,0,tgidmcp,"model output, comparison only"
+2030606431,1632660767,2021-09-26,derived,0,nagram,"model output, comparison only"
+2041327411,1632660767,2021-09-26,derived,0,nagram,"model output, comparison only"
+2078711279,1632453028,2021-09-24,derived,0,sepiol-fit,"model output, comparison only"
+2078711279,1634321820,2021-10-15,derived,0,nagram,"model output, comparison only"
+2100000000,1648771200,2022-04-01,derived,0,tgidmcp,"model output, comparison only"
+2104178931,1637190140,2021-11-17,derived,0,nagram,"model output, comparison only"
+2120496865,1637190140,2021-11-17,derived,0,nagram,"model output, comparison only"
+2123596685,1637190140,2021-11-17,derived,0,nagram,"model output, comparison only"
+2138472342,1637590800,2021-11-22,derived,0,nagram,"model output, comparison only"
+5000000000,1675209600,2023-02-01,derived,0,tgidmcp,"model output, comparison only"
+5017595749,1638309600,2021-11-30,derived,0,sepiol-fit,"model output, comparison only"
+5022636255,1638921600,2021-12-08,derived,0,sepiol-fit,"model output, comparison only"
+5035057026,1640352847,2021-12-24,derived,0,sepiol-fit,"model output, comparison only"
+5045293264,1642032000,2022-01-13,derived,0,sepiol-fit,"model output, comparison only"
+5047148663,1644214800,2022-02-07,derived,0,sepiol-fit,"model output, comparison only"
+5106451106,1645050600,2022-02-16,derived,0,sepiol-fit,"model output, comparison only"
+5124771193,1645488000,2022-02-22,derived,0,sepiol-fit,"model output, comparison only"
+5144324763,1646006400,2022-02-28,derived,0,sepiol-fit,"model output, comparison only"
+5153900870,1647474418,2022-03-16,derived,0,sepiol-fit,"model output, comparison only"
+5162494923,1650607080,2022-04-22,derived,0,nagram,"model output, comparison only"
+5186883095,1650607080,2022-04-22,derived,0,nagram,"model output, comparison only"
+5244529493,1648070198,2022-03-23,derived,0,sepiol-fit,"model output, comparison only"
+5297354132,1648760400,2022-03-31,derived,0,sepiol-fit,"model output, comparison only"
+5304951856,1651840954,2022-05-06,derived,0,sepiol-fit,"model output, comparison only"
+5304951856,1652057620,2022-05-09,derived,0,nagram,"model output, comparison only"
+5317829834,1652057620,2022-05-09,derived,0,nagram,"model output, comparison only"
+5318092331,1652057620,2022-05-09,derived,0,nagram,"model output, comparison only"
+5336336790,1652057620,2022-05-09,derived,0,nagram,"model output, comparison only"
+5340744210,1655108894,2022-06-13,derived,0,sepiol-fit,"model output, comparison only"
+5362593868,1652057620,2022-05-09,derived,0,nagram,"model output, comparison only"
+5387234031,1655076250,2022-06-12,derived,0,nagram,"model output, comparison only"
+5396587273,1655076250,2022-06-12,derived,0,nagram,"model output, comparison only"
+5402540458,1656615600,2022-06-30,derived,0,sepiol-fit,"model output, comparison only"
+5409444610,1657520976,2022-07-11,derived,0,sepiol-fit,"model output, comparison only"
+5409444610,1659025020,2022-07-28,derived,0,nagram,"model output, comparison only"
+5416026704,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5442755368,1658534400,2022-07-23,derived,0,sepiol-fit,"model output, comparison only"
+5451256696,1659359794,2022-08-01,derived,0,sepiol-fit,"model output, comparison only"
+5465223076,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5480654757,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5499934702,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5500000000,1685577600,2023-06-01,derived,0,tgidmcp,"model output, comparison only"
+5513192189,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5513192189,1659626400,2022-08-04,derived,0,sepiol-fit,"model output, comparison only"
+5515826405,1659785880,2022-08-06,derived,0,sepiol-fit,"model output, comparison only"
+5522237606,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5537251684,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5537251684,1660014200,2022-08-09,derived,0,sepiol-fit,"model output, comparison only"
+5558980075,1661410165,2022-08-25,derived,0,sepiol-fit,"model output, comparison only"
+5559167331,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5568348673,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5591759222,1659414306,2022-08-02,derived,0,nagram,"model output, comparison only"
+5601951167,1663487260,2022-09-18,derived,0,sepiol-fit,"model output, comparison only"
+5608562550,1662451545,2022-09-06,derived,0,nagram,"model output, comparison only"
+5614111200,1662451545,2022-09-06,derived,0,nagram,"model output, comparison only"
+5627539474,1664251183,2022-09-27,derived,0,sepiol-fit,"model output, comparison only"
+5666819340,1662451545,2022-09-06,derived,0,nagram,"model output, comparison only"
+5684254605,1662451545,2022-09-06,derived,0,nagram,"model output, comparison only"
+5684689868,1662451545,2022-09-06,derived,0,nagram,"model output, comparison only"
+5707112959,1662451545,2022-09-06,derived,0,nagram,"model output, comparison only"
+5731896020,1666171461,2022-10-19,derived,0,sepiol-fit,"model output, comparison only"
+5738347976,1667458776,2022-11-03,derived,0,sepiol-fit,"model output, comparison only"
+5756095415,1662451545,2022-09-06,derived,0,nagram,"model output, comparison only"
+5772670706,1662451545,2022-09-06,derived,0,nagram,"model output, comparison only"
+5778063231,1667477640,2022-11-03,derived,0,nagram,"model output, comparison only"
+5795660441,1667692800,2022-11-06,derived,0,sepiol-fit,"model output, comparison only"
+5802242180,1671821040,2022-12-23,derived,0,nagram,"model output, comparison only"
+5802242180,1671821040,2022-12-23,derived,0,sepiol-fit,"model output, comparison only"
+5802659303,1674050189,2023-01-18,derived,0,sepiol-fit,"model output, comparison only"
+5853442730,1673021900,2023-01-06,derived,0,nagram,"model output, comparison only"
+5859878513,1673021900,2023-01-06,derived,0,nagram,"model output, comparison only"
+5869015726,1674259200,2023-01-21,derived,0,sepiol-fit,"model output, comparison only"
+5869978651,1675348920,2023-02-02,derived,0,sepiol-fit,"model output, comparison only"
+5885964106,1673021900,2023-01-06,derived,0,nagram,"model output, comparison only"
+5891297818,1677003626,2023-02-21,derived,0,sepiol-fit,"model output, comparison only"
+5982648124,1679972788,2023-03-28,derived,0,sepiol-fit,"model output, comparison only"
+5982648124,1681238250,2023-04-11,derived,0,nagram,"model output, comparison only"
+5994561143,1681955599,2023-04-20,derived,0,sepiol-fit,"model output, comparison only"
+6000000000,1693526400,2023-09-01,derived,0,tgidmcp,"model output, comparison only"
+6020888206,1681238250,2023-04-11,derived,0,nagram,"model output, comparison only"
+6032606998,1681598495,2023-04-15,derived,0,nagram,"model output, comparison only"
+6057123350,1681598495,2023-04-15,derived,0,nagram,"model output, comparison only"
+6058560984,1683960986,2023-05-13,derived,0,sepiol-fit,"model output, comparison only"
+6058560984,1684923600,2023-05-24,derived,0,nagram,"model output, comparison only"
+6101607245,1684923600,2023-05-24,derived,0,nagram,"model output, comparison only"
+6108011341,1684923600,2023-05-24,derived,0,nagram,"model output, comparison only"
+6132325730,1689434580,2023-07-15,derived,0,nagram,"model output, comparison only"
+6182056052,1689434580,2023-07-15,derived,0,nagram,"model output, comparison only"
+6279839148,1688257360,2023-07-02,derived,0,sepiol-fit,"model output, comparison only"
+6279839148,1689434580,2023-07-15,derived,0,nagram,"model output, comparison only"
+6306077724,1689872560,2023-07-20,derived,0,sepiol-fit,"model output, comparison only"
+6306077724,1690464840,2023-07-27,derived,0,nagram,"model output, comparison only"
+6321562426,1690464840,2023-07-27,derived,0,nagram,"model output, comparison only"
+6364973680,1692604515,2023-08-21,derived,0,nagram,"model output, comparison only"
+6364973680,1693449233,2023-08-31,derived,0,sepiol-fit,"model output, comparison only"
+6386727079,1692604515,2023-08-21,derived,0,nagram,"model output, comparison only"
+6401027363,1695238926,2023-09-20,derived,0,sepiol-fit,"model output, comparison only"
+6429580803,1692604515,2023-08-21,derived,0,nagram,"model output, comparison only"
+6451891234,1696378491,2023-10-04,derived,0,sepiol-fit,"model output, comparison only"
+6500000000,1704067200,2024-01-01,derived,0,tgidmcp,"model output, comparison only"
+6527226055,1692604515,2023-08-21,derived,0,nagram,"model output, comparison only"
+6536173556,1702430229,2023-12-13,derived,0,sepiol-fit,"model output, comparison only"
+6651640269,1704425047,2024-01-05,derived,0,sepiol-fit,"model output, comparison only"
+6813121418,1698489600,2023-10-28,derived,0,nagram,"model output, comparison only"
+6865576492,1699052400,2023-11-03,derived,0,nagram,"model output, comparison only"
+6872061796,1706360705,2024-01-27,derived,0,sepiol-fit,"model output, comparison only"
+6925870357,1701192327,2023-11-28,derived,0,nagram,"model output, comparison only"
+7000000000,1711889200,2024-03-31,derived,0,nagram,"model output, comparison only"
+7000000000,1711889200,2024-03-31,derived,0,sepiol-fit,"model output, comparison only"
+7000000000,1717200000,2024-06-01,derived,0,tgidmcp,"model output, comparison only"
+7002435197,1712119200,2024-04-03,derived,0,sepiol-fit,"model output, comparison only"
+7078066115,1717503429,2024-06-04,derived,0,sepiol-fit,"model output, comparison only"
+7100000000,1720224000,2024-07-06,derived,0,nagram,"model output, comparison only"
+7191651807,1720927350,2024-07-14,derived,0,sepiol-fit,"model output, comparison only"
+7229898489,1723075200,2024-08-08,derived,0,nagram,"model output, comparison only"
+7243375923,1721260800,2024-07-18,derived,0,sepiol-fit,"model output, comparison only"
+7255466649,1723727100,2024-08-15,derived,0,sepiol-fit,"model output, comparison only"
+7342300216,1724385927,2024-08-23,derived,0,sepiol-fit,"model output, comparison only"
+7450316621,1726743600,2024-09-19,derived,0,sepiol-fit,"model output, comparison only"
+7490725809,1729065600,2024-10-16,derived,0,sepiol-fit,"model output, comparison only"
+7500000000,1733011200,2024-12-01,derived,0,tgidmcp,"model output, comparison only"
+7509628470,1731225000,2024-11-10,derived,0,sepiol-fit,"model output, comparison only"
+7537361651,1733837200,2024-12-10,derived,0,sepiol-fit,"model output, comparison only"
+7600158321,1731225600,2024-11-10,derived,0,nagram,"model output, comparison only"
+7708562823,1735944525,2025-01-03,derived,0,sepiol-fit,"model output, comparison only"
+7817256746,1738419840,2025-02-01,derived,0,sepiol-fit,"model output, comparison only"
+7834356221,1741233600,2025-03-06,derived,0,sepiol-fit,"model output, comparison only"
+7851389063,1731225600,2024-11-10,derived,0,nagram,"model output, comparison only"
+7857659678,1731225600,2024-11-10,derived,0,nagram,"model output, comparison only"
+7884373548,1732233600,2024-11-22,derived,0,nagram,"model output, comparison only"
+7899152800,1743520875,2025-04-01,derived,0,sepiol-fit,"model output, comparison only"
+8060910775,1736294400,2025-01-08,derived,0,nagram,"model output, comparison only"
+8089817806,1736899200,2025-01-15,derived,0,nagram,"model output, comparison only"
+8096580061,1745598708,2025-04-25,derived,0,sepiol-fit,"model output, comparison only"
+8179125032,1752019200,2025-07-09,derived,0,sepiol-fit,"model output, comparison only"
+8200159552,1757362950,2025-09-08,derived,0,sepiol-fit,"model output, comparison only"
+8379482677,1759605750,2025-10-04,derived,0,sepiol-fit,"model output, comparison only"
+8384648263,1760136960,2025-10-10,derived,0,sepiol-fit,"model output, comparison only"
+8454563873,1760304000,2025-10-12,derived,0,nagram,"model output, comparison only"
+8461412540,1760304000,2025-10-12,derived,0,nagram,"model output, comparison only"
+8480708838,1762300800,2025-11-05,derived,0,sepiol-fit,"model output, comparison only"
+8541347308,1763028000,2025-11-13,derived,0,sepiol-fit,"model output, comparison only"
+8587904527,1764543600,2025-11-30,derived,0,sepiol-fit,"model output, comparison only"
+8608772687,1781568000,2026-06-16,derived,0,sepiol-fit,"model output, comparison only"
+8619075604,1782533560,2026-06-27,derived,0,sepiol-fit,"model output, comparison only"
+8662290370,1784985152,2026-07-25,derived,0,sepiol-fit,"model output, comparison only"
+8695922065,1785314402,2026-07-29,derived,0,sepiol-fit,"model output, comparison only"
+8706747990,1785406152,2026-07-30,derived,0,sepiol-fit,"model output, comparison only"
+8890167640,1788264844,2026-09-01,derived,0,sepiol-fit,"model output, comparison only"
+8938841362,1790276790,2026-09-24,derived,0,sepiol-fit,"model output, comparison only"
+8975598483,1792108800,2026-10-16,derived,0,sepiol-fit,"model output, comparison only"

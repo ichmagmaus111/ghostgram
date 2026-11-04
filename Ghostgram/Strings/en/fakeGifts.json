@@ -38,6 +38,14 @@
   "fakeGifts.menu.keywords": "gift gifts fake NFT profile",
   "fakeGifts.menu.list": "My Fake Gifts",
   "fakeGifts.menu.listInfo": "Sender, caption, date, pinning",
+  "fakeGifts.stars.footer": "Only the number on screen changes — payments still use your real Stars.",
+  "fakeGifts.stars.header": "Stars",
+  "fakeGifts.stars.info": "Your own Stars balance instead of the real one — only you see it",
+  "fakeGifts.stars.keywords": "stars balance local",
+  "fakeGifts.stars.placeholder": "Amount",
+  "fakeGifts.stars.promptText": "How many Stars to show. Leave empty for the real balance",
+  "fakeGifts.stars.reset": "Reset Local Stars",
+  "fakeGifts.stars.title": "Local Stars",
   "fakeGifts.toast.added": "The gift was added to your profile",
   "fakeGifts.toast.edit": "Edit"
 }

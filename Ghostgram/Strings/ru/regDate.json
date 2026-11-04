@@ -1,0 +1,20 @@
+{
+  "regDate.age.approximate": "≈ {age}",
+  "regDate.age.lessThanMonth": "меньше месяца",
+  "regDate.age.months#few": "{count} мес.",
+  "regDate.age.months#many": "{count} мес.",
+  "regDate.age.months#one": "{count} мес.",
+  "regDate.age.months#other": "{count} мес.",
+  "regDate.age.years#few": "{count} года",
+  "regDate.age.years#many": "{count} лет",
+  "regDate.age.years#one": "{count} год",
+  "regDate.age.years#other": "{count} года",
+  "regDate.age.yearsMonths": "{years} {months}",
+  "regDate.menu.keywords": "регистрация создание аккаунт возраст дата id",
+  "regDate.menu.subtitle": "Месяц от Telegram, если он его сообщил, иначе оценка по ID и данным на устройстве. Без запросов к сторонним серверам",
+  "regDate.menu.title": "Дата регистрации",
+  "regDate.profile.approximate": "≈ {date}",
+  "regDate.profile.copied": "Скопировано",
+  "regDate.profile.label": "Дата регистрации",
+  "regDate.profile.range": "{from} — {to}"
+}

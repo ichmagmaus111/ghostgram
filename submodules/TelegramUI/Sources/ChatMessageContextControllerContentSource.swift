@@ -24,7 +24,7 @@ final class ChatMessageContextLocationContentSource: ContextLocationContentSourc
     }
     
     func transitionInfo() -> ContextControllerLocationViewInfo? {
-        return ContextControllerLocationViewInfo(location: self.location, contentAreaInScreenSpace: UIScreen.main.bounds)
+        return ContextControllerLocationViewInfo(location: self.location, contentAreaInScreenSpace: mainWindowScreenBounds)
     }
 }
 
@@ -235,7 +235,7 @@ final class ChatViewOnceMessageContextExtractedContentSource: ContextExtractedCo
             if (isIncoming || "".isEmpty) {
                 let messageItem = self.context.sharedContext.makeChatMessagePreviewItem(
                     context: self.context,
-                    messages: [self.message._asMessage()],
+                    messages: [self.message],
                     theme: self.presentationData.theme,
                     strings: self.presentationData.strings,
                     wallpaper: self.presentationData.chatWallpaper,
@@ -254,7 +254,8 @@ final class ChatViewOnceMessageContextExtractedContentSource: ContextExtractedCo
                     isStandalone: true,
                     rank: nil,
                     rankRole: nil,
-                    isGiftMessageComposerPreview: false
+                    isGiftMessageComposerPreview: false,
+                    activateGiftMessageInput: nil
                 )
                 
                 let width = chatNode.historyNode.frame.width

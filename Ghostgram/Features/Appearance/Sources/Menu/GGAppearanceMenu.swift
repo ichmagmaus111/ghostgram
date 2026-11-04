@@ -124,6 +124,10 @@ enum GGAppearanceMenu {
 
         // Stickers.
         GGMenuRegistry.register(section: GGMenuSectionDescriptor(id: GGAppearanceMenu.messagesStickers, screen: .tab(tab), order: 500, header: { GGStrings.Appearance.Stickers.header }))
+        // Live: the emoji and the sticker follow the size slider while it is dragged (2026-11-02).
+        GGMenuRegistry.register(GGMenuRow(id: "appearance.stickers.preview", section: GGAppearanceMenu.messagesStickers, order: 50, title: { "" }, kind: .preview(.custom(height: GGStickerSizePreviewView.height, make: { _ in
+            return GGStickerSizePreviewView(frame: .zero)
+        }))))
         GGMenuRegistry.register(GGMenuRow(id: "appearance.stickers.size", section: GGAppearanceMenu.messagesStickers, order: 100, title: { GGStrings.Appearance.Stickers.size }, kind: .slider(.global(GGAppearanceSettings.stickerSize), range: 50.0 ... 200.0, step: 5.0, format: GGAppearanceMenu.percent)))
         GGMenuRegistry.register(GGMenuRow(id: "appearance.stickers.hideTime", section: GGAppearanceMenu.messagesStickers, order: 200, title: { GGStrings.Appearance.Stickers.hideTime }, kind: .toggle(.global(GGAppearanceSettings.stickerHideTime))))
 

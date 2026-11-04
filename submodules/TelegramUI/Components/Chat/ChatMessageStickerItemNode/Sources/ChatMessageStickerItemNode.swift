@@ -433,8 +433,9 @@ public class ChatMessageStickerItemNode: ChatMessageItemView {
             var textLayoutAndApply: (TextNodeLayout, () -> TextNode)?
             var isEmoji = false
             if item.presentationData.largeEmoji && messageIsEligibleForLargeEmoji(EngineMessage(item.message)) {
-                let attributedText = NSAttributedString(string: item.message.text, font: item.presentationData.messageEmojiFont, textColor: .black)
-                textLayoutAndApply = textLayout(TextNodeLayoutArguments(attributedString: attributedText, backgroundColor: nil, maximumNumberOfLines: 0, truncationType: .end, constrainedSize: CGSize(width: params.width, height: 90.0), alignment: .natural))
+                let emojiFont = ggSticker.scale != 1.0 ? item.presentationData.messageEmojiFont.withSize(floor(item.presentationData.messageEmojiFont.pointSize * ggSticker.scale)) : item.presentationData.messageEmojiFont // GHOST: see ggSticker; emoji drawn as text scale by their font
+                let attributedText = NSAttributedString(string: item.message.text, font: emojiFont, textColor: .black)
+                textLayoutAndApply = textLayout(TextNodeLayoutArguments(attributedString: attributedText, backgroundColor: nil, maximumNumberOfLines: 0, truncationType: .end, constrainedSize: CGSize(width: params.width, height: floor(90.0 * max(1.0, ggSticker.scale))), alignment: .natural))
                 
                 imageSize = CGSize(width: textLayoutAndApply!.0.size.width, height: textLayoutAndApply!.0.size.height)
                 isEmoji = true
@@ -725,6 +726,11 @@ public class ChatMessageStickerItemNode: ChatMessageItemView {
                 }
             }
             
+            // A suspicious sender's buttons are not shown, as their links are not.
+            if item.associatedData.isSuspiciousPeer && item.message.effectivelyIncoming(item.context.account.peerId) {
+                replyMarkup = nil
+            }
+            
             var hasReply = replyMessage != nil || replyForward != nil || replyStory != nil
             if case let .peer(peerId) = item.chatLocation, (peerId == replyMessage?.id.peerId || item.message.threadId == 1), let peer = item.message.peers[item.message.id.peerId], peer.isForumOrMonoForum, item.message.associatedThreadInfo != nil {
                 if let threadId = item.message.threadId, let replyMessage = replyMessage, Int64(replyMessage.id.id) == threadId {
@@ -791,7 +797,7 @@ public class ChatMessageStickerItemNode: ChatMessageItemView {
             
             let contentHeight = max(imageSize.height, layoutConstants.image.minDimensions.height)
             
-            var forwardSource: EngineRawPeer?
+            var forwardSource: EnginePeer?
             var forwardAuthorSignature: String?
             var forwardPsaType: String?
             
@@ -801,12 +807,12 @@ public class ChatMessageStickerItemNode: ChatMessageItemView {
                 forwardPsaType = forwardInfo.psaType
                 
                 let resolvedForwardInfo = chatMessageForwardInfoDisplay(forwardInfo: forwardInfo, messageId: item.message.id, previouslyApplied: currentForwardInfo, peerDisplayTitle: { peer in
-                    return EnginePeer(peer).displayTitle(strings: item.presentationData.strings, displayOrder: item.presentationData.nameDisplayOrder)
+                    return peer.displayTitle(strings: item.presentationData.strings, displayOrder: item.presentationData.nameDisplayOrder)
                 })
                 forwardSource = resolvedForwardInfo.source
                 forwardAuthorSignature = resolvedForwardInfo.authorSignature
                 let availableForwardWidth = max(60.0, availableWidth + 6.0)
-                forwardInfoSizeApply = makeForwardInfoLayout(item.context, item.presentationData, item.presentationData.strings, .standalone, forwardSource.flatMap(EnginePeer.init), forwardAuthorSignature, forwardPsaType == nil ? inlineBotNameString : nil, forwardPsaType, nil, CGSize(width: availableForwardWidth, height: CGFloat.greatestFiniteMagnitude))
+                forwardInfoSizeApply = makeForwardInfoLayout(item.context, item.presentationData, item.presentationData.strings, .standalone, forwardSource, forwardAuthorSignature, forwardPsaType == nil ? inlineBotNameString : nil, forwardPsaType, nil, CGSize(width: availableForwardWidth, height: CGFloat.greatestFiniteMagnitude))
             }
             
             var needsReplyBackground = false

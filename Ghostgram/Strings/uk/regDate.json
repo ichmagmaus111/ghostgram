@@ -1,0 +1,20 @@
+{
+  "regDate.age.approximate": "≈ {age}",
+  "regDate.age.lessThanMonth": "менше місяця",
+  "regDate.age.months#few": "{count} міс.",
+  "regDate.age.months#many": "{count} міс.",
+  "regDate.age.months#one": "{count} міс.",
+  "regDate.age.months#other": "{count} міс.",
+  "regDate.age.years#few": "{count} роки",
+  "regDate.age.years#many": "{count} років",
+  "regDate.age.years#one": "{count} рік",
+  "regDate.age.years#other": "{count} року",
+  "regDate.age.yearsMonths": "{years} {months}",
+  "regDate.menu.keywords": "реєстрація створення акаунт вік дата id",
+  "regDate.menu.subtitle": "Місяць від Telegram, якщо він його повідомив, інакше оцінка за ID і даними на пристрої. Без запитів до сторонніх серверів",
+  "regDate.menu.title": "Дата реєстрації",
+  "regDate.profile.approximate": "≈ {date}",
+  "regDate.profile.copied": "Скопійовано",
+  "regDate.profile.label": "Дата реєстрації",
+  "regDate.profile.range": "{from} — {to}"
+}

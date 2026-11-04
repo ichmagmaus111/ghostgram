@@ -87,8 +87,24 @@ enum GGGhostPeekOnline {
         }
     }
 
+    /// Sets the "Last seen" rule; one `Void` once the server has it. TelegramCore's update completes
+    /// without a value, so anything chained with `mapToSignal` after it never ran: builds up to 199
+    /// let the person in and neither fetched the status nor took them back out.
+    private static func setPresenceRule(context: AccountContext, settings: SelectivePrivacySettings) -> Signal<Void, NoError> {
+        return context.engine.privacy.updateSelectiveAccountPrivacySettings(type: .presence, settings: settings)
+        |> then(.single(Void()))
+    }
+
+    /// Peeks run one at a time (main thread): a second one read while the first had the rule open
+    /// would keep that opened rule as its "original" and restore it, letting the first person in for good.
+    private static var isRunning = false
+    private static let idle = ValuePromise<Bool>(true, ignoreRepeated: true)
+
     private static func fetchPresence(context: AccountContext, peerId: PeerId) -> Signal<Result, NoError> {
+        // Some of its paths complete without a value: the status is read either way.
         return context.engine.peers.fetchAndUpdateCachedPeerData(peerId: peerId)
+        |> then(.single(false))
+        |> take(1)
         |> mapToSignal { _ -> Signal<Result, NoError> in
             return context.engine.data.get(TelegramEngine.EngineData.Item.Peer.Presence(id: peerId))
             |> map { presence -> Result in
@@ -99,6 +115,34 @@ enum GGGhostPeekOnline {
 
     /// Main thread.
     static func peek(context: AccountContext, peerId: PeerId) -> Signal<Result, NoError> {
+        return GGGhostPeekOnline.idle.get()
+        |> filter { $0 }
+        |> take(1)
+        |> deliverOnMainQueue
+        |> mapToSignal { _ -> Signal<Result, NoError> in
+            if GGGhostPeekOnline.isRunning {
+                // Another waiter got here first in the same turn: wait for it too.
+                return GGGhostPeekOnline.peek(context: context, peerId: peerId)
+            }
+            GGGhostPeekOnline.isRunning = true
+            GGGhostPeekOnline.idle.set(false)
+            let finish: () -> Void = {
+                Queue.mainQueue().async {
+                    if GGGhostPeekOnline.isRunning {
+                        GGGhostPeekOnline.isRunning = false
+                        GGGhostPeekOnline.idle.set(true)
+                    }
+                }
+            }
+            return GGGhostPeekOnline.performPeek(context: context, peerId: peerId)
+            |> afterDisposed {
+                finish()
+            }
+        }
+    }
+
+    /// Main thread.
+    private static func performPeek(context: AccountContext, peerId: PeerId) -> Signal<Result, NoError> {
         let account = context.account.id.gg
         return combineLatest(
             context.engine.privacy.requestAccountPrivacySettings() |> take(1),
@@ -120,12 +164,12 @@ enum GGGhostPeekOnline {
             let (opened, added, removed) = GGGhostPeekOnline.opened(original, peer: SelectivePrivacyPeer(peer: peer, participantCount: nil))
             GGGhostSettings.peekRestore.set(GGGhostPeekRestore(peer: peerId.ggKey, addedToAllowed: added, removedFromDisallowed: removed, date: Int32(Date().timeIntervalSince1970)), for: account)
             GGSettingsStore.shared.flush()
-            let restore = context.engine.privacy.updateSelectiveAccountPrivacySettings(type: .presence, settings: original)
+            let restore = GGGhostPeekOnline.setPresenceRule(context: context, settings: original)
             |> deliverOnMainQueue
             |> map { _ -> Void in
                 GGGhostSettings.peekRestore.set(nil, for: account)
             }
-            return context.engine.privacy.updateSelectiveAccountPrivacySettings(type: .presence, settings: opened)
+            return GGGhostPeekOnline.setPresenceRule(context: context, settings: opened)
             |> mapToSignal { _ -> Signal<Result, NoError> in
                 return GGGhostPeekOnline.fetchPresence(context: context, peerId: peerId)
             }
@@ -156,7 +200,7 @@ enum GGGhostPeekOnline {
             if restored == current {
                 update = .single(Void())
             } else {
-                update = context.engine.privacy.updateSelectiveAccountPrivacySettings(type: .presence, settings: restored)
+                update = GGGhostPeekOnline.setPresenceRule(context: context, settings: restored)
             }
             return update
             |> deliverOnMainQueue

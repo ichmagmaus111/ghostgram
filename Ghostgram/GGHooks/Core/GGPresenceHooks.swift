@@ -5,7 +5,8 @@
 import Foundation
 import Postbox
 import SwiftSignalKit
-import TelegramApi
+internal import TelegramApi
+import MtProtoKit
 import GGCore
 
 public struct GGPresenceContext {
@@ -205,11 +206,33 @@ func ggShouldSendSecretContentRead(message: Message, transaction: Transaction) -
 
 /// Reads a feature sends explicitly («Прочитать», «Прочитать на сервере», a kept read sent later).
 /// They bypass `sendReadReceipt` (the user asked for them) and apply the `pts` the server returns,
-/// so the next update does not see a gap and fetch the difference.
+/// so the next update does not see a gap and fetch the difference. The requests live here because
+/// the API layer is TelegramCore's own (`internal import TelegramApi`, `Network.request` internal).
 public enum GGExplicitReadRequests {
-    /// `messages.readHistory` (users and basic groups; channels and topics return no pts).
-    public static func readHistory(account: Account, peer: Api.InputPeer, maxId: Int32) -> Signal<Bool, NoError> {
-        return account.network.request(Api.functions.messages.readHistory(peer: peer, maxId: maxId))
+    /// The chat read on the server up to `maxId`: a forum topic (`threadId`), a monoforum thread
+    /// (`subPeer`), a channel, a user or a basic group. A secret chat is read up to `secretMaxDate`.
+    public static func readHistory(account: Account, peer: Peer, subPeer: Peer?, threadId: Int64?, maxId: Int32, secretMaxDate: Int32) -> Signal<Bool, NoError> {
+        if let secretChat = peer as? TelegramSecretChat {
+            guard secretMaxDate > 0 else {
+                return .single(false)
+            }
+            let inputChat = Api.InputEncryptedChat.inputEncryptedChat(.init(chatId: Int32(truncatingIfNeeded: peer.id.id._internalGetInt64Value()), accessHash: secretChat.accessHash))
+            return ggSucceeded(account.network.request(Api.functions.messages.readEncryptedHistory(peer: inputChat, maxDate: secretMaxDate)))
+        }
+        guard let inputPeer = apiInputPeer(peer) else {
+            return .single(false)
+        }
+        if let threadId {
+            if let subPeer, let subInputPeer = apiInputPeer(subPeer) {
+                return ggSucceeded(account.network.request(Api.functions.messages.readSavedHistory(parentPeer: inputPeer, peer: subInputPeer, maxId: maxId)))
+            }
+            return ggSucceeded(account.network.request(Api.functions.messages.readDiscussion(peer: inputPeer, msgId: Int32(clamping: threadId), readMaxId: maxId)))
+        }
+        if let inputChannel = apiInputChannel(peer) {
+            return ggSucceeded(account.network.request(Api.functions.channels.readHistory(channel: inputChannel, maxId: maxId)))
+        }
+        // `messages.readHistory` (users and basic groups; channels and topics return no pts).
+        return account.network.request(Api.functions.messages.readHistory(peer: inputPeer, maxId: maxId))
         |> map { result -> Bool in
             ggApplyAffectedMessages(account: account, result)
             return true
@@ -219,8 +242,12 @@ public enum GGExplicitReadRequests {
         }
     }
 
-    /// `messages.readMessageContents` (users and basic groups).
-    public static func readMessageContents(account: Account, ids: [Int32]) -> Signal<Bool, NoError> {
+    /// "Listened / opened" for these messages of `peer` (voice, round video, view-once media); nil
+    /// `peer` = a user or a basic group (`messages.readMessageContents`).
+    public static func readMessageContents(account: Account, peer: Peer?, ids: [Int32]) -> Signal<Bool, NoError> {
+        if let peer, let inputChannel = apiInputChannel(peer) {
+            return ggSucceeded(account.network.request(Api.functions.channels.readMessageContents(channel: inputChannel, id: ids)))
+        }
         return account.network.request(Api.functions.messages.readMessageContents(id: ids))
         |> map { result -> Bool in
             ggApplyAffectedMessages(account: account, result)
@@ -230,6 +257,31 @@ public enum GGExplicitReadRequests {
             return .single(false)
         }
     }
+
+    /// A story marked as viewed for its author: `stories.readStories` (up to it) for an active one,
+    /// `stories.incrementStoryViews` for an expired one (open only from the profile).
+    public static func readStory(account: Account, peer: Peer, storyId: Int32, isExpired: Bool) -> Signal<Bool, NoError> {
+        guard let inputPeer = apiInputPeer(peer) else {
+            return .single(false)
+        }
+        if isExpired {
+            return ggSucceeded(account.network.request(Api.functions.stories.incrementStoryViews(peer: inputPeer, id: [storyId])))
+        }
+        return ggSucceeded(account.network.request(Api.functions.stories.readStories(peer: inputPeer, maxId: storyId)))
+    }
+
+    /// One "offline" (`account.updateStatus`).
+    public static func sendOffline(account: Account) -> Signal<Never, NoError> {
+        return account.network.request(Api.functions.account.updateStatus(offline: .boolTrue))
+        |> `catch` { _ -> Signal<Api.Bool, NoError> in .single(.boolFalse) }
+        |> ignoreValues
+    }
+}
+
+private func ggSucceeded<T>(_ signal: Signal<T, MTRpcError>) -> Signal<Bool, NoError> {
+    return signal
+    |> map { _ -> Bool in true }
+    |> `catch` { _ -> Signal<Bool, NoError> in .single(false) }
 }
 
 private func ggApplyAffectedMessages(account: Account, _ result: Api.messages.AffectedMessages) {

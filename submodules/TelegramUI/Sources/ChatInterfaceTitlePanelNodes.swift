@@ -90,7 +90,7 @@ func titlePanelForChatPresentationInterfaceState(_ chatPresentationInterfaceStat
                     } else if GGAppearanceSnapshot.current.hidePinnedMessages {
                         // GHOST: no pinned-message panel (appearance.chatTopBar.hidePinned); other panels still show
                     } else {
-                        if let pinnedMessage = chatPresentationInterfaceState.pinnedMessage, pinnedMessage.topMessageId != chatPresentationInterfaceState.interfaceState.messageActionsState.closedPinnedMessageId, !chatPresentationInterfaceState.pendingUnpinnedAllMessages {
+                        if chatPinnedPanelIsVisible(pinnedMessageTopId: chatPresentationInterfaceState.pinnedMessage?.topMessageId, skeletonId: chatPresentationInterfaceState.pinnedMessageSkeletonId, closedPinnedMessageId: chatPresentationInterfaceState.interfaceState.messageActionsState.closedPinnedMessageId, pendingUnpinnedAllMessages: chatPresentationInterfaceState.pendingUnpinnedAllMessages) {
                             selectedContext = context
                             break loop
                         }

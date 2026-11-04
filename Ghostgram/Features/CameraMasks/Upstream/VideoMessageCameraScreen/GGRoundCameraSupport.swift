@@ -572,13 +572,25 @@ final class GGRoundCameraSupport {
         return GGRoundVideoSettings.sendAsRegularVideo.value
     }
 
-    /// Side of the square the send path declares (and the `.videoMessage` export uses).
-    static func sendSide(_ upstream: Int32) -> Int32 {
-        return Int32(GGRoundVideoConfig.exportSide(CGFloat(upstream)))
-    }
-
     static func saveCopyToGallery(paths: [String], trimRange: Range<Double>?) {
         GGRoundVideoGallerySaver.saveIfEnabled(paths: paths, trimRange: trimRange.map { $0.lowerBound ... $0.upperBound })
+    }
+
+    /// The screen is closing: the zoom slider and the masks controls fade with the rest of it. They
+    /// were left at full opacity, so for as long as the screen was still on its way out they stayed
+    /// over the chat on their own (owner's video, build 199).
+    func animateOut(duration: Double) {
+        var views: [UIView] = []
+        if let slider = self.zoomSlider {
+            views.append(slider)
+        }
+        if let controls = self.cameraExtension?.controlsView {
+            views.append(controls)
+        }
+        for view in views {
+            view.isUserInteractionEnabled = false
+            view.layer.animateAlpha(from: CGFloat(view.layer.presentation()?.opacity ?? Float(view.alpha)), to: 0.0, duration: duration, removeOnCompletion: false)
+        }
     }
 
     func invalidate() {

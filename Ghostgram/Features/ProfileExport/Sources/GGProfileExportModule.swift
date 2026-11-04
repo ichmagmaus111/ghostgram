@@ -13,6 +13,7 @@ public enum GGProfileExportModule {
         assert(Thread.isMainThread)
         GGNickBadgeSettings.declare()
         GGFakeGiftsSettings.declare()
+        GGLocalStars.declare()
         GGChatExportSettings.declare()
         GGFakeGiftsLegacy.registerMigrations()
 
@@ -28,6 +29,8 @@ public enum GGProfileExportModule {
         |> distinctUntilChanged).start(next: { enabled in
             GGFakeGiftsStore.shared.setEnabled(enabled)
         })
+        // Local stars: the Stars balance shown on this device (same tab, own section).
+        GGLocalStars.register()
 
         // Chat export: entry points; temporary trees of old jobs are removed off the main thread.
         GGChatExportMenu.register()

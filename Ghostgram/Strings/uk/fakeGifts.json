@@ -38,6 +38,14 @@
   "fakeGifts.menu.keywords": "подарунок подарунки фейк NFT профіль",
   "fakeGifts.menu.list": "Мої фейкові подарунки",
   "fakeGifts.menu.listInfo": "Відправник, підпис, дата, закріплення",
+  "fakeGifts.stars.footer": "Змінюється лише число на екрані — платити, як і раніше, можна лише справжніми зірками.",
+  "fakeGifts.stars.header": "Зірки",
+  "fakeGifts.stars.info": "Свій баланс Stars замість справжнього — бачиш лише ти",
+  "fakeGifts.stars.keywords": "зірки stars баланс локальні",
+  "fakeGifts.stars.placeholder": "Кількість",
+  "fakeGifts.stars.promptText": "Скільки зірок показувати. Порожнє поле — справжній баланс",
+  "fakeGifts.stars.reset": "Скинути локальні зірки",
+  "fakeGifts.stars.title": "Локальні зірки",
   "fakeGifts.toast.added": "Подарунок додано до вашого профілю",
   "fakeGifts.toast.edit": "Змінити"
 }

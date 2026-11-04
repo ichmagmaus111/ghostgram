@@ -16,7 +16,6 @@ swift_library(
         # GHOST: appearance snapshot, online dot (W2-4)
         "//Ghostgram/Features/Appearance:GGAppearanceSettings",
         "//submodules/PeerOnlineMarkerNode:PeerOnlineMarkerNode",
-        "//submodules/Postbox",
         "//submodules/AsyncDisplayKit",
         "//submodules/Display",
         "//submodules/SSignalKit/SwiftSignalKit",

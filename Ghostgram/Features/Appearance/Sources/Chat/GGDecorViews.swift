@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import AVFoundation
+import CoreMedia
 import SwiftSignalKit
 import Display
 import ComponentFlow
@@ -33,32 +34,60 @@ enum GGSystemState {
     }
 }
 
-/// A muted looping video (the converted animated background). Plays only while it is in a window
-/// and the app is active; the file has no audio track, so the audio session is never touched.
+/// A muted looping video (the converted animated background of the chat and of the own profile header).
+///
+/// Drawn by our own reader, not by `AVPlayer`: `AVAssetReader` hands the compressed frames to an
+/// `AVSampleBufferDisplayLayer` that shows them on its own clock. `AVPlayer.play()` activates the app's
+/// audio session even for a muted file without an audio track, and Telegram's session at rest is not
+/// "mix with others": build 199 stopped SoundCloud the moment the Settings tab with a video banner
+/// appeared. Nothing here touches audio. Plays only while it is in a window and the app is not in the
+/// background.
 final class GGLoopingVideoView: UIView {
     private static let liveViews = NSHashTable<GGLoopingVideoView>.weakObjects()
+    private static var backgroundObserver: NSObjectProtocol?
 
-    /// Called from `GGLifecycleHooks.applicationDidBecomeActive`: players paused by the system in the
-    /// background start again.
+    /// Called from `GGLifecycleHooks.applicationDidBecomeActive`: the clocks stopped for the background
+    /// run again, and a layer whose decoder the system tore down there starts over.
     static func resumeAll() {
         for view in GGLoopingVideoView.liveViews.allObjects {
             view.updatePlayback()
         }
     }
 
-    private let playerLayer = AVPlayerLayer()
-    private var player: AVQueuePlayer?
-    private var looper: AVPlayerLooper?
+    /// The clocks stop in the background: a clock left running would make the reader race through every
+    /// frame it "missed" on return.
+    private static func observeBackgroundIfNeeded() {
+        if GGLoopingVideoView.backgroundObserver != nil {
+            return
+        }
+        GGLoopingVideoView.backgroundObserver = NotificationCenter.default.addObserver(forName: UIApplication.didEnterBackgroundNotification, object: nil, queue: nil, using: { _ in
+            Queue.mainQueue().async {
+                for view in GGLoopingVideoView.liveViews.allObjects {
+                    view.updatePlayback()
+                }
+            }
+        })
+    }
+
+    private let displayLayer = AVSampleBufferDisplayLayer()
+    private var feeder: GGLoopingVideoFeeder?
+    private var timebase: CMTimebase?
     private var currentURL: URL?
     private var currentVersion: Int = 0
+    /// The file that plays: `currentURL` when it exists.
+    private var playableURL: URL?
+    /// The track's orientation (`preferredTransform` without its translation): the layer, unlike
+    /// `AVPlayerLayer`, shows frames as they are stored.
+    private var contentTransform: CGAffineTransform = .identity
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         self.isUserInteractionEnabled = false
         self.clipsToBounds = true
-        self.playerLayer.videoGravity = .resizeAspectFill
-        self.layer.addSublayer(self.playerLayer)
+        self.displayLayer.videoGravity = .resizeAspectFill
+        self.layer.addSublayer(self.displayLayer)
         GGLoopingVideoView.liveViews.add(self)
+        GGLoopingVideoView.observeBackgroundIfNeeded()
     }
 
     required init?(coder: NSCoder) {
@@ -66,14 +95,21 @@ final class GGLoopingVideoView: UIView {
     }
 
     deinit {
-        self.player?.pause()
+        self.feeder?.stop()
     }
 
     override func layoutSubviews() {
         super.layoutSubviews()
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        self.playerLayer.frame = self.bounds
+        let bounds = self.bounds
+        let transform = self.contentTransform
+        // A quarter turn: the layer gets the bounds rotated back, aspect-fills them, and is turned.
+        let swapsAxes = abs(transform.b) > abs(transform.a)
+        self.displayLayer.setAffineTransform(.identity)
+        self.displayLayer.bounds = CGRect(origin: CGPoint(), size: swapsAxes ? CGSize(width: bounds.height, height: bounds.width) : bounds.size)
+        self.displayLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
+        self.displayLayer.setAffineTransform(transform)
         CATransaction.commit()
     }
 
@@ -82,42 +118,283 @@ final class GGLoopingVideoView: UIView {
         self.updatePlayback()
     }
 
-    /// Loads `url` if it is new (`version` changes on every new pick); nil stops and releases the player.
+    /// Loads `url` if it is new (`version` changes on every new pick); nil stops and releases the reader.
     func setVideo(url: URL?, version: Int) {
         if url == self.currentURL && version == self.currentVersion {
             return
         }
         self.currentURL = url
         self.currentVersion = version
-        self.looper?.disableLooping()
-        self.looper = nil
-        self.player?.pause()
-        self.player = nil
-        self.playerLayer.player = nil
-        guard let url, FileManager.default.fileExists(atPath: url.path) else {
-            return
+        self.stopFeeder()
+        self.displayLayer.flushAndRemoveImage()
+        self.contentTransform = .identity
+        self.setNeedsLayout()
+        if let url, FileManager.default.fileExists(atPath: url.path) {
+            self.playableURL = url
+        } else {
+            self.playableURL = nil
         }
-        let item = AVPlayerItem(url: url)
-        let player = AVQueuePlayer()
-        player.isMuted = true
-        player.preventsDisplaySleepDuringVideoPlayback = false
-        player.audiovisualBackgroundPlaybackPolicy = .pauses
-        self.looper = AVPlayerLooper(player: player, templateItem: item)
-        self.player = player
-        self.playerLayer.player = player
         self.updatePlayback()
     }
 
     private func updatePlayback() {
-        guard let player = self.player else {
+        let shouldPlay = self.window != nil && UIApplication.shared.applicationState != .background
+        if shouldPlay && self.playableURL != nil {
+            if self.feeder == nil || self.displayLayer.status == .failed || self.displayLayer.requiresFlushToResumeDecoding {
+                self.startFeeder()
+            }
+        }
+        if let timebase = self.timebase {
+            CMTimebaseSetRate(timebase, rate: shouldPlay ? 1.0 : 0.0)
+        }
+    }
+
+    private func stopFeeder() {
+        self.feeder?.stop()
+        self.feeder = nil
+        if let timebase = self.timebase {
+            CMTimebaseSetRate(timebase, rate: 0.0)
+        }
+    }
+
+    /// From the first frame, on a new clock; also how a layer that failed (decoder lost in the
+    /// background) starts over.
+    private func startFeeder() {
+        self.stopFeeder()
+        self.displayLayer.flush()
+        guard let url = self.playableURL else {
             return
         }
-        let isActive = UIApplication.shared.applicationState != .background
-        if self.window != nil && isActive {
-            player.play()
-        } else {
-            player.pause()
+        var timebase: CMTimebase?
+        CMTimebaseCreateWithSourceClock(allocator: kCFAllocatorDefault, sourceClock: CMClockGetHostTimeClock(), timebaseOut: &timebase)
+        guard let timebase else {
+            return
         }
+        CMTimebaseSetTime(timebase, time: .zero)
+        CMTimebaseSetRate(timebase, rate: 0.0)
+        self.displayLayer.controlTimebase = timebase
+        self.timebase = timebase
+        let feeder = GGLoopingVideoFeeder(url: url, layer: self.displayLayer, timebase: timebase)
+        self.feeder = feeder
+        feeder.start(prepared: { [weak self, weak feeder] transform in
+            guard let self, let feeder, self.feeder === feeder else {
+                return
+            }
+            if self.contentTransform != transform {
+                self.contentTransform = transform
+                self.setNeedsLayout()
+            }
+        })
+    }
+}
+
+/// Reads one video track over and over and feeds its compressed frames to the layer. Each pass is a new
+/// `AVAssetReader`, its frames shifted by the length of the passes before it. State lives on `queue`;
+/// `stop()` is called on main and nothing reaches the layer after it returns. The request for frames
+/// is installed and removed on `queue` only: a view that restarts stops the old feeder before it
+/// starts the new one, so the old removal always runs before the new installation.
+private final class GGLoopingVideoFeeder {
+    private static let queue = DispatchQueue(label: "org.ghostgram.appearance.loopingVideo", qos: .userInitiated)
+
+    private let url: URL
+    private let layer: AVSampleBufferDisplayLayer
+    private let timebase: CMTimebase
+
+    private let stopLock = NSLock()
+    private var isStopped = false
+
+    // `queue` only
+    private var asset: AVURLAsset?
+    private var track: AVAssetTrack?
+    private var reader: AVAssetReader?
+    private var output: AVAssetReaderTrackOutput?
+    private var passOffset: CMTime = .zero
+    private var passEnd: CMTime = .zero
+    private var passSamples = 0
+    private var hasSetClock = false
+
+    init(url: URL, layer: AVSampleBufferDisplayLayer, timebase: CMTimebase) {
+        self.url = url
+        self.layer = layer
+        self.timebase = timebase
+    }
+
+    /// Main thread. `prepared` gets the track's orientation, on main.
+    func start(prepared: @escaping (CGAffineTransform) -> Void) {
+        GGLoopingVideoFeeder.queue.async { [self] in
+            if self.stopped {
+                return
+            }
+            let asset = AVURLAsset(url: self.url)
+            guard let track = asset.tracks(withMediaType: .video).first else {
+                return
+            }
+            self.asset = asset
+            self.track = track
+            let preferred = track.preferredTransform
+            let transform = CGAffineTransform(a: preferred.a, b: preferred.b, c: preferred.c, d: preferred.d, tx: 0.0, ty: 0.0)
+            DispatchQueue.main.async {
+                prepared(transform)
+            }
+            guard self.openPass() else {
+                return
+            }
+            self.layer.requestMediaDataWhenReady(on: GGLoopingVideoFeeder.queue, using: { [weak self] in
+                self?.feed()
+            })
+        }
+    }
+
+    /// Main thread.
+    func stop() {
+        self.stopLock.lock()
+        self.isStopped = true
+        self.stopLock.unlock()
+        GGLoopingVideoFeeder.queue.async {
+            self.layer.stopRequestingMediaData()
+            self.reader?.cancelReading()
+            self.reader = nil
+            self.output = nil
+            self.track = nil
+            self.asset = nil
+        }
+    }
+
+    private var stopped: Bool {
+        self.stopLock.lock()
+        defer {
+            self.stopLock.unlock()
+        }
+        return self.isStopped
+    }
+
+    /// Enqueues unless stopped; under the lock, so `stop()` returning means nothing more arrives.
+    private func enqueue(_ sampleBuffer: CMSampleBuffer) -> Bool {
+        self.stopLock.lock()
+        defer {
+            self.stopLock.unlock()
+        }
+        if self.isStopped {
+            return false
+        }
+        self.layer.enqueue(sampleBuffer)
+        return true
+    }
+
+    private func feed() {
+        while self.layer.isReadyForMoreMediaData {
+            if self.stopped {
+                return
+            }
+            guard let sampleBuffer = self.nextSample() else {
+                // A read error or an empty file: the last frame stays on screen.
+                if !self.stopped {
+                    self.layer.stopRequestingMediaData()
+                }
+                return
+            }
+            if !self.enqueue(sampleBuffer) {
+                return
+            }
+        }
+    }
+
+    private func openPass() -> Bool {
+        guard let asset = self.asset, let track = self.track else {
+            return false
+        }
+        self.reader?.cancelReading()
+        self.reader = nil
+        self.output = nil
+        guard let reader = try? AVAssetReader(asset: asset) else {
+            return false
+        }
+        // No output settings: the frames stay compressed, the layer decodes them.
+        let output = AVAssetReaderTrackOutput(track: track, outputSettings: nil)
+        output.alwaysCopiesSampleData = false
+        guard reader.canAdd(output) else {
+            return false
+        }
+        reader.add(output)
+        guard reader.startReading() else {
+            return false
+        }
+        self.reader = reader
+        self.output = output
+        self.passEnd = .zero
+        self.passSamples = 0
+        return true
+    }
+
+    private func nextSample() -> CMSampleBuffer? {
+        while !self.stopped {
+            if let sampleBuffer = self.output?.copyNextSampleBuffer() {
+                // A marker without samples or a frame without timing is skipped.
+                if CMSampleBufferGetNumSamples(sampleBuffer) == 0 {
+                    continue
+                }
+                if let shifted = self.shifted(sampleBuffer) {
+                    return shifted
+                }
+                continue
+            }
+            // The pass ended. A pass that gave nothing (or failed) ends playback instead of spinning.
+            guard self.reader?.status == .completed, self.passSamples > 0 else {
+                return nil
+            }
+            var length = self.passEnd
+            if let duration = self.track?.timeRange.duration, duration.isNumeric, duration > length {
+                length = duration
+            }
+            guard length.isNumeric, length > .zero else {
+                return nil
+            }
+            self.passOffset = self.passOffset + length
+            guard self.openPass() else {
+                return nil
+            }
+        }
+        return nil
+    }
+
+    /// The frame moved by the passes before it; the pass's end is measured on the way.
+    private func shifted(_ sampleBuffer: CMSampleBuffer) -> CMSampleBuffer? {
+        var count: CMItemCount = 0
+        CMSampleBufferGetSampleTimingInfoArray(sampleBuffer, entryCount: 0, arrayToFill: nil, entriesNeededOut: &count)
+        guard count > 0 else {
+            return nil
+        }
+        var timing = Array(repeating: CMSampleTimingInfo(duration: .invalid, presentationTimeStamp: .invalid, decodeTimeStamp: .invalid), count: count)
+        CMSampleBufferGetSampleTimingInfoArray(sampleBuffer, entryCount: count, arrayToFill: &timing, entriesNeededOut: &count)
+        self.passSamples += 1
+        var firstPresentation: CMTime?
+        for i in 0 ..< timing.count {
+            let presentation = timing[i].presentationTimeStamp
+            if presentation.isNumeric {
+                let end = timing[i].duration.isNumeric ? presentation + timing[i].duration : presentation
+                if end > self.passEnd {
+                    self.passEnd = end
+                }
+                timing[i].presentationTimeStamp = presentation + self.passOffset
+                if firstPresentation == nil {
+                    firstPresentation = timing[i].presentationTimeStamp
+                }
+            }
+            if timing[i].decodeTimeStamp.isNumeric {
+                timing[i].decodeTimeStamp = timing[i].decodeTimeStamp + self.passOffset
+            }
+        }
+        if !self.hasSetClock, let firstPresentation {
+            self.hasSetClock = true
+            // The clock starts at the first frame (an edit list may start the track later than zero).
+            CMTimebaseSetTime(self.timebase, time: firstPresentation)
+        }
+        if self.passOffset == .zero {
+            return sampleBuffer
+        }
+        var result: CMSampleBuffer?
+        CMSampleBufferCreateCopyWithNewTiming(allocator: kCFAllocatorDefault, sampleBuffer: sampleBuffer, sampleTimingEntryCount: count, sampleTimingArray: &timing, sampleBufferOut: &result)
+        return result
     }
 }
 

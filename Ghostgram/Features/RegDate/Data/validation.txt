@@ -1,0 +1,169 @@
+generate.py, data version 1
+points: 460 dated + 19 months (fit), 9 existed-by bounds, derived tables: nagram 133, sepiol-fit 155, tgidmcp 42
+sources in the fit: aayco, exteraless, getids, jobians, jobians-extra, lastochkin, sepiol-k, tdage, wizardloop
+curve: 474 nodes, 315 after compression (tolerance 1.0 d); last node ID 8966578432 at 2026-07-29; growth 2.04 M IDs/day
+
+== outliers dropped from the final fit (leave-one-out residual)
+    660511546 2019-04-15 month residual    +248 d  [sepiol-k]
+   5340744210 2022-10-26 obs   residual    +171 d  [jobians;sepiol-k;wizardloop]
+   5520018289 2024-07-24 obs   residual    +726 d  [lastochkin]
+   5738347976 2023-04-25 obs   residual    +200 d  [jobians;sepiol-k;wizardloop]
+   6944368668 2024-09-12 obs   residual    +248 d  [aayco]
+
+== 10-fold cross-validation x3 (outliers removed inside each training split only)
+   error = |point - date| (0 inside a month label); in range = the date (mid-month) is inside
+   the range the model gave for that ID
+all      n=1437  med=  33.1 d  p80=  76.0 d  p90= 106.9 d  in range= 91.2%  width med=   189 d
+2013-14  n=  57  med=  23.6 d  p80=  48.0 d  p90=  92.2 d  in range= 98.2%  width med=   165 d
+2015     n=  69  med=  29.0 d  p80=  56.5 d  p90=  77.6 d  in range= 87.0%  width med=   159 d
+2016     n=  48  med=  18.9 d  p80=  40.1 d  p90=  49.3 d  in range=100.0%  width med=   123 d
+2017     n=  36  med=  27.1 d  p80=  58.6 d  p90=  60.9 d  in range= 97.2%  width med=   178 d
+2018     n=  42  med=  15.6 d  p80=  57.7 d  p90=  82.8 d  in range= 90.5%  width med=   208 d
+2019     n=  36  med=  63.9 d  p80=  81.8 d  p90= 182.8 d  in range= 77.8%  width med=   199 d
+2020     n=  78  med=  12.8 d  p80=  28.9 d  p90=  66.6 d  in range= 88.5%  width med=   126 d
+2021     n= 102  med=  15.1 d  p80=  31.1 d  p90=  43.7 d  in range= 91.2%  width med=   103 d
+2022     n= 339  med=  26.4 d  p80=  63.2 d  p90=  76.9 d  in range= 89.1%  width med=   160 d
+2023     n= 213  med=  48.4 d  p80=  94.2 d  p90= 107.2 d  in range= 86.9%  width med=   225 d
+2024     n= 219  med=  50.7 d  p80= 104.5 d  p90= 140.7 d  in range= 94.5%  width med=   281 d
+2025     n= 162  med=  74.5 d  p80= 127.2 d  p90= 146.3 d  in range= 94.4%  width med=   345 d
+2026     n=  36  med=  45.0 d  p80=  62.8 d  p90=  74.3 d  in range=100.0%  width med=   217 d
+months   n=  57  med=  20.8 d  p80=  74.3 d  p90=  79.0 d  in range= 89.5%  width med=   184 d
+
+== leave-lineage-out: fit without one lineage, score its points (source comparison)
+classic (getids 2019+)     n=  49  med=  38.6 d  p80=  64.9 d  p90=  92.2 d  in range= 89.8%  width med=   153 d
+    2013-14  n=  10  med=  41.7 d  p80=  92.2 d  p90= 107.9 d  in range= 90.0%  width med=   171 d  bias med    +40 d
+    2015     n=  15  med=  34.3 d  p80=  62.9 d  p90=  65.8 d  in range= 93.3%  width med=   132 d  bias med    -13 d
+    2016     n=  11  med=  16.9 d  p80=  49.0 d  p90=  59.3 d  in range=100.0%  width med=   149 d  bias med    +13 d
+    2017     n=   5  med=  25.0 d  p80=  55.8 d  p90=  55.8 d  in range=100.0%  width med=   149 d  bias med    -24 d
+    2019     n=   1  med= 115.1 d  p80= 115.1 d  p90= 115.1 d  in range=  0.0%  width med=   189 d  bias med   +115 d
+    2021     n=   1  med=  38.6 d  p80=  38.6 d  p90=  38.6 d  in range=100.0%  width med=   104 d  bias med    +39 d
+    2022     n=   1  med=  64.9 d  p80=  64.9 d  p90=  64.9 d  in range=  0.0%  width med=   157 d  bias med    -65 d
+    2023     n=   1  med=  80.4 d  p80=  80.4 d  p90=  80.4 d  in range=100.0%  width med=   189 d  bias med    -80 d
+    2024     n=   1  med= 725.6 d  p80= 725.6 d  p90= 725.6 d  in range=  0.0%  width med=   187 d  bias med   +726 d
+    2025     n=   3  med=  74.2 d  p80= 144.6 d  p90= 144.6 d  in range=100.0%  width med=   300 d  bias med    +74 d
+exteraless/aayco assets    n= 107  med=  40.3 d  p80=  82.8 d  p90= 101.9 d  in range= 89.7%  width med=   206 d
+    2013-14  n=   1  med=  38.3 d  p80=  38.3 d  p90=  38.3 d  in range=100.0%  width med=    95 d  bias med    -38 d
+    2018     n=   4  med=  82.8 d  p80= 162.2 d  p90= 162.2 d  in range= 75.0%  width med=   168 d  bias med    -44 d
+    2019     n=   1  med=  58.8 d  p80=  58.8 d  p90=  58.8 d  in range=100.0%  width med=   158 d  bias med    -59 d
+    2020     n=   6  med=  65.5 d  p80=  76.7 d  p90= 151.7 d  in range= 66.7%  width med=   148 d  bias med    +65 d
+    2021     n=  16  med=  28.2 d  p80=  33.9 d  p90=  41.4 d  in range=100.0%  width med=   124 d  bias med    +15 d
+    2022     n=  31  med=  39.8 d  p80=  60.7 d  p90=  75.3 d  in range= 83.9%  width med=   182 d  bias med     -7 d
+    2023     n=  21  med=  46.9 d  p80=  87.8 d  p90=  94.2 d  in range= 95.2%  width med=   206 d  bias med     -1 d
+    2024     n=  20  med=  52.9 d  p80= 127.6 d  p90= 142.5 d  in range= 90.0%  width med=   259 d  bias med    -48 d
+    2025     n=   7  med=  84.6 d  p80= 127.5 d  p90= 132.5 d  in range=100.0%  width med=   347 d  bias med    -81 d
+jobians (signup notices)   n= 169  med=  48.0 d  p80= 100.8 d  p90= 160.5 d  in range= 73.4%  width med=   162 d
+    2017     n=   1  med=  19.0 d  p80=  19.0 d  p90=  19.0 d  in range=100.0%  width med=   142 d  bias med    -19 d
+    2021     n=   2  med=  14.0 d  p80=  14.0 d  p90=  14.0 d  in range=100.0%  width med=   126 d  bias med     +2 d
+    2022     n=  66  med=  33.4 d  p80=  63.2 d  p90=  93.6 d  in range= 83.3%  width med=   138 d  bias med     +7 d
+    2023     n=  35  med=  48.4 d  p80= 104.8 d  p90= 123.4 d  in range= 65.7%  width med=   160 d  bias med    +23 d
+    2024     n=  34  med=  77.0 d  p80= 139.1 d  p90= 175.0 d  in range= 64.7%  width med=   172 d  bias med    +40 d
+    2025     n=  31  med=  67.4 d  p80= 182.4 d  p90= 216.4 d  in range= 67.7%  width med=   270 d  bias med    +66 d
+sepiol-k only              n= 154  med=  42.2 d  p80=  79.2 d  p90= 131.7 d  in range= 97.4%  width med=   330 d
+    2013-14  n=   8  med=  54.9 d  p80=  92.2 d  p90=  93.0 d  in range=100.0%  width med=   185 d  bias med    +36 d
+    2015     n=   8  med=  32.0 d  p80=  50.7 d  p90= 122.6 d  in range= 87.5%  width med=   176 d  bias med     +3 d
+    2016     n=   5  med=   9.3 d  p80=  42.4 d  p90=  42.4 d  in range=100.0%  width med=   174 d  bias med     -6 d
+    2017     n=   6  med=  48.3 d  p80=  57.9 d  p90=  59.2 d  in range=100.0%  width med=   540 d  bias med    +23 d
+    2018     n=  10  med=  53.7 d  p80=  68.7 d  p90=  80.8 d  in range=100.0%  width med=   540 d  bias med    +54 d
+    2019     n=  10  med=  68.5 d  p80= 144.8 d  p90= 258.2 d  in range= 90.0%  width med=   497 d  bias med    -41 d
+    2020     n=  20  med=  35.6 d  p80=  61.9 d  p90=  75.7 d  in range=100.0%  width med=   497 d  bias med    +14 d
+    2021     n=  15  med=  16.6 d  p80=  47.7 d  p90=  48.7 d  in range= 86.7%  width med=   142 d  bias med     -5 d
+    2022     n=  15  med=  15.2 d  p80=  26.8 d  p90=  34.1 d  in range=100.0%  width med=   195 d  bias med    -10 d
+    2023     n=  14  med=  24.3 d  p80=  79.6 d  p90= 107.8 d  in range=100.0%  width med=   257 d  bias med     -8 d
+    2024     n=  18  med=  53.6 d  p80=  95.0 d  p90= 107.2 d  in range=100.0%  width med=   327 d  bias med    +41 d
+    2025     n=  13  med=  42.2 d  p80= 131.7 d  p90= 142.5 d  in range=100.0%  width med=   400 d  bias med    -12 d
+    2026     n=  12  med= 177.3 d  p80= 218.0 d  p90= 241.0 d  in range=100.0%  width med=   382 d  bias med   +192 d
+
+== other estimators scored on the same observations (their own interpolation, not held out:
+   sepiol-fit and nagram were fitted on most of these points, tgidmcp was not)
+nagram       n= 460  med=  31.2 d  p80=  83.3 d  p90= 120.6 d
+    2013-14  n=  17  med=   0.0 d  p80=  35.5 d  p90=  61.5 d
+    2015     n=  23  med=   7.0 d  p80=  46.7 d  p90=  55.0 d
+    2016     n=  16  med=   0.0 d  p80=  16.3 d  p90=  37.5 d
+    2017     n=  12  med=  30.0 d  p80=  49.2 d  p90=  55.7 d
+    2018     n=  14  med=  46.1 d  p80=  61.3 d  p90=  68.7 d
+    2019     n=  12  med=  84.9 d  p80= 159.6 d  p90= 222.4 d
+    2020     n=  26  med=  30.6 d  p80=  49.4 d  p90=  55.9 d
+    2021     n=  34  med=  13.9 d  p80=  52.8 d  p90= 112.3 d
+    2022     n= 113  med=  30.8 d  p80=  66.7 d  p90=  88.2 d
+    2023     n=  71  med=  28.2 d  p80=  86.7 d  p90= 115.4 d
+    2024     n=  73  med=  44.2 d  p80=  90.4 d  p90= 162.7 d
+    2025     n=  49  med= 102.7 d  p80= 203.7 d  p90= 236.3 d
+sepiol-fit   n= 479  med=  25.6 d  p80=  71.6 d  p90=  96.5 d
+    2013-14  n=  19  med=   6.8 d  p80=  18.9 d  p90=  54.5 d
+    2015     n=  23  med=  13.4 d  p80=  55.4 d  p90=  74.5 d
+    2016     n=  16  med=   4.9 d  p80=  23.0 d  p90=  25.9 d
+    2017     n=  12  med=   9.3 d  p80=  20.1 d  p90=  23.2 d
+    2018     n=  14  med=  12.8 d  p80=  35.0 d  p90= 109.0 d
+    2019     n=  12  med=  34.5 d  p80=  86.1 d  p90=  87.6 d
+    2020     n=  26  med=   0.0 d  p80=  28.3 d  p90=  46.2 d
+    2021     n=  34  med=  19.5 d  p80=  42.4 d  p90=  48.4 d
+    2022     n= 113  med=  28.1 d  p80=  62.7 d  p90=  76.4 d
+    2023     n=  71  med=  45.0 d  p80=  85.1 d  p90= 105.5 d
+    2024     n=  73  med=  39.8 d  p80=  98.4 d  p90= 124.6 d
+    2025     n=  54  med=  56.4 d  p80= 126.0 d  p90= 136.4 d
+    2026     n=  12  med=  32.6 d  p80=  64.2 d  p90=  73.7 d
+tgidmcp      n= 393  med= 131.2 d  p80= 290.1 d  p90= 353.1 d
+    2013-14  n=  19  med=  48.0 d  p80=  78.2 d  p90= 104.0 d
+    2015     n=  23  med= 123.4 d  p80= 158.2 d  p90= 168.5 d
+    2016     n=  16  med= 114.7 d  p80= 167.0 d  p90= 195.0 d
+    2017     n=  12  med= 112.6 d  p80= 151.6 d  p90= 173.4 d
+    2018     n=  14  med=  52.3 d  p80=  66.3 d  p90=  70.6 d
+    2019     n=  12  med=  96.3 d  p80= 122.5 d  p90= 189.6 d
+    2020     n=  26  med=  67.1 d  p80=  91.2 d  p90=  99.1 d
+    2021     n=  34  med= 144.5 d  p80= 192.5 d  p90= 412.0 d
+    2022     n= 113  med= 315.6 d  p80= 371.1 d  p90= 394.9 d
+    2023     n=  71  med= 133.9 d  p80= 169.2 d  p90= 210.4 d
+    2024     n=  52  med=  66.6 d  p80=  91.7 d  p90= 105.9 d
+    2025     n=   1  med= 103.7 d  p80= 103.7 d  p90= 103.7 d
+
+== time split: fit on everything dated before a cutoff, score what came after
+cutoff 2024-01-01: 123/139 test IDs above the last node   n= 139  med= 148.6 d  p80= 246.7 d  p90= 309.7 d  in range= 99.3%  width med=   938 d
+cutoff 2025-01-01:  48/ 66 test IDs above the last node   n=  66  med= 190.3 d  p80= 296.6 d  p90= 356.5 d  in range= 98.5%  width med=   681 d
+cutoff 2025-07-01:  32/ 39 test IDs above the last node   n=  39  med= 190.3 d  p80= 288.9 d  p90= 343.8 d  in range=100.0%  width med=   594 d
+cutoff 2026-01-01:  12/ 12 test IDs above the last node   n=  12  med= 179.2 d  p80= 219.7 d  p90= 242.3 d  in range=100.0%  width med=   390 d
+
+== what the profile row gets from the table alone (final model at every observed ID)
+   precision: month if the range is <= 183 d wide, year otherwise (GGRegDateResolver)
+    2013-14  n=  19  month  47.4%  year  52.6%  width med  223 d  p90  223 d
+    2015     n=  23  month  69.6%  year  30.4%  width med  154 d  p90  246 d
+    2016     n=  16  month 100.0%  year   0.0%  width med  116 d  p90  159 d
+    2017     n=  12  month  25.0%  year  75.0%  width med  186 d  p90  187 d
+    2018     n=  14  month  28.6%  year  71.4%  width med  199 d  p90  247 d
+    2019     n=  12  month   0.0%  year 100.0%  width med  246 d  p90  247 d
+    2020     n=  26  month  88.5%  year  11.5%  width med  110 d  p90  191 d
+    2021     n=  34  month 100.0%  year   0.0%  width med  103 d  p90  108 d
+    2022     n= 113  month  85.0%  year  15.0%  width med  156 d  p90  183 d
+    2023     n=  71  month   5.6%  year  94.4%  width med  231 d  p90  282 d
+    2024     n=  73  month   0.0%  year 100.0%  width med  263 d  p90  397 d
+    2025     n=  54  month  18.5%  year  81.5%  width med  339 d  p90  421 d
+    2026     n=  12  month  16.7%  year  83.3%  width med  187 d  p90  216 d
+    all      n= 479  month  45.3%  year  54.7%  width med  186 d  p90  311 d
+
+== existed-by bounds: the range must start no later than the bound
+  ok     93372553 existed by 2015-06-24: range 2014-12-02..2015-08-05, point 2015-03-12
+  ok   1087968824 existed by 2020-09-30: range 2019-11-13..2020-05-08, point 2020-02-04
+  ok   1271266957 existed by 2020-09-30: range 2020-06-14..2020-09-19, point 2020-07-20
+  ok   8662290370 existed by 2026-10-09: range 2026-02-24..2026-09-28, point 2026-06-15
+  ok   8713587395 existed by 2026-10-10: range 2026-03-28..2026-09-30, point 2026-07-29
+  ok   8736786596 existed by 2026-10-09: range 2026-03-28..2026-09-30, point 2026-07-29
+  ok   8865450032 existed by 2026-10-10: range 2026-03-28..2026-09-30, point 2026-07-29
+  ok   8890167640 existed by 2026-10-09: range 2026-04-29..2026-09-30, point 2026-07-29
+  ok   8892165325 existed by 2026-10-10: range 2026-05-04..2026-09-30, point 2026-07-29
+
+== monotonicity of the inputs: adjacent observations (by ID) whose dates go back
+  more than  30 d back: 123 of 459 pairs
+  more than  90 d back: 45 of 459 pairs
+  more than 180 d back: 14 of 459 pairs
+    2013-14    1 of 18 pairs back by > 30 d
+    2015       4 of 22 pairs back by > 30 d
+    2016       1 of 15 pairs back by > 30 d
+    2017       0 of 10 pairs back by > 30 d
+    2018       1 of 13 pairs back by > 30 d
+    2019       3 of 9 pairs back by > 30 d
+    2020       2 of 19 pairs back by > 30 d
+    2021       3 of 31 pairs back by > 30 d
+    2022      36 of 112 pairs back by > 30 d
+    2023      20 of 69 pairs back by > 30 d
+    2024      24 of 71 pairs back by > 30 d
+    2025      14 of 52 pairs back by > 30 d
+    2026       2 of 6 pairs back by > 30 d

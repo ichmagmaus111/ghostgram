@@ -123,7 +123,12 @@ func ggSettingsTabRefreshing<T>(_ signal: Signal<T, NoError>) -> Signal<T, NoErr
 
 /// The group the profile was opened from (a member's profile opened from a group message).
 func ggPeerInfoSourceChatPeerId(_ interaction: PeerInfoInteraction) -> EnginePeer.Id? {
-    return (interaction.getController() as? PeerInfoScreenImpl)?.controllerNode.sourceMessageId?.peerId
+    return ggPeerInfoSourceMessageId(interaction)?.peerId
+}
+
+/// The message the profile was opened from (a tap on its author), if any.
+func ggPeerInfoSourceMessageId(_ interaction: PeerInfoInteraction) -> EngineMessage.Id? {
+    return (interaction.getController() as? PeerInfoScreenImpl)?.controllerNode.sourceMessageId
 }
 
 /// The point context of a profile's info items; nil before the peer is known.
@@ -131,7 +136,8 @@ func ggPeerInfoContext(data: PeerInfoScreenData, context: AccountContext, intera
     guard let peer = data.peer else {
         return nil
     }
-    return GGPeerInfoContext(context: context, peer: peer, chatPeer: data.chatPeer, isSettings: false, controller: interaction.getController(), sourceChatPeerId: ggPeerInfoSourceChatPeerId(interaction))
+    let sourceMessageId = ggPeerInfoSourceMessageId(interaction)
+    return GGPeerInfoContext(context: context, peer: peer, chatPeer: data.chatPeer, isSettings: false, controller: interaction.getController(), sourceChatPeerId: sourceMessageId?.peerId, sourceMessageId: sourceMessageId, cachedData: data.cachedData)
 }
 
 /// GHOST hook target: `infoItems(...)` in PeerInfoProfileItems.swift — Telegram's items features hide.
@@ -148,6 +154,12 @@ func ggAppendPeerInfoRows(_ items: inout [PeerInfoScreenItem], data: PeerInfoScr
         return
     }
     let rows = GGPeerInfoHooks.rows(context: peerInfoContext)
+    // A comment closes its card (a bot's «Открывая это мини-приложение…» under «Открыть приложение»):
+    // rows after it got the card's background drawn over the comment. They go in front of it.
+    var insertionIndex = items.count
+    while insertionIndex > 0 && items[insertionIndex - 1] is PeerInfoScreenCommentItem {
+        insertionIndex -= 1
+    }
     for row in rows {
         var itemAction: ((ASDisplayNode, Promise<Bool>?) -> Void)?
         if let action = row.action {
@@ -161,9 +173,10 @@ func ggAppendPeerInfoRows(_ items: inout [PeerInfoScreenItem], data: PeerInfoScr
                 longTapAction()
             }
         }
-        items.append(PeerInfoScreenLabeledValueItem(id: "gg.\(row.id)", label: row.label, text: row.text, action: itemAction, longTapAction: itemLongTapAction, requestLayout: { animated in
+        items.insert(PeerInfoScreenLabeledValueItem(id: "gg.\(row.id)", label: row.label, rightLabel: row.rightLabel, text: row.text, action: itemAction, longTapAction: itemLongTapAction, requestLayout: { animated in
             interaction.requestLayout(animated)
-        }))
+        }), at: insertionIndex)
+        insertionIndex += 1
     }
 }
 

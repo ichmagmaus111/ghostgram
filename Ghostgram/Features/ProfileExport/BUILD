@@ -32,6 +32,8 @@ swift_library(
         "//submodules/AlertUI:AlertUI",
         "//submodules/UndoUI:UndoUI",
         "//submodules/ContextUI:ContextUI",
+        # «Локальные звёзды»: the amount is typed into a prompt.
+        "//submodules/PromptUI:PromptUI",
         "//submodules/AppBundle:AppBundle",
         # Badge slot in chat list rows (ChatListItemNode.titleNode) and the profile header
         # (ComponentHostView icons next to the name).

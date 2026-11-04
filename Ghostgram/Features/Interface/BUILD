@@ -98,6 +98,7 @@ swift_library(
         "//submodules/Utils/DeviceModel:DeviceModel",
         "//submodules/TelegramUI/Components/ChatListTitleView:ChatListTitleView",
         "//submodules/TelegramUI/Components/ChatListHeaderComponent:ChatListHeaderComponent",
+        "//submodules/TelegramUI/Components/NavigationBarComponent:NavigationBarComponent",
         "//submodules/TelegramUI/Components/ChatList/ChatListFilterTabContainerNode:ChatListFilterTabContainerNode",
         "//submodules/TelegramUI/Components/TabBarComponent:TabBarComponent",
         "//submodules/TelegramUI/Components/EntityKeyboard:EntityKeyboard",

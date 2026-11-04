@@ -137,6 +137,23 @@ extension GGMiniChatContent {
         ])
     }
 
+    /// A conversation long enough to fill a whole chat screen (`GGFullChatPreviewNode`), localized.
+    /// Its ids (101…) differ from the mini chat's: the status marks are stored by message id.
+    public static func fullSample(header: GGMiniChatHeader? = nil) -> GGMiniChatContent {
+        let peerName = GGStrings.Menu.Preview.peerName
+        let incoming = GGStrings.Menu.Preview.incomingText
+        return GGMiniChatContent(header: header, messages: [
+            GGPreviewMessage(id: 101, isOutgoing: false, text: GGStrings.Menu.Preview.fullChat1, ageSeconds: 7200),
+            GGPreviewMessage(id: 102, isOutgoing: true, text: GGStrings.Menu.Preview.fullChat2, ageSeconds: 7140),
+            GGPreviewMessage(id: 103, isOutgoing: false, text: GGStrings.Menu.Preview.fullChat3, ageSeconds: 7080),
+            GGPreviewMessage(id: 104, isOutgoing: true, text: GGStrings.Menu.Preview.fullChat4, ageSeconds: 7020),
+            GGPreviewMessage(id: 105, isOutgoing: false, text: incoming, ageSeconds: 900),
+            GGPreviewMessage(id: 106, isOutgoing: true, text: GGStrings.Menu.Preview.outgoingText, reply: GGPreviewReply(author: peerName, text: incoming), ageSeconds: 840),
+            GGPreviewMessage(id: 107, isOutgoing: false, text: GGStrings.Menu.Preview.chatListText1, ageSeconds: 300),
+            GGPreviewMessage(id: 108, isOutgoing: true, text: GGStrings.Menu.Preview.pendingText, isUnread: true, ageSeconds: 60)
+        ])
+    }
+
     /// Header with the demo peer «online».
     public static func sampleHeader() -> GGMiniChatHeader {
         return GGMiniChatHeader(peer: .demo(name: GGStrings.Menu.Preview.peerName), status: GGStrings.Menu.Preview.statusOnline, statusIsAccent: true)

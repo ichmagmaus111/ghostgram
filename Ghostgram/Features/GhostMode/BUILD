@@ -25,7 +25,6 @@ swift_library(
         "//submodules/Display:Display",
         "//submodules/AsyncDisplayKit:AsyncDisplayKit",
         # Explicit read receipts and "offline" (HOOKS.md: «Прочитать на сервере» is the zone's own request).
-        "//submodules/TelegramApi:TelegramApi",
         "//submodules/MtProtoKit:MtProtoKit",
         # Exception screens, menu items, toasts and alerts.
         "//submodules/ItemListUI:ItemListUI",

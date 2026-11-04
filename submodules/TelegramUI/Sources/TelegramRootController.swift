@@ -31,6 +31,7 @@ import PeerInfoStoryGridScreen
 import ShareWithPeersScreen
 import ChatEmptyNode
 import GGHooks // GHOST: root and lifecycle points
+import NewsScreen
 
 private class DetailsChatPlaceholderNode: ASDisplayNode, NavigationDetailsPlaceholderNode {
     private var presentationData: PresentationData
@@ -80,6 +81,7 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
     public var callListController: CallListController?
     public var chatListController: ChatListController?
     public var accountSettingsController: PeerInfoScreen?
+    public var newsController: NewsScreen?
     
     private var permissionsDisposable: Disposable?
     private var presentationDataDisposable: Disposable?
@@ -195,7 +197,7 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
         super.containerLayoutUpdated(layout, transition: transition)
     }
     
-    public func addRootControllers(showCallsTab: Bool) {
+    public func addRootControllers(showCallsTab: Bool, showNewsTab: Bool) {
         let tabBarController = TabBarControllerImpl(theme: self.presentationData.theme, strings: self.presentationData.strings)
         tabBarController.navigationPresentation = .master
         let chatListController = self.context.sharedContext.makeChatListController(context: self.context, location: .chatList(groupId: .root), controlsHistoryPreload: true, hideNetworkActivityStatus: false, previewing: false, enableDebugActions: !GlobalExperimentalSettings.isAppStoreBuild)
@@ -203,6 +205,8 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
             chatListController.tabBarItem.badgeValue = sharedContext.switchingData.chatListBadge
         }
         let callListController = CallListController(context: self.context, mode: .tab)
+        // Created even when hidden, like the calls tab: `updateRootControllers` shows and hides it.
+        let newsController = NewsScreen(context: self.context)
         
         var controllers: [ViewController] = []
         
@@ -216,6 +220,9 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
             controllers.append(callListController)
         }
         controllers.append(chatListController)
+        if showNewsTab {
+            controllers.append(newsController)
+        }
         
         var restoreSettignsController: (ViewController & SettingsController)?
         if let sharedContext = self.context.sharedContext as? SharedAccountContextImpl {
@@ -238,10 +245,12 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
         // GHOST: features may reorder, hide or add tabs (GGRootHooks.tabControllers)
         controllers = GGRootHooks.arrangeTabs(controllers, context: GGRootTabContext(context: self.context, contacts: contactsController, calls: showCallsTab ? callListController : nil, chatList: chatListController, settings: accountSettingsController))
                 
-        tabBarController.setControllers(controllers, selectedIndex: GGRootHooks.selectedIndex(controllers, preferred: restoreSettignsController != nil ? accountSettingsController : chatListController, fallback: restoreSettignsController != nil ? (controllers.count - 1) : (controllers.count - 2))) // GHOST: selection after GGRootHooks.tabControllers
+        let chatsIndex = controllers.firstIndex(where: { $0 === chatListController }) ?? 0
+        tabBarController.setControllers(controllers, selectedIndex: GGRootHooks.selectedIndex(controllers, preferred: restoreSettignsController != nil ? accountSettingsController : chatListController, fallback: restoreSettignsController != nil ? (controllers.count - 1) : chatsIndex)) // GHOST: selection after GGRootHooks.tabControllers
         
         self.contactsController = contactsController
         self.callListController = callListController
+        self.newsController = newsController
         self.chatListController = chatListController
         self.accountSettingsController = accountSettingsController
         self.rootTabController = tabBarController
@@ -250,7 +259,7 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
         GGLifecycleHooks.notifyRootControllersDidLoad(context: self.context, navigationController: self)
     }
         
-    public func updateRootControllers(showCallsTab: Bool) {
+    public func updateRootControllers(showCallsTab: Bool, showNewsTab: Bool) {
         guard let rootTabController = self.rootTabController as? TabBarControllerImpl else {
             return
         }
@@ -260,11 +269,19 @@ public final class TelegramRootController: NavigationController, TelegramRootCon
             controllers.append(self.callListController!)
         }
         controllers.append(self.chatListController!)
+        if showNewsTab, let newsController = self.newsController {
+            controllers.append(newsController)
+        }
         controllers.append(self.accountSettingsController!)
         // GHOST: features may reorder, hide or add tabs (GGRootHooks.tabControllers)
         controllers = GGRootHooks.arrangeTabs(controllers, context: GGRootTabContext(context: self.context, contacts: self.contactsController!, calls: showCallsTab ? self.callListController : nil, chatList: self.chatListController!, settings: self.accountSettingsController!))
-        
-        rootTabController.setControllers(controllers, selectedIndex: nil)
+
+        // A removed selected tab would otherwise fall back to index 0 (Contacts): select Chats instead.
+        var selectedIndex: Int?
+        if let currentController = rootTabController.currentController, !controllers.contains(where: { $0 === currentController }) {
+            selectedIndex = controllers.firstIndex(where: { $0 === self.chatListController })
+        }
+        rootTabController.setControllers(controllers, selectedIndex: selectedIndex)
     }
     
     public func openChatsController(activateSearch: Bool, filter: ChatListSearchFilter = .chats, query: String? = nil) {

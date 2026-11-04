@@ -5,7 +5,7 @@
 import Foundation
 import Postbox
 import SwiftSignalKit
-import TelegramApi
+internal import TelegramApi
 import GGCore
 
 public struct GGTextTranslationRequest {

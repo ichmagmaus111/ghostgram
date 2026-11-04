@@ -42,11 +42,6 @@ public enum GGChatListChromeHooks {
     /// Policy: `false` turns off "swipe right to record a story" on the chat list.
     public static let storyCameraSwipe = GGHookPoint<(AccountContext) -> Bool?>("chatListChrome.storyCameraSwipe")
 
-    /// Policy: corner radius of the glass under the header's right buttons, given the ids of the
-    /// buttons on it and the glass height (the account button's avatar shape). nil = Telegram's
-    /// capsule. The first answer wins; it is clamped to half the height.
-    public static let rightButtonsCornerRadius = GGHookPoint<([AnyHashable], CGFloat) -> CGFloat?>("chatListChrome.rightButtonsCornerRadius")
-
     public static func notifyContainerDidLayout(context: AccountContext, node: ASDisplayNode, layout: ContainerViewLayout, navigationBarHeight: CGFloat, transition: ContainedViewLayoutTransition, bottomAccessoryHeight: CGFloat = 0.0, contentView: UIView? = nil) {
         if GGChatListChromeHooks.containerDidLayout.isEmpty {
             return
@@ -65,17 +60,6 @@ public enum GGChatListChromeHooks {
         for handler in GGChatListChromeHooks.navigationBarDidLayout.handlers {
             handler(value)
         }
-    }
-
-    /// Corner radius of the right buttons' glass: Telegram's half height unless a feature answers.
-    public static func rightButtonsGlassCornerRadius(buttonIds: [AnyHashable], height: CGFloat) -> CGFloat {
-        let upstream = height * 0.5
-        for handler in GGChatListChromeHooks.rightButtonsCornerRadius.handlers {
-            if let value = handler(buttonIds, height) {
-                return max(0.0, min(upstream, value))
-            }
-        }
-        return upstream
     }
 
     public static func allowsStoryCameraSwipe(context: AccountContext) -> Bool {

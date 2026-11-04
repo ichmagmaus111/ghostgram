@@ -174,6 +174,13 @@ enum InterfaceSettings {
     /// Action ids switched off by the user (all registered actions show by default once the
     /// master switch is on — the master is the feature toggle and is off by default).
     static let bindButtonsHidden = GGSetting<[String]>("interface.bindButtons.hidden", default: [])
+    /// Where each button stands: action id → [x, y], its centre in the chat's free area, 0…1
+    /// (`GGQuickButtonsLayout`). A button without an entry stands in the column on the right.
+    /// Written by «Расположение и размер» (`GGQuickButtonsEditorController`).
+    static let bindButtonsPositions = GGSetting<[String: [Double]]>("interface.bindButtons.positions", default: [:])
+    /// Size of every button, pt (`GGQuickButtonsLayout.sideRange`).
+    static let bindButtonsWidth = GGSetting<Double>("interface.bindButtons.width", default: GGQuickButtonsLayout.defaultSide)
+    static let bindButtonsHeight = GGSetting<Double>("interface.bindButtons.height", default: GGQuickButtonsLayout.defaultSide)
 
     // MARK: Custom recent reactions (custom_recent_reactions)
 
@@ -265,6 +272,9 @@ enum InterfaceSettings {
 
         let _ = InterfaceSettings.bindButtons
         let _ = InterfaceSettings.bindButtonsHidden
+        let _ = InterfaceSettings.bindButtonsPositions
+        let _ = InterfaceSettings.bindButtonsWidth
+        let _ = InterfaceSettings.bindButtonsHeight
 
         let _ = InterfaceSettings.customReactions
         let _ = InterfaceSettings.customReactionsList

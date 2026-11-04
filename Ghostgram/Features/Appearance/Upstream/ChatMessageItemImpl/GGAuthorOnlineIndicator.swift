@@ -12,7 +12,6 @@ import UIKit
 import AsyncDisplayKit
 import Display
 import SwiftSignalKit
-import Postbox
 import TelegramCore
 import TelegramPresentationData
 import AccountContext
@@ -20,13 +19,13 @@ import PeerOnlineMarkerNode
 import GGAppearanceSettings
 
 final class GGAuthorOnlineIndicator {
-    let peerId: PeerId
+    let peerId: EnginePeer.Id
     private let markerNode: PeerOnlineMarkerNode
     private var disposable: Disposable?
     private var isOnline = false
     private var avatarSize: CGFloat = 0.0
 
-    fileprivate init(context: AccountContext, peerId: PeerId, host: ASDisplayNode, theme: PresentationTheme) {
+    fileprivate init(context: AccountContext, peerId: EnginePeer.Id, host: ASDisplayNode, theme: PresentationTheme) {
         self.peerId = peerId
         self.markerNode = PeerOnlineMarkerNode()
         self.markerNode.setImage(PresentationResourcesChatList.recentStatusOnlineIcon(theme, state: .regular), color: nil, transition: .immediate)
@@ -64,11 +63,11 @@ final class GGAuthorOnlineIndicator {
 }
 
 /// Creates, keeps or drops the indicator of an avatar header. Main thread.
-func ggUpdateAuthorOnlineIndicator(_ current: GGAuthorOnlineIndicator?, host: ASDisplayNode, context: AccountContext, peer: Peer?, theme: PresentationTheme) -> GGAuthorOnlineIndicator? {
+func ggUpdateAuthorOnlineIndicator(_ current: GGAuthorOnlineIndicator?, host: ASDisplayNode, context: AccountContext, peer: EnginePeer?, theme: PresentationTheme) -> GGAuthorOnlineIndicator? {
     guard GGAppearanceSnapshot.current.authorOnlineIndicator, let peer, peer.id.namespace == Namespaces.Peer.CloudUser, peer.id != context.account.peerId else {
         return nil
     }
-    if let user = peer as? TelegramUser, user.botInfo != nil {
+    if case let .user(user) = peer, user.botInfo != nil {
         return nil
     }
     if let current, current.peerId == peer.id {
@@ -83,8 +82,8 @@ private final class GGAuthorPresenceCache {
     static let shared = GGAuthorPresenceCache()
 
     private struct Key: Hashable {
-        let accountPeerId: PeerId
-        let peerId: PeerId
+        let accountPeerId: EnginePeer.Id
+        let peerId: EnginePeer.Id
     }
 
     private final class Entry {
@@ -95,7 +94,7 @@ private final class GGAuthorPresenceCache {
 
     private var entries: [Key: Entry] = [:]
 
-    func online(context: AccountContext, peerId: PeerId) -> Signal<Bool, NoError> {
+    func online(context: AccountContext, peerId: EnginePeer.Id) -> Signal<Bool, NoError> {
         let key = Key(accountPeerId: context.account.peerId, peerId: peerId)
         return Signal { [weak self] subscriber in
             assert(Thread.isMainThread)
@@ -117,13 +116,9 @@ private final class GGAuthorPresenceCache {
                 subscriber.putNext(isOnline)
             })
             if startsView {
-                let viewKey: PostboxViewKey = .peerPresences(peerIds: Set([peerId]))
-                entry.disposable = (context.account.postbox.combinedView(keys: [viewKey])
-                |> map { view -> Int32? in
-                    guard let presences = view.views[viewKey] as? PeerPresencesView, let presence = presences.presences[peerId] as? TelegramUserPresence else {
-                        return nil
-                    }
-                    if case let .present(until) = presence.status {
+                entry.disposable = (context.engine.data.subscribe(TelegramEngine.EngineData.Item.Peer.Presence(id: peerId))
+                |> map { presence -> Int32? in
+                    if let presence, case let .present(until) = presence.status {
                         return until
                     }
                     return nil

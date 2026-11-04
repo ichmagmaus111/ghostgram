@@ -40,6 +40,7 @@ swift_library(
         "//submodules/SettingsUI:SettingsUI",
         "//submodules/ChatListUI:ChatListUI",
         "//submodules/TelegramUI/Components/ChatListHeaderComponent:ChatListHeaderComponent",
+        "//submodules/TelegramUI/Components/NavigationBarComponent:NavigationBarComponent",
         "//submodules/TelegramUI/Components/PeerInfo/AccountPeerContextItem:AccountPeerContextItem",
     ],
     visibility = [

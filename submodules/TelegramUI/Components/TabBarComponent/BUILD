@@ -28,6 +28,7 @@ swift_library(
         "//submodules/AppBundle",
         "//submodules/SearchBarNode",
         "//submodules/TelegramUI/Components/TabSelectionRecognizer",
+        "//submodules/TelegramUI/Components/TabBarLayout",
         # GHOST: hook points
         "//Ghostgram/GGCore:GGCore",
     ],

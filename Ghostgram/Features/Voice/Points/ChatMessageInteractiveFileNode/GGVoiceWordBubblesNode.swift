@@ -2,7 +2,6 @@ import Foundation
 import UIKit
 import AsyncDisplayKit
 import Display
-import Postbox
 import TelegramCore
 import AccountContext
 import TextFormat
@@ -91,7 +90,7 @@ final class GGVoiceWordBubblesNode: ASDisplayNode {
 /// author's name. The source is explicit (the transcription's own selection), so a caption on the voice
 /// message can never turn this into a reply quote of the caption. A reply quote is not used at all: the
 /// server only accepts quotes of the message text, and a transcription is not the message text.
-func ggInsertTranscriptionQuote(controllerInteraction: ChatControllerInteraction, message: Message, text: String) {
+func ggInsertTranscriptionQuote(controllerInteraction: ChatControllerInteraction, message: EngineRawMessage, text: String) {
     let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
     if trimmed.isEmpty {
         return
@@ -119,7 +118,7 @@ func ggInsertTranscriptionQuote(controllerInteraction: ChatControllerInteraction
 extension ChatMessageInteractiveFileNode {
     /// Shows word bubbles when the expanded text is exactly the stored transcription (not a translation)
     /// and words with timings exist for it; removes them otherwise. Main thread, from the layout apply.
-    func ggUpdateWordBubbles(message: Message, shownText: String?, color: UIColor) {
+    func ggUpdateWordBubbles(message: EngineRawMessage, shownText: String?, color: UIColor) {
         var entry: Data?
         if let shownText, GGVoiceTranscription.wordBubblesEnabled, self.textNode.supernode === self.textClippingNode, ggTranscriptionText(of: message) == shownText {
             entry = GGTranscriptionWords.storedEntry(in: message)
@@ -155,7 +154,7 @@ extension ChatMessageInteractiveFileNode {
 }
 
 /// The text stored by the last transcription (either engine).
-private func ggTranscriptionText(of message: Message) -> String? {
+private func ggTranscriptionText(of message: EngineRawMessage) -> String? {
     for attribute in message.attributes {
         if let attribute = attribute as? AudioTranscriptionMessageAttribute, !attribute.text.isEmpty {
             return attribute.text

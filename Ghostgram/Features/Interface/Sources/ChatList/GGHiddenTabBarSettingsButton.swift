@@ -5,7 +5,7 @@ import ComponentFlow
 import TelegramCore
 import AccountContext
 import ChatListUI
-import ChatListHeaderComponent
+import NavigationBarComponent
 import PeerInfoScreen
 import GGHooks
 
@@ -19,12 +19,13 @@ enum GGHiddenTabBarSettingsButton {
             }
             let context = header.context
             var result = buttons
-            result.append(AnyComponentWithIdentity(id: "gg.settings", component: AnyComponent(NavigationButtonComponent(
+            result.append(NavigationBarComponent.Button(
+                id: "gg.settings",
                 content: .icon(imageName: "Chat List/Tabs/IconSettings"),
-                pressed: { _ in
+                action: { _ in
                     GGHiddenTabBarSettingsButton.openSettings(context: context)
                 }
-            ))))
+            ))
             return result
         })
     }

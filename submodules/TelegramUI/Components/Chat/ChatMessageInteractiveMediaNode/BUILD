@@ -14,7 +14,6 @@ swift_library(
         "//Ghostgram/GGHooks:GGHooks",
         "//submodules/AsyncDisplayKit",
         "//submodules/LottieSettings:LottieSettings",
-        "//submodules/Postbox",
         "//submodules/SSignalKit/SwiftSignalKit",
         "//submodules/Display",
         "//submodules/ComponentFlow",

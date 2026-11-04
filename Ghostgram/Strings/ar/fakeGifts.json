@@ -38,6 +38,14 @@
   "fakeGifts.menu.keywords": "هدية هدايا وهمية NFT ملف شخصي",
   "fakeGifts.menu.list": "هداياي الوهمية",
   "fakeGifts.menu.listInfo": "المرسل، التعليق، التاريخ، التثبيت",
+  "fakeGifts.stars.footer": "يتغير الرقم على الشاشة فقط — ما زال الدفع بنجومك الحقيقية فقط.",
+  "fakeGifts.stars.header": "النجوم",
+  "fakeGifts.stars.info": "رصيد نجوم من اختيارك بدل الرصيد الحقيقي — لا يراه سواك",
+  "fakeGifts.stars.keywords": "نجوم رصيد stars محلية",
+  "fakeGifts.stars.placeholder": "العدد",
+  "fakeGifts.stars.promptText": "كم نجمة تُعرض. اترك الحقل فارغًا للرصيد الحقيقي",
+  "fakeGifts.stars.reset": "إعادة تعيين النجوم المحلية",
+  "fakeGifts.stars.title": "نجوم محلية",
   "fakeGifts.toast.added": "تمت إضافة الهدية إلى ملفك الشخصي",
   "fakeGifts.toast.edit": "تعديل"
 }

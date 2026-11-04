@@ -1,4 +1,5 @@
 import Foundation
+import UIKit
 import GGFeaturesShared
 import GGCore
 
@@ -254,6 +255,44 @@ enum InterfaceMigrations {
             }
             if !hidden.isEmpty {
                 InterfaceSettings.bindButtonsHidden.set(hidden)
+            }
+        }
+
+        // The old client's own positions (dragged inside a chat): centres normalized to the whole chat
+        // screen, `{"<type>": {"x": …, "y": …}}`. Converted on a reference screen (402 × 874 pt with
+        // Telegram 13's chat bars) into centres in the free area (GGQuickButtonsLayout), so on any
+        // phone the buttons land proportionally where they stood.
+        GGMigrations.registerGlobal(id: "interface.bindButtons.positions.v1") { legacy in
+            let key = "ghostgram.bindButtons.positions.v1"
+            guard let data = legacy.data(key) else {
+                return
+            }
+            legacy.removeLegacyKey(key)
+            guard let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+                return
+            }
+            let ids: [String: String] = [
+                "ghostMode": GGQuickActionIds.ghostMode,
+                "antiDelete": GGQuickActionIds.deletedMessages,
+                "editHistory": GGQuickActionIds.editedMessages,
+                "scheduledMessages": GGQuickActionIds.sendDelay,
+                "translateBeforeSend": GGQuickActionIds.translateBeforeSend,
+                "scrollToTop": GGQuickActionIds.scrollToTop,
+                "screenshotPrivacy": GGQuickActionIds.screenshotPrivacy
+            ]
+            let screen = CGSize(width: 402.0, height: 874.0)
+            let area = GGQuickButtonsLayout.area(bounds: screen, insets: UIEdgeInsets(top: 122.0, left: 0.0, bottom: 88.0, right: 0.0))
+            let size = GGQuickButtonsLayout.size(width: GGQuickButtonsLayout.defaultSide, height: GGQuickButtonsLayout.defaultSide)
+            var positions: [String: [Double]] = [:]
+            for (oldId, value) in object {
+                guard let id = ids[oldId], let point = value as? [String: Any], let x = (point["x"] as? NSNumber)?.doubleValue, let y = (point["y"] as? NSNumber)?.doubleValue, x.isFinite, y.isFinite else {
+                    continue
+                }
+                let normalized = GGQuickButtonsLayout.normalized(center: CGPoint(x: x * Double(screen.width), y: y * Double(screen.height)), area: area, size: size)
+                positions[id] = [(Double(normalized.x) * 10000.0).rounded() / 10000.0, (Double(normalized.y) * 10000.0).rounded() / 10000.0]
+            }
+            if !positions.isEmpty {
+                InterfaceSettings.bindButtonsPositions.set(positions)
             }
         }
 

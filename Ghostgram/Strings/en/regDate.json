@@ -1,0 +1,16 @@
+{
+  "regDate.age.approximate": "≈ {age}",
+  "regDate.age.lessThanMonth": "under a month",
+  "regDate.age.months#one": "{count} mo",
+  "regDate.age.months#other": "{count} mo",
+  "regDate.age.years#one": "{count} yr",
+  "regDate.age.years#other": "{count} yrs",
+  "regDate.age.yearsMonths": "{years} {months}",
+  "regDate.menu.keywords": "registration created account age date id",
+  "regDate.menu.subtitle": "Telegram's own month when it tells it, otherwise an estimate from the ID and what is on this device. No requests to third-party servers",
+  "regDate.menu.title": "Registration date",
+  "regDate.profile.approximate": "≈ {date}",
+  "regDate.profile.copied": "Copied",
+  "regDate.profile.label": "Registration date",
+  "regDate.profile.range": "{from} — {to}"
+}

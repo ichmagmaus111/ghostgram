@@ -1,6 +1,6 @@
 // Compiled into ChatListUI (filegroup //Ghostgram/GGHooks:ChatListUIHookSources). Chat list
 // points live here because their types are ChatListUI's own (ChatListItemNode, the header's
-// NavigationButtonComponent); features import ChatListUI to register.
+// NavigationBarComponent buttons); features import ChatListUI to register.
 
 import Foundation
 import UIKit
@@ -12,6 +12,7 @@ import TelegramCore
 import TelegramPresentationData
 import AccountContext
 import ChatListHeaderComponent
+import NavigationBarComponent
 import ChatListFilterTabContainerNode
 import ItemListUI
 import GGCore
@@ -56,7 +57,7 @@ public enum GGChatListHooks {
     public static let titleAccessoryWidth = GGHookPoint<(GGChatListRowContext) -> CGFloat>("chatList.titleAccessoryWidth")
 
     /// Transformer of the header's right buttons (account switcher, «read all», Android-style actions).
-    public static let headerRightButtons = GGHookPoint<([AnyComponentWithIdentity<NavigationButtonComponentEnvironment>], GGChatListHeaderContext) -> [AnyComponentWithIdentity<NavigationButtonComponentEnvironment>]>("chatList.headerRightButtons")
+    public static let headerRightButtons = GGHookPoint<([NavigationBarComponent.Button], GGChatListHeaderContext) -> [NavigationBarComponent.Button]>("chatList.headerRightButtons")
 
     /// Transformer of a row's swipe actions (hide «Delete», all of them…). Asked for the right
     /// actions and for the left ones (pin, read) separately.
@@ -174,7 +175,7 @@ func ggChatListRowDidLayout(_ node: ChatListItemNode, item: ChatListItem, avatar
     }
 }
 
-func ggChatListHeaderRightButtons(_ buttons: [AnyComponentWithIdentity<NavigationButtonComponentEnvironment>], context: AccountContext, location: ChatListControllerLocation) -> [AnyComponentWithIdentity<NavigationButtonComponentEnvironment>] {
+func ggChatListHeaderRightButtons(_ buttons: [NavigationBarComponent.Button], context: AccountContext, location: ChatListControllerLocation) -> [NavigationBarComponent.Button] {
     if GGChatListHooks.headerRightButtons.isEmpty {
         return buttons
     }

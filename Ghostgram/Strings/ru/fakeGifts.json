@@ -38,6 +38,14 @@
   "fakeGifts.menu.keywords": "подарок подарки фейк NFT профиль",
   "fakeGifts.menu.list": "Мои фейковые подарки",
   "fakeGifts.menu.listInfo": "Отправитель, подпись, дата, закрепление",
+  "fakeGifts.stars.footer": "Меняется только число на экране — платить по-прежнему можно только настоящими звёздами.",
+  "fakeGifts.stars.header": "Звёзды",
+  "fakeGifts.stars.info": "Свой баланс Stars вместо настоящего — видишь только ты",
+  "fakeGifts.stars.keywords": "звёзды звезды stars баланс локальные",
+  "fakeGifts.stars.placeholder": "Количество",
+  "fakeGifts.stars.promptText": "Сколько звёзд показывать. Пустое поле — настоящий баланс",
+  "fakeGifts.stars.reset": "Сбросить локальные звёзды",
+  "fakeGifts.stars.title": "Локальные звёзды",
   "fakeGifts.toast.added": "Подарок добавлен в ваш профиль",
   "fakeGifts.toast.edit": "Изменить"
 }

@@ -4,7 +4,6 @@ import Display
 import SwiftSignalKit
 import Postbox
 import TelegramCore
-import TelegramApi
 import TelegramPresentationData
 import AccountContext
 import ContextUI
@@ -67,13 +66,7 @@ enum GGKeptMediaMenu {
             return generateTintedImage(image: UIImage(bundleImageName: "Chat/Context Menu/Eye"), color: theme.contextMenu.primaryColor)
         }, action: { _, f in
             f(.default)
-            let _ = (context.account.network.request(Api.functions.messages.readMessageContents(id: [messageId.id]))
-            |> map { _ -> Bool in
-                return true
-            }
-            |> `catch` { _ -> Signal<Bool, NoError> in
-                return .single(false)
-            }
+            let _ = (GGExplicitReadRequests.readMessageContents(account: context.account, peer: nil, ids: [messageId.id])
             |> deliverOnMainQueue).start(next: { success in
                 if success {
                     GGKeptMediaMenu.lock.lock()

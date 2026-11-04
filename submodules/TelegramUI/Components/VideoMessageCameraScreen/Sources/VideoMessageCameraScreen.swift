@@ -37,6 +37,24 @@ import GlassBackgroundComponent
 import GGCore
 import GGCameraPipeline
 
+private func storeUneditedVideoMessage(
+    path: String,
+    hasAdjustments: Bool,
+    liveUploadId: Int64?,
+    store: (Int64, Data) -> Bool
+) -> Int64? {
+    guard !hasAdjustments,
+          let data = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe),
+          !data.isEmpty else {
+        return nil
+    }
+    let id = liveUploadId ?? Int64.random(in: Int64.min ... Int64.max)
+    guard store(id, data) else {
+        return nil
+    }
+    return id
+}
+
 struct CameraState: Equatable {
     enum Recording: Equatable {
         case none
@@ -364,14 +382,14 @@ private final class VideoMessageCameraScreenComponent: CombinedComponent {
             
             if isFrontCamera && isFlashOn {
                 if self.initialBrightness == nil {
-                    self.initialBrightness = UIScreen.main.brightness
-                    self.brightnessArguments = (CACurrentMediaTime(), 0.2, UIScreen.main.brightness, 1.0)
+                    self.initialBrightness = mainWindowScreen.brightness
+                    self.brightnessArguments = (CACurrentMediaTime(), 0.2, mainWindowScreen.brightness, 1.0)
                     self.animateBrightnessChange()
                 }
             } else {
                 if let initialBrightness = self.initialBrightness {
                     self.initialBrightness = nil
-                    self.brightnessArguments = (CACurrentMediaTime(), 0.2, UIScreen.main.brightness, initialBrightness)
+                    self.brightnessArguments = (CACurrentMediaTime(), 0.2, mainWindowScreen.brightness, initialBrightness)
                     self.animateBrightnessChange()
                 }
             }
@@ -391,7 +409,7 @@ private final class VideoMessageCameraScreenComponent: CombinedComponent {
                 let t = CGFloat(max(0.0, min(1.0, (CACurrentMediaTime() - startTime) / duration)))
                 let value = initial + (target - initial) * t
                 
-                UIScreen.main.brightness = value
+                mainWindowScreen.brightness = value
                 
                 if t >= 1.0 {
                     self.brightnessArguments = nil
@@ -494,7 +512,7 @@ private final class VideoMessageCameraScreenComponent: CombinedComponent {
             
             if let initialBrightness = self.initialBrightness {
                 self.initialBrightness = nil
-                self.brightnessArguments = (CACurrentMediaTime(), 0.2, UIScreen.main.brightness, initialBrightness)
+                self.brightnessArguments = (CACurrentMediaTime(), 0.2, mainWindowScreen.brightness, initialBrightness)
                 self.animateBrightnessChange()
             }
         }
@@ -509,7 +527,7 @@ private final class VideoMessageCameraScreenComponent: CombinedComponent {
         func cancelVideoRecording() {
             if let initialBrightness = self.initialBrightness {
                 self.initialBrightness = nil
-                self.brightnessArguments = (CACurrentMediaTime(), 0.2, UIScreen.main.brightness, initialBrightness)
+                self.brightnessArguments = (CACurrentMediaTime(), 0.2, mainWindowScreen.brightness, initialBrightness)
                 self.animateBrightnessChange()
             }
         }
@@ -951,9 +969,23 @@ public class VideoMessageCameraScreen: ViewController {
             self.controller = controller
             self.context = controller.context
             
-            let useModernVideoMessagePipeline = GGRoundCameraSupport.usesModernCamera(upstream: self.context.sharedContext.immediateExperimentalUISettings.useModernVideoMessagePipeline ?? (self.context.getAppConfigValue("ios_killswitch_disable_neo_round_camera_v2") == nil)) // GHOST: not after the Metal camera failed in this run
-            if useModernVideoMessagePipeline {
-                self.cameraImpl = NeoCameraImpl.shared
+            let experimentalSettings = self.context.sharedContext.immediateExperimentalUISettings
+            let useModernVideoMessagePipeline = GGRoundCameraSupport.usesModernCamera(upstream: experimentalSettings.useModernVideoMessagePipeline ?? (self.context.getAppConfigValue("ios_killswitch_disable_neo_round_camera_v2") == nil)) // GHOST: not after the Metal camera failed in this run
+            let mode: NeoCameraImpl.RoundVideoMode?
+            switch useModernVideoMessagePipeline ? experimentalSettings.videoMessageCameraMode : .legacy {
+            case .legacy:
+                mode = nil
+            case .vga:
+                mode = .vga
+            case .hdBilinear:
+                mode = .hdBilinear
+            case .hdLanczos:
+                mode = .hdLanczos
+            }
+            if let mode {
+                self.cameraImpl = NeoCameraImpl(roundVideoMode: mode, log: { message in
+                    Logger.shared.log("CameraNeo", message)
+                })
             } else {
                 self.cameraImpl = LegacyCameraImpl.shared
             }
@@ -974,7 +1006,7 @@ public class VideoMessageCameraScreen: ViewController {
             self.previewContainerView.addSubview(self.previewContainerContentView)
             
             // GHOST: rear camera at start (SG-F4), 60 fps and zoom below 1× without the dual camera, masks
-            let ggSupport = GGRoundCameraSupport(context: controller.context, usesModernCamera: useModernVideoMessagePipeline, present: { [weak controller] c in
+            let ggSupport = GGRoundCameraSupport(context: controller.context, usesModernCamera: mode != nil, present: { [weak controller] c in
                 controller?.view.window?.rootViewController?.present(c, animated: true)
             })
             self.ggSupport = ggSupport
@@ -1135,9 +1167,10 @@ public class VideoMessageCameraScreen: ViewController {
                 guard let self else {
                     return
                 }
+                let positionChanged = self.cameraState.position != position // GHOST: no snapshot for the first report or a flash change
                 self.cameraState = self.cameraState.updatedPosition(position).updatedFlashMode(flashMode)
-                
-                if !self.cameraState.isDualCameraEnabled {
+
+                if !self.cameraState.isDualCameraEnabled && positionChanged {
                     self.animatePositionChange()
                 }
                 
@@ -1164,7 +1197,8 @@ public class VideoMessageCameraScreen: ViewController {
         // the old client recorded round videos; the next screens of this run start with it
         // (GGRoundCameraSupport.usesModernCamera). false = nothing to fall back to.
         fileprivate func ggFallBackToLegacyCamera(error: CameraRecordingError) -> Bool {
-            guard let controller = self.controller, !(self.cameraImpl is LegacyCameraImpl), self.results.isEmpty, self.ggSupport.pendingClipCount == 0, self.previewState == nil else {
+            // Never on a screen that is closing: a late error would start the legacy camera behind the chat.
+            guard let controller = self.controller, !controller.isDismissed, !(self.cameraImpl is LegacyCameraImpl), self.results.isEmpty, self.ggSupport.pendingClipCount == 0, self.previewState == nil else {
                 return false
             }
             Logger.shared.log("VideoMessageCamera", "Metal camera failed (\(error)), falling back to the legacy camera")
@@ -1276,6 +1310,7 @@ public class VideoMessageCameraScreen: ViewController {
 
         func animateOut(completion: @escaping () -> Void) {
             self.camera?.stopCapture(invalidate: true)
+            self.ggSupport.animateOut(duration: 0.15) // GHOST: zoom slider and masks controls fade with the screen
             self.ggSupport.invalidate() // GHOST: stop the masks
                                     
             UIView.animate(withDuration: 0.25, animations: {
@@ -1291,21 +1326,28 @@ public class VideoMessageCameraScreen: ViewController {
         
         private func animatePositionChange() {
             if let snapshotView = self.mainPreviewView.snapshotView(afterScreenUpdates: false) {
+                // GHOST: one snapshot at a time, and each release removes its own. A flip within a second of
+                // the previous snapshot used to replace `previewSnapshotView`, the first release then faded
+                // the new one and the old one stayed over the running camera for good: a frozen (often the
+                // blurred placeholder) circle while the recording went on (owner's video, build 199).
+                self.previewSnapshotView?.removeFromSuperview()
                 self.previewContainerContentView.insertSubview(snapshotView, belowSubview: self.progressView)
                 self.previewSnapshotView = snapshotView
-                
-                let action = { [weak self] in
-                    guard let self else {
+
+                let action = { [weak self, weak snapshotView] in
+                    guard let self, let snapshotView else {
                         return
                     }
                     UIView.animate(withDuration: 0.2, animations: {
-                        self.previewSnapshotView?.alpha = 0.0
+                        snapshotView.alpha = 0.0
                     }, completion: { [weak self] _ in
-                        self?.previewSnapshotView?.removeFromSuperview()
-                        self?.previewSnapshotView = nil
+                        snapshotView.removeFromSuperview()
+                        if self?.previewSnapshotView === snapshotView {
+                            self?.previewSnapshotView = nil
+                        }
                     })
                 }
-                
+
                 // GHOST: with the flip animation the snapshot goes once the new camera runs (the second stays the ceiling)
                 self.ggSupport.holdPositionChangeSnapshot(camera: self.camera, previewView: self.mainPreviewView, release: action)
                 
@@ -1324,7 +1366,9 @@ public class VideoMessageCameraScreen: ViewController {
         
         func resumeCameraCapture() {
             if !self.mainPreviewView.isEnabled {
-                if let snapshotView = self.resultPreviewView?.snapshotView(afterScreenUpdates: false) {
+                let resumeSnapshotView = self.resultPreviewView?.snapshotView(afterScreenUpdates: false) // GHOST: the release below removes this snapshot only (see animatePositionChange)
+                if let snapshotView = resumeSnapshotView {
+                    self.previewSnapshotView?.removeFromSuperview() // GHOST
                     self.previewContainerContentView.insertSubview(snapshotView, belowSubview: self.previewBlurView)
                     self.previewSnapshotView = snapshotView
                 }
@@ -1337,21 +1381,24 @@ public class VideoMessageCameraScreen: ViewController {
                     self.previewBlurView.effect = UIBlurEffect(style: .dark)
                 })
                 
-                let action = { [weak self] in
+                let action = { [weak self, weak resumeSnapshotView] in
                     guard let self else {
                         return
                     }
                     UIView.animate(withDuration: 0.4, animations: {
                         self.previewBlurView.effect = nil
-                        self.previewSnapshotView?.alpha = 0.0
+                        resumeSnapshotView?.alpha = 0.0
                     }, completion: { [weak self] _ in
-                        self?.previewSnapshotView?.removeFromSuperview()
-                        self?.previewSnapshotView = nil
+                        resumeSnapshotView?.removeFromSuperview()
+                        if let self, let resumeSnapshotView, self.previewSnapshotView === resumeSnapshotView {
+                            self.previewSnapshotView = nil
+                        }
                     })
                 }
                 let _ = (self.mainPreviewView.isPreviewing
                 |> filter { $0 }
-                |> take(1)).startStandalone(next: { _ in
+                |> take(1)
+                |> deliverOnMainQueue /* GHOST: the preview layer reports on the capture thread; the release animates views */).startStandalone(next: { _ in
                     action()
                 })
                 
@@ -1659,22 +1706,27 @@ public class VideoMessageCameraScreen: ViewController {
             transition.setBounds(view: self.containerView, bounds: CGRect(origin: .zero, size: backgroundFrame.size))
                         
             let availableHeight = layout.size.height - (layout.inputHeight ?? 0.0)
-            let previewSide = min(369.0, layout.size.width - 24.0)
+            // iPhone Duo: the circle keeps to the band beside the side strip (folded portrait: clear of the status
+            // corner at the strip's top). Equal insets keep it centred on the full width.
+            let previewBandInsets: (left: CGFloat, right: CGFloat) = layout.safeInsets.left != layout.safeInsets.right ? (layout.safeInsets.left, layout.safeInsets.right) : (0.0, 0.0)
+            let previewBandWidth = layout.size.width - previewBandInsets.left - previewBandInsets.right
+            let previewSide = min(369.0, previewBandWidth - 24.0)
             let previewFrame: CGRect
             if layout.metrics.isTablet {
                 // Use the scene this view actually lives in; `connectedScenes` is unordered and a
                 // tablet can have several window scenes.
                 let statusBarOrientation = self.containerView.window?.windowScene?.interfaceOrientation ?? .portrait
                 
+                // The side the circle sits at keeps that side's strip inset too (iPhone Duo's unfolded screen in landscape).
                 if statusBarOrientation == .landscapeLeft {
-                    previewFrame = CGRect(origin: CGPoint(x: layout.size.width - 44.0 - previewSide, y: floorToScreenPixels((layout.size.height - previewSide) / 2.0)), size: CGSize(width: previewSide, height: previewSide))
+                    previewFrame = CGRect(origin: CGPoint(x: layout.size.width - previewBandInsets.right - 44.0 - previewSide, y: floorToScreenPixels((layout.size.height - previewSide) / 2.0)), size: CGSize(width: previewSide, height: previewSide))
                 } else if statusBarOrientation == .landscapeRight {
-                    previewFrame = CGRect(origin: CGPoint(x: 44.0, y: floorToScreenPixels((layout.size.height - previewSide) / 2.0)), size: CGSize(width: previewSide, height: previewSide))
+                    previewFrame = CGRect(origin: CGPoint(x: previewBandInsets.left + 44.0, y: floorToScreenPixels((layout.size.height - previewSide) / 2.0)), size: CGSize(width: previewSide, height: previewSide))
                 } else {
                     previewFrame = CGRect(origin: CGPoint(x: floorToScreenPixels((layout.size.width - previewSide) / 2.0), y: max(layout.statusBarHeight ?? 0.0 + 24.0, availableHeight * 0.2 - previewSide / 2.0)), size: CGSize(width: previewSide, height: previewSide))
                 }
             } else {
-                previewFrame = CGRect(origin: CGPoint(x: floorToScreenPixels((layout.size.width - previewSide) / 2.0), y: max(layout.statusBarHeight ?? 0.0 + 24.0, availableHeight * 0.4 - previewSide / 2.0)), size: CGSize(width: previewSide, height: previewSide))
+                previewFrame = CGRect(origin: CGPoint(x: previewBandInsets.left + floorToScreenPixels((previewBandWidth - previewSide) / 2.0), y: max(layout.statusBarHeight ?? 0.0 + 24.0, availableHeight * 0.4 - previewSide / 2.0)), size: CGSize(width: previewSide, height: previewSide))
             }
             if !self.animatingIn {
                 transition.setFrame(view: self.previewContainerView, frame: previewFrame)
@@ -2077,7 +2129,7 @@ public class VideoMessageCameraScreen: ViewController {
                 finalDuration = duration
             }
             
-            let dimensions = PixelDimensions(width: GGRoundCameraSupport.sendSide(400), height: GGRoundCameraSupport.sendSide(400)) // GHOST: round video resolution
+            let dimensions = video.dimensions
             
             let thumbnailImage: Signal<UIImage, NoError>
             if startTime > 0.0 {
@@ -2166,11 +2218,32 @@ public class VideoMessageCameraScreen: ViewController {
                 } else {
                     liveUploadData = self.node.liveUploadInterface?.fileUpdated(true) as? LegacyLiveUploadInterfaceResult
                 }
-                if !hasAdjustments, let liveUploadData, let data = try? Data(contentsOf: URL(fileURLWithPath: video.videoPath)) {
-                    resource = LocalFileMediaResource(fileId: liveUploadData.id)
-                    self.context.engine.resources.storeResourceData(id: EngineMediaResource.Id(resource.id), data: data, synchronous: true)
+                let outputDimensions: PixelDimensions
+                let storedFileId = storeUneditedVideoMessage(
+                    path: video.videoPath,
+                    hasAdjustments: hasAdjustments,
+                    liveUploadId: liveUploadData?.id,
+                    store: { id, data in
+                        let resourceId = EngineMediaResource.Id(LocalFileMediaResource(fileId: id).id)
+                        self.context.engine.resources.storeResourceData(id: resourceId, data: data, synchronous: true)
+                        guard let path = self.context.engine.resources.completedResourcePath(id: resourceId),
+                              let attributes = try? FileManager.default.attributesOfItem(atPath: path),
+                              let size = attributes[.size] as? NSNumber else {
+                            return false
+                        }
+                        return size.int64Value == Int64(data.count)
+                    }
+                )
+                if let storedFileId {
+                    resource = LocalFileMediaResource(fileId: storedFileId)
+                    outputDimensions = video.dimensions
                 } else {
                     resource = LocalFileVideoMediaResource(randomId: Int64.random(in: Int64.min ... Int64.max), paths: videoPaths, adjustments: resourceAdjustments)
+                    let exportConfiguration = recommendedVideoExportConfiguration(values: values, duration: duration, frameRate: 30.0)
+                    outputDimensions = PixelDimensions(
+                        width: Int32(exportConfiguration.videoSettings[AVVideoWidthKey] as? Int ?? Int(video.dimensions.width)),
+                        height: Int32(exportConfiguration.videoSettings[AVVideoHeightKey] as? Int ?? Int(video.dimensions.height))
+                    )
                 }
                 
                 var previewRepresentations: [TelegramMediaImageRepresentation] = []
@@ -2187,10 +2260,10 @@ public class VideoMessageCameraScreen: ViewController {
                     EngineTempBox.shared.dispose(tempFile)
                 }
                 if let data = compressImageToJPEG(thumbnailImage, quality: 0.7, tempFilePath: tempFile.path) {
-                    context.account.postbox.mediaBox.storeCachedResourceRepresentation(resource, representation: CachedVideoFirstFrameRepresentation(), data: data)
+                    context.engine.resources.storeCachedRepresentation(resource: EngineMediaResource(resource), representation: CachedVideoFirstFrameRepresentation(), data: data)
                 }
 
-                let media = TelegramMediaFile(fileId: EngineMedia.Id(namespace: Namespaces.Media.LocalFile, id: Int64.random(in: Int64.min ... Int64.max)), partialReference: nil, resource: resource, previewRepresentations: previewRepresentations, videoThumbnails: [], immediateThumbnailData: nil, mimeType: "video/mp4", size: nil, attributes: [.FileName(fileName: "video.mp4"), .Video(duration: finalDuration, size: video.dimensions, flags: GGRoundCameraSupport.sendsAsRegularVideo ? [] : [.instantRoundVideo] /* GHOST: «send as an ordinary video» */, preloadSize: nil, coverTime: nil, videoCodec: nil)], alternativeRepresentations: [])
+                let media = TelegramMediaFile(fileId: EngineMedia.Id(namespace: Namespaces.Media.LocalFile, id: Int64.random(in: Int64.min ... Int64.max)), partialReference: nil, resource: resource, previewRepresentations: previewRepresentations, videoThumbnails: [], immediateThumbnailData: nil, mimeType: "video/mp4", size: nil, attributes: [.FileName(fileName: "video.mp4"), .Video(duration: finalDuration, size: outputDimensions, flags: GGRoundCameraSupport.sendsAsRegularVideo ? [] : [.instantRoundVideo] /* GHOST: «send as an ordinary video» */, preloadSize: nil, coverTime: nil, videoCodec: nil)], alternativeRepresentations: [])
                 
                 var attributes: [EngineMessage.Attribute] = []
                 if self.cameraState.isViewOnceEnabled {
